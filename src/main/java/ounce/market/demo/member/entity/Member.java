@@ -7,7 +7,7 @@ import ounce.market.demo.notification.entity.Notification;
 
 @Entity
 @Getter
-@NoArgsConstructor()
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Member extends BaseEntity {
@@ -27,4 +27,6 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private int point;
 
+    @Column(nullable = false)
+    private String name;
 }
