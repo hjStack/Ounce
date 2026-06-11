@@ -11,7 +11,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long cartId;
 
-    @OneToOne(fetch = FetchType.LAZY) // 🔥 잊지않고 LAZY 추가!
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 

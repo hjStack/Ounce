@@ -1,0 +1,31 @@
+services:
+  ounce:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Mickey51799@@
+      MYSQL_DATABASE : Ounce
+    ports:
+      - 3306:3306
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping"]
+      interval: 5s
+      retries: 10
+
+  app-blue:
+    build: .
+    image: ounce:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      ounce:
+        condition: service_healthy
+
+  app-green:
+    build: .
+    image: ounce:latest
+    ports:
+      - 8081:8080
+    depends_on:
+        ounce:
+          condition: service_healthy

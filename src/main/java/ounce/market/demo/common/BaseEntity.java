@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 // created_at, updated_at 공통 클래스
 @Getter
-@MappedSuperclass
+@MappedSuperclass   // 공통 매핑 정보
 @EntityListeners(AuditingEntityListener.class)
 // JPA의 엔티티의 변경 이벤트를 감지하여 특정 동작을 수행하는 리스너를 연결하는데 사용
 
