@@ -2,7 +2,7 @@ name: Ounce CI/CD 무중단 배포 🚀
 
 on:
   push:
-    branches: [ "main","feature/" ] # 🔥 main 브랜치에 코드가 푸시될 때만 이 로봇이 깨어납니다.
+    branches: [ "main","feature/**" ] # 🔥 main 브랜치에 코드가 푸시될 때만 이 로봇이 깨어납니다.
 
 jobs:
   build-and-deploy:
