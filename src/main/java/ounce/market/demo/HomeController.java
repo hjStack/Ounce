@@ -10,6 +10,6 @@ public class HomeController {
 
     @GetMapping("/")
     public ApiResponse<String> healthCheck() {
-        return ApiResponse.success("Ounce 서버는 완벽하게 작동합니다");
+        return ApiResponse.success("Ounce 서버는 완벽하게 작동합니다 🔥");
     }
 }
