@@ -1,12 +1,18 @@
 package ounce.market.demo.order.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ounce.market.demo.delivery.entity.Delivery;
 import ounce.market.demo.common.BaseEntity;
 import ounce.market.demo.member.entity.Member;
 
 @Entity
+@Getter
 @Table(name = "orders")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
     @Id
@@ -26,4 +32,19 @@ public class Order extends BaseEntity {
     // 🔥 cascade를 걸어두면 주문 저장 시 배송도 자동으로 한 방에 세이브됩니다!
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Delivery delivery;
+
+    @Builder
+    public Order(int totalAmount, Member member, OrderStatus status) {
+        this.totalAmount = totalAmount;
+        this.member = member;
+        this.status = status;
+    }
+
+    public void complete() {
+        this.status = OrderStatus.PAYMENT_COMPLETED;
+    }
+
+    public void cancel() {
+        this.status = OrderStatus.CANCELED;
+    }
 }
