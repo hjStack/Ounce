@@ -1,10 +1,15 @@
 package ounce.market.demo.product.entity;
 
 import jakarta.persistence.*;
-import ounce.market.demo.cart.entity.Cart;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ounce.market.demo.common.BaseEntity;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
     @Id
@@ -22,4 +27,18 @@ public class Product extends BaseEntity {
 
     private String description;
     private String imageUrl;
+
+    @Builder
+    public Product(String productCode, String name, int basePrice, String description, String imageUrl) {
+        this.productCode = productCode;
+        this.name = name;
+        this.basePrice = basePrice;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.status = ProductStatus.PREPARING;
+    }
+
+    public void changeStatus(ProductStatus status) {
+        this.status = status;
+    }
 }

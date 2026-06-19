@@ -2,6 +2,7 @@ package ounce.market.demo.payment.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.common.BaseEntity;
@@ -11,6 +12,7 @@ import ounce.market.demo.order.entity.Order;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Payment extends BaseEntity {
 
     @Id

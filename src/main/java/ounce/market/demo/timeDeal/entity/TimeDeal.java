@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import ounce.market.demo.common.BaseEntity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.product.entity.Product;
@@ -40,4 +41,36 @@ public class TimeDeal extends BaseEntity {
 
     @Column(nullable = false)
     private int maxPurchaseLimit; // 타임딜용 한정 수량 (예: 선착순 100개!)
+
+    @Builder
+    public TimeDeal(Product product, int discountRate, LocalDateTime startTime, LocalDateTime endTime, int maxPurchaseLimit) {
+        this.product = product;
+        this.discountRate = discountRate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.maxPurchaseLimit = maxPurchaseLimit;
+        this.status = DealStatus.READY;
+    }
+
+    public boolean isInProgress(LocalDateTime now) {
+        return this.status == DealStatus.IN_PROGRESS
+                && !now.isBefore(this.startTime)
+                && now.isBefore(this.endTime);
+    }
+
+    public void open() {
+        this.status = DealStatus.IN_PROGRESS;
+    }
+
+    public void markSoldOut() {
+        this.status = DealStatus.SOLD_OUT;
+    }
+
+    public void close() {
+        this.status = DealStatus.CLOSED;
+    }
+
+    public int discountedPrice(int basePrice) {
+        return basePrice * (100 - this.discountRate) / 100;
+    }
 }
