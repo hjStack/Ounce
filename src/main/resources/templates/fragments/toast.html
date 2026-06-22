@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="toast(message, type)" th:if="${message}"
+     th:class="${'fixed top-24 left-1/2 -translate-x-1/2 z-[60] px-6 py-3 rounded-lg shadow-lg text-sm font-medium text-white ' + (type == 'error' ? 'bg-accent-500' : 'bg-primary-500')}"
+     id="app-toast">
+    <div class="flex items-center gap-2">
+        <i th:class="${type == 'error' ? 'ri-error-warning-line text-lg' : 'ri-check-line text-lg'}"></i>
+        <span th:text="${message}"></span>
+    </div>
+</div>
+
+<script th:if="${message}" th:inline="none">
+    document.addEventListener('DOMContentLoaded', function () {
+        var toast = document.getElementById('app-toast');
+        if (toast) {
+            setTimeout(function () {
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 3000);
+        }
+    });
+</script>
+
+</body>
+</html>
