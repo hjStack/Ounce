@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<div th:fragment="productCard(product)" class="group rounded-lg border border-background-200 overflow-hidden hover:border-background-300 transition-colors">
+<div th:fragment="productCard(product, redirectTo)" class="group rounded-lg border border-background-200 overflow-hidden hover:border-background-300 transition-colors">
     <div class="relative aspect-square bg-background-100 overflow-hidden">
         <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"/>
         <span th:if="${product.status.name() == 'TIME_DEAL'}"
@@ -11,8 +11,18 @@
     <div class="p-4">
         <h3 class="text-sm font-medium text-foreground-950 truncate" th:text="${product.name}">상품명</h3>
         <p class="text-xs text-foreground-500 mt-1 truncate" th:text="${product.description}">상품 설명</p>
-        <p class="text-sm font-bold text-foreground-950 mt-2"
-           th:text="${#numbers.formatInteger(product.basePrice,0,'COMMA')} + '원'">0원</p>
+        <div class="flex items-center justify-between mt-2">
+            <p class="text-sm font-bold text-foreground-950"
+               th:text="${#numbers.formatInteger(product.basePrice,0,'COMMA')} + '원'">0원</p>
+            <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" name="productId" th:value="${product.productId}"/>
+                <input type="hidden" name="redirectTo" th:value="${redirectTo}"/>
+                <button type="submit"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 text-white transition-colors cursor-pointer">
+                    <i class="ri-add-line text-sm"></i>
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
