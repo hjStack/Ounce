@@ -4,3 +4,10 @@ target/
 .DS_Store
 .mvn/wrapper/maven-wrapper.jar
 *.log
+
+nginx/nginx.conf
+
+.openclawignore
+
+docker-compose.yml
+Dockerfile
