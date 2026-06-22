@@ -3,6 +3,7 @@ package ounce.market.demo.web;
 import lombok.RequiredArgsConstructor;
 import ounce.market.demo.product.entity.ProductStatus;
 import ounce.market.demo.product.repository.ProductRepository;
+import ounce.market.demo.web.dto.HomeCategoryView;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,11 @@ public class HomeController {
 
         model.addAttribute("isLoggedIn", false);
         model.addAttribute("products", products);
+        model.addAttribute("categories", List.of(
+                new HomeCategoryView(1, "신선채소", "오늘 수확한\n제철 채소", false, "https://placehold.co/600x800?text=Vegetables"),
+                new HomeCategoryView(2, "유제품·델리", "매일 아침\n신선 유제품", false, "https://placehold.co/600x800?text=Dairy"),
+                new HomeCategoryView(3, "미드나이트", "오늘 밤 10시\n타임딜 오픈", true, null)
+        ));
         model.addAttribute("footerLinks", List.of(
                 Map.of("title", "쇼핑", "links", List.of("전체 상품", "타임딜", "베스트", "신상품")),
                 Map.of("title", "고객센터", "links", List.of("공지사항", "1:1 문의", "자주 묻는 질문")),

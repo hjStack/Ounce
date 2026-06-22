@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<section th:fragment="dailyDeals(categories)" class="w-full bg-background-100 py-20 md:py-28">
+    <div class="w-full px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+        <!-- Title Area -->
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-20">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-px bg-accent-500"></div>
+                    <span class="text-accent-500 text-xs font-medium tracking-widest uppercase">Curation</span>
+                </div>
+                <h2 class="font-heading text-foreground-950 text-4xl md:text-5xl font-semibold leading-tight">
+                    이번 주 <span class="italic font-normal">큐레이션</span>
+                </h2>
+            </div>
+            <p class="text-foreground-500 text-sm leading-relaxed max-w-xs">
+                Ounce 큐레이터가 엄선한 이번 주의 제철 식재료를 만나보세요
+            </p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+            <div th:each="cat : ${categories}"
+                 th:class="${'relative rounded-xl overflow-hidden cursor-pointer group min-h-[360px] md:min-h-[440px] ' + (cat.isTimer ? 'bg-foreground-950' : 'bg-background-200')}">
+
+                <img th:if="${cat.image}" th:src="${cat.image}" th:alt="${cat.title}"
+                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"/>
+
+                <div th:if="${cat.isTimer}" class="absolute inset-0 bg-gradient-to-br from-foreground-950 via-foreground-900 to-foreground-950"></div>
+
+                <div th:class="${'absolute inset-0 ' + (cat.isTimer ? 'bg-gradient-to-t from-black/80 via-black/40 to-transparent' : 'bg-gradient-to-t from-black/60 via-black/10 to-transparent')}"></div>
+
+                <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    <span th:class="${'inline-block px-3 py-1 rounded-sm text-xs font-medium tracking-wide mb-3 ' + (cat.isTimer ? 'bg-accent-500 text-white' : 'bg-background-50/90 text-foreground-800 backdrop-blur-sm')}"
+                          th:text="${cat.label}">라벨</span>
+                    <h3 class="text-white font-heading text-xl md:text-2xl font-semibold leading-snug whitespace-pre-line" th:text="${cat.title}">제목</h3>
+
+                    <div th:if="${cat.isTimer}" class="mt-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="ri-moon-line text-accent-400 text-sm"></i>
+                            <span class="text-white/50 text-xs">자정까지 남은 시간</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-white countdown-timer">
+                            <div class="flex flex-col items-center">
+                                <span class="text-2xl md:text-3xl font-heading font-semibold countdown-hours">00</span>
+                                <span class="text-xs text-white/50 mt-1">시간</span>
+                            </div>
+                            <span class="text-xl font-light text-white/30">:</span>
+                            <div class="flex flex-col items-center">
+                                <span class="text-2xl md:text-3xl font-heading font-semibold countdown-minutes">00</span>
+                                <span class="text-xs text-white/50 mt-1">분</span>
+                            </div>
+                            <span class="text-xl font-light text-white/30">:</span>
+                            <div class="flex flex-col items-center">
+                                <span class="text-2xl md:text-3xl font-heading font-semibold countdown-seconds">00</span>
+                                <span class="text-xs text-white/50 mt-1">초</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script th:inline="none">
+    document.addEventListener('DOMContentLoaded', function () {
+        var timer = document.querySelector('.countdown-timer');
+        if (!timer) return;
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        var tick = function () {
+            var now = new Date();
+            var midnight = new Date(now);
+            midnight.setHours(24, 0, 0, 0);
+            var diff = Math.max(0, midnight.getTime() - now.getTime());
+            var totalSeconds = Math.floor(diff / 1000);
+            timer.querySelector('.countdown-hours').textContent = pad(Math.floor(totalSeconds / 3600));
+            timer.querySelector('.countdown-minutes').textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+            timer.querySelector('.countdown-seconds').textContent = pad(totalSeconds % 60);
+        };
+        tick();
+        setInterval(tick, 1000);
+    });
+</script>
+
+</body>
+</html>

@@ -14,7 +14,9 @@
         </div>
 
         <div th:unless="${#lists.isEmpty(products)}" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            <div th:each="product : ${products}" th:replace="~{fragments/product-card :: productCard(${product})}"></div>
+            <th:block th:each="p : ${products}">
+                <div th:replace="~{fragments/product-card :: productCard(${p}, '/products')}"></div>
+            </th:block>
         </div>
     </section>
 </main>
