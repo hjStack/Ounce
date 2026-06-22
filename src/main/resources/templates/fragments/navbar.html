@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-50/95 backdrop-blur-md border-b border-background-200/50">
+    <div class="w-full px-4 md:px-8 lg:px-12">
+        <div class="flex items-center justify-between h-20 md:h-24">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2">
+                <span class="text-xl md:text-2xl font-semibold font-heading text-foreground-950 tracking-tight">Ounce</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="/" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">Ounce</a>
+                <a href="/timedeal" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">미드나이트</a>
+                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">큐레이션</a>
+                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">베스트</a>
+            </div>
+
+            <!-- Desktop Actions -->
+            <div class="hidden md:flex items-center gap-4">
+                <div th:if="${isLoggedIn}" class="relative" id="user-menu-wrap">
+                    <button id="user-menu-btn" class="flex items-center gap-2 text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors cursor-pointer">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold"
+                             th:text="${currentUser != null ? #strings.substring(currentUser.name,0,1) : 'U'}">U</div>
+                        <span class="whitespace-nowrap" th:text="${currentUser?.name + '님'}">사용자님</span>
+                        <i class="ri-arrow-down-s-line text-sm"></i>
+                    </button>
+                    <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-44 bg-background-50 border border-background-200/70 rounded-lg overflow-hidden z-50">
+                        <a href="/account" class="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
+                            <i class="ri-user-line"></i> 내 계정
+                        </a>
+                        <a href="/orders" class="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
+                            <i class="ri-file-list-3-line"></i> 주문 내역
+                        </a>
+                        <hr class="border-background-200/70"/>
+                        <form action="/logout" method="post">
+                            <button type="submit" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-accent-500 hover:bg-accent-50 transition-colors text-left cursor-pointer">
+                                <i class="ri-logout-box-r-line"></i> 로그아웃
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <a th:unless="${isLoggedIn}" href="/login" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">로그인</a>
+
+                <a href="/cart" class="relative w-10 h-10 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 transition-colors">
+                    <i class="ri-shopping-cart-line text-white text-lg"></i>
+                </a>
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button id="mobile-menu-btn" class="md:hidden w-10 h-10 flex items-center justify-center">
+                <i class="ri-menu-line text-2xl text-foreground-950"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200">
+        <div class="px-4 py-4 flex flex-col gap-3">
+            <a href="/" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">Ounce</a>
+            <a href="/timedeal" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">미드나이트</a>
+            <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">큐레이션</a>
+            <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">베스트</a>
+            <hr class="border-background-200"/>
+            <a th:unless="${isLoggedIn}" href="/login" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">로그인</a>
+            <a th:if="${isLoggedIn}" href="/account" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">내 계정</a>
+            <a href="/cart" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2 flex items-center gap-2">
+                <i class="ri-shopping-cart-line"></i> 장바구니
+            </a>
+        </div>
+    </div>
+</nav>
+
+<script th:inline="none">
+    document.addEventListener('DOMContentLoaded', function () {
+        var mobileBtn = document.getElementById('mobile-menu-btn');
+        var mobileMenu = document.getElementById('mobile-menu');
+        if (mobileBtn && mobileMenu) {
+            mobileBtn.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+        var userBtn = document.getElementById('user-menu-btn');
+        var userMenu = document.getElementById('user-menu');
+        if (userBtn && userMenu) {
+            userBtn.addEventListener('click', function () {
+                userMenu.classList.toggle('hidden');
+            });
+            document.addEventListener('click', function (e) {
+                if (!userBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

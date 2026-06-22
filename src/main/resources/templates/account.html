@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='내 계정 - Ounce')}"></head>
+<body class="bg-white">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="min-h-screen bg-background-50 pt-20 md:pt-24">
+    <div class="w-full px-4 md:px-8 lg:px-12 py-6">
+
+        <div class="mb-8">
+            <h1 class="text-xl md:text-2xl font-bold text-foreground-950 font-heading">내 계정</h1>
+            <p class="text-sm text-foreground-500 mt-1">Ounce와 함께한 당신의 감각적인 여정</p>
+        </div>
+
+        <!-- Stats cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+            <div class="p-4 bg-background-50 border border-background-200 rounded-lg">
+                <div class="text-xs text-foreground-500 mb-1">총 주문</div>
+                <div class="text-xl font-bold text-foreground-950" th:text="${totalOrders} + '건'">0건</div>
+            </div>
+            <div class="p-4 bg-background-50 border border-background-200 rounded-lg">
+                <div class="text-xs text-foreground-500 mb-1">누적 결제</div>
+                <div class="text-xl font-bold text-accent-500" th:text="${#numbers.formatInteger(totalSpent,0,'COMMA')} + '원'">0원</div>
+            </div>
+            <div class="p-4 bg-background-50 border border-background-200 rounded-lg">
+                <div class="text-xs text-foreground-500 mb-1">배송 완료</div>
+                <div class="text-xl font-bold text-primary-600" th:text="${deliveredCount} + '건'">0건</div>
+            </div>
+            <div class="p-4 bg-background-50 border border-background-200 rounded-lg">
+                <div class="text-xs text-foreground-500 mb-1">보유 쿠폰</div>
+                <div class="text-xl font-bold text-secondary-600" th:text="${couponCount} + '장'">0장</div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left: Profile -->
+            <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="p-5 bg-background-50 border border-background-200 rounded-lg">
+                    <div class="flex items-center gap-4 mb-5">
+                        <div class="w-14 h-14 flex items-center justify-center rounded-full bg-primary-500 text-white text-xl font-bold"
+                             th:text="${#strings.substring(currentUser.name,0,1)}">U</div>
+                        <div>
+                            <div class="text-sm font-bold text-foreground-950" th:text="${currentUser.name} + '님'">사용자님</div>
+                            <div class="text-xs text-foreground-500" th:text="${currentUser.email}">user@example.com</div>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-background-200 mb-4"></div>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-foreground-500">이름</span>
+                            <span class="text-foreground-800 font-medium" th:text="${currentUser.name}">-</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-foreground-500">이메일</span>
+                            <span class="text-foreground-800 font-medium" th:text="${currentUser.email}">-</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-foreground-500">회원 등급</span>
+                            <span class="text-primary-600 font-medium">Ounce VIP</span>
+                        </div>
+                        <a href="#" class="mt-3 py-2 text-sm text-primary-600 border border-primary-200 rounded-md hover:bg-primary-50 transition-colors text-center">프로필 수정</a>
+                    </div>
+                </div>
+
+                <!-- Quick links -->
+                <div class="mt-4 p-4 bg-background-50 border border-background-200 rounded-lg">
+                    <div class="text-xs font-bold text-foreground-950 mb-3">바로가기</div>
+                    <div class="flex flex-col gap-1">
+                        <a href="/orders" class="flex items-center gap-2 px-3 py-2 text-sm text-foreground-700 hover:bg-background-100 rounded-md transition-colors">
+                            <i class="ri-file-list-3-line text-primary-500"></i> 주문 내역
+                        </a>
+                        <a href="/cart" class="flex items-center gap-2 px-3 py-2 text-sm text-foreground-700 hover:bg-background-100 rounded-md transition-colors">
+                            <i class="ri-shopping-cart-line text-primary-500"></i> 장바구니
+                        </a>
+                        <a href="/products" class="flex items-center gap-2 px-3 py-2 text-sm text-foreground-700 hover:bg-background-100 rounded-md transition-colors">
+                            <i class="ri-store-line text-primary-500"></i> 큐레이션 둘러보기
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Recent orders -->
+            <div class="flex-1">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-bold text-foreground-950">최근 주문</h2>
+                    <a href="/orders" class="text-xs text-primary-600 hover:text-primary-700 transition-colors">전체 보기 →</a>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <a th:each="order : ${recentOrders}" href="/orders"
+                       class="flex items-center gap-4 p-4 bg-background-50 border border-background-200 rounded-lg hover:border-background-300 transition-colors">
+                        <div class="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-background-100">
+                            <img th:src="${order.image}" th:alt="${order.firstItemName}" class="w-full h-full object-cover"/>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold text-foreground-950" th:text="${order.id}">ORDER</span>
+                                <span class="px-2 py-0.5 text-xs font-medium rounded-md bg-primary-100 text-primary-700" th:text="${order.statusLabel}">상태</span>
+                            </div>
+                            <div class="text-sm text-foreground-700 truncate" th:text="${order.itemSummary}">상품명</div>
+                            <div class="text-xs text-foreground-500 mt-0.5"
+                                 th:text="${order.orderedAt} + ' · ' + ${#numbers.formatInteger(order.finalPrice,0,'COMMA')} + '원'">날짜 · 가격</div>
+                        </div>
+                        <i class="ri-arrow-right-s-line text-foreground-300 text-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
