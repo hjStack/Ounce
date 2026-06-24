@@ -2,6 +2,7 @@ services:
   ounce-db:
     image: mysql:8.0
     container_name: ounce-db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: Mickey51799@@
       MYSQL_DATABASE: Ounce
@@ -19,16 +20,8 @@ services:
     container_name: app-blue
     ports:
       - "8080:8080"
-    depends_on:
-      ounce-db:
-        condition: service_healthy
-    restart: always
-
-  app-green:
-    image: hyejun02/ounce-api:latest
-    container_name: app-green
-    ports:
-      - "8081:8080"
+    environment:
+      DB_HOST: ounce-db
     depends_on:
       ounce-db:
         condition: service_healthy

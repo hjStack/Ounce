@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import ounce.market.demo.member.entity.Role;
 
 @Getter
 @AllArgsConstructor
@@ -25,4 +26,7 @@ public class MemberCreateRequest {
     @Pattern(regexp = "^[가-힣a-zA-Z]{2,10}$",
             message = "이름은 2~10자의 한글 또는 영문만 가능합니다.")
     private String name;
+
+    private Role role;
+
 }

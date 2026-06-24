@@ -2,11 +2,14 @@ spring:
   application:
     name: Ounce
 
+  security:
+    user:
+      name: user
+      password: dummy # 아무 단어나 대충 적어두셔도 됩니다!
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-#    url: jdbc:mysql://localhost:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: Mickey51799@@
 
@@ -16,10 +19,10 @@ spring:
     hibernate:
       # 엔티티 변경 시 테이블 스키마 자동 수정 전략
       # 개발 단계: update 또는 create, 운영 단계: none 또는 validate 권장
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
-        # 실행되는 SQL문을 콘솔창에 출력
+                    # 실행되는 SQL문을 콘솔창에 출력
         show_sql: true
         # 출력되는 SQL문을 보기 좋게 포맷팅
         format_sql: true
