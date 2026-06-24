@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - Ounce</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="layout-container">
+    <div class="image-section">
+        <img src="/img/auth-bg.png" alt="신선한 식품" class="bg-image"/>
+    </div>
+
+    <div class="form-section">
+        <div class="mobile-logo">
+            <a href="/">Ounce<span>.</span></a>
+        </div>
+
+        <div class="auth-card">
+            <div class="card-header">
+                <h2>회원가입</h2>
+                <p>Ounce의 회원이 되어 특별한 혜택을 받아보세요</p>
+            </div>
+
+            <form id="signupForm" class="auth-form">
+
+                <div class="input-group">
+                    <label>이름</label>
+                    <input type="text" id="name" placeholder="이름을 입력하세요" />
+                    <div id="nameError" class="error-text"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>이메일</label>
+                    <input type="email" id="email" placeholder="example@email.com" required />
+                    <div id="emailError" class="error-text"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="password" placeholder="8자 이상 입력하세요" required />
+                    <div id="passwordError" class="error-text"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>비밀번호 확인</label>
+                    <input type="password" id="confirmPassword" placeholder="비밀번호를 다시 입력하세요" required />
+                    <div id="confirmPasswordError" class="error-text"></div>
+                </div>
+
+                <button type="submit" class="btn-submit">회원가입</button>
+            </form>
+
+            <div class="divider">
+                <div class="line"></div>
+                <span>또는</span>
+                <div class="line"></div>
+            </div>
+
+            <div class="social-login">
+                <button class="btn-social btn-google">
+                    <i class="ri-google-fill"></i> Google로 계속하기
+                </button>
+                <button class="btn-social btn-kakao">
+                    <i class="ri-kakao-talk-fill"></i> 카카오로 계속하기
+                </button>
+                <button class="btn-social btn-naver">
+                    <i class="ri-n-box-fill"></i> 네이버로 계속하기
+                </button>
+            </div>
+
+            <div class="form-footer">
+                <p>이미 계정이 있으신가요? <a href="/login.html">로그인</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+
+</body>
+</html>
+
