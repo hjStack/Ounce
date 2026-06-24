@@ -4,7 +4,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://ounce-ounce-1:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: Mickey51799@@
 
@@ -14,7 +14,7 @@ spring:
     hibernate:
       # 엔티티 변경 시 테이블 스키마 자동 수정 전략
       # 개발 단계: update 또는 create, 운영 단계: none 또는 validate 권장
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         # 실행되는 SQL문을 콘솔창에 출력

@@ -3,8 +3,7 @@ package ounce.market.demo.member.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import ounce.market.demo.common.BaseEntity;
-import ounce.market.demo.member.exception.InsufficientPointException;
-import ounce.market.demo.notification.entity.Notification;
+import ounce.market.demo.common.global.InsufficientPointException;
 
 @Entity
 @Getter
@@ -17,6 +16,9 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long memberId;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false)
     private String password;
 
@@ -27,6 +29,9 @@ public class Member extends BaseEntity {
     // 오직 회원만 주문가능하므로 포인트는 무조건 있음
     @Column(nullable = false)
     private int point;
+
+    @Column(nullable = false)
+    private String name;
 
     public void usePoint(int amount) {
         if (this.point < amount) {

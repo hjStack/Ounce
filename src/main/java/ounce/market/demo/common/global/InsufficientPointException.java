@@ -1,4 +1,4 @@
-package ounce.market.demo.member.exception;
+package ounce.market.demo.common.global;
 
 public class InsufficientPointException extends RuntimeException {
 
