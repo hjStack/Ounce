@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ounce.market.demo.common.global.global.ErrorResponse;
+import ounce.market.demo.common.dto.ErrorResponse;
 
 // @RestControllerAdvice: 프로젝트 내의 모든 @RestController에서 발생하는 에러를 여기서 가로챕니다.
 @RestControllerAdvice
