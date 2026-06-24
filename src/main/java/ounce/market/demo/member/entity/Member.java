@@ -23,7 +23,6 @@ public class Member extends BaseEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Role role;
 
     // 오직 회원만 주문가능하므로 포인트는 무조건 있음

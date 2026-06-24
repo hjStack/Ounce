@@ -11,3 +11,4 @@ nginx/nginx.conf
 
 docker-compose.yml
 
+src/main/resources/application.yaml

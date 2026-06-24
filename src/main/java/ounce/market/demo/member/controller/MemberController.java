@@ -8,19 +8,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.dto.request.LoginRequest;
+import ounce.market.demo.member.service.MemberService;
 
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
 
-    // private final MemberService memberService; // 나중에 서비스 연결
+     private final MemberService memberService; // 나중에 서비스 연결
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request) {
+    public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request ) {
         // @Valid를 통과했다면 이곳의 코드가 실행됩니다!
-//         memberService.signup(request);
+         memberService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

@@ -1,0 +1,191 @@
+/* 기본 리셋 및 변수 설정 */
+:root {
+    --background-50: #f8fafc;
+    --background-100: #f1f5f9;
+    --background-200: #e2e8f0;
+    --foreground-400: #94a3b8;
+    --foreground-500: #64748b;
+    --foreground-700: #334155;
+    --foreground-950: #020617;
+    --primary-500: #3b82f6;
+}
+
+body {
+    margin: 0;
+    font-family: 'Pretendard', sans-serif; /* 폰트는 상황에 맞게 변경 */
+    background-color: #ffffff;
+}
+
+/* 좌우 스플릿 레이아웃 */
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background-50);
+}
+
+.image-section {
+    display: none; /* 모바일 숨김 */
+    position: relative;
+}
+
+.bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 데스크탑(PC) 화면일 때 왼쪽 이미지 표시 */
+@media (min-width: 1024px) {
+    .image-section {
+        display: flex;
+        width: 45%;
+    }
+}
+
+/* 폼 영역 */
+.form-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+}
+
+.mobile-logo {
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--foreground-950);
+}
+.mobile-logo a { text-decoration: none; color: inherit; }
+.mobile-logo span { color: var(--primary-500); }
+
+@media (min-width: 1024px) {
+    .mobile-logo { display: none; }
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--background-50);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    border-radius: 0.75rem;
+    padding: 2rem;
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    color: var(--foreground-950);
+    margin: 0 0 0.25rem 0;
+}
+
+.card-header p {
+    font-size: 0.875rem;
+    color: var(--foreground-500);
+    margin: 0 0 1.5rem 0;
+}
+
+/* 폼 요소 디자인 */
+.input-group { margin-bottom: 1rem; }
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground-700);
+    margin-bottom: 0.375rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    border-radius: 0.375rem;
+    background-color: #eff6ff; /* bg-blue-50 매핑 */
+    color: var(--foreground-950);
+    box-sizing: border-box;
+    outline: none;
+}
+
+.input-group input:focus { border-color: var(--primary-500); }
+
+/* 자바스크립트가 넣을 에러 스타일 */
+.error-input { border: 2px solid red !important; }
+.error-text {
+    color: red;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    min-height: 14px;
+}
+
+/* 버튼 */
+.btn-submit {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--foreground-950);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+/* 소셜 로그인 라인 */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    gap: 0.75rem;
+}
+.divider .line { flex: 1; height: 1px; background-color: var(--background-200); }
+.divider span { font-size: 0.75rem; color: var(--foreground-400); }
+
+/* 소셜 버튼들 */
+.social-login { display: flex; flex-direction: column; gap: 0.625rem; }
+.btn-social {
+    width: 100%;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+.btn-google { background-color: white; border: 1px solid var(--background-200); color: var(--foreground-700); }
+.btn-kakao { background-color: #FEE500; color: var(--foreground-950); }
+.btn-naver { background-color: #03C75A; color: white; }
+
+/* 푸터 */
+.form-footer { margin-top: 1.5rem; text-align: center; }
+.form-footer p { font-size: 0.875rem; color: var(--foreground-500); }
+.form-footer a { color: var(--foreground-950); font-weight: bold; text-decoration: none; }
+
+
+.image-section {
+    display: none;
+    position: relative;
+    /* 💥 아래 세 줄을 추가해서 이미지를 가운데 정렬합니다 */
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-100); /* 여백에 깔릴 배경색 */
+}
+
+.bg-image {
+    width: 100%; /* 💥 100% 꽉 채우던 것을 70%로 축소 */
+    height: auto; /* 세로 길이는 원본 비율에 맞게 자동 조절 */
+    object-fit: cover;
+    border-radius: 1rem; /* (선택) 사진 모서리를 둥글게 깎아주면 더 예쁩니다! */
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1); /* (선택) 예쁜 그림자 추가 */
+}
+
+@media (min-width: 1024px) {
+    .image-section {
+        display: flex;
+        width: 30%; /* 💥 기존 45%에서 30%나 35%로 줄여보세요! */
+    }
+}
