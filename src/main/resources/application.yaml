@@ -1,11 +1,19 @@
 spring:
+  thymeleaf:
+    cache: false
+  jwt:
+    secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+#      // 24시간
+    expiration_time: 86400000
+#    // 14일
+    refresh_expiration_time: 1209600000
   application:
     name: Ounce
 
   security:
     user:
       name: user
-      password: dummy # 아무 단어나 대충 적어두셔도 됩니다!
+      password: hj
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
