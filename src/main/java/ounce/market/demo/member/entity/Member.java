@@ -29,17 +29,4 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private int point;
 
-    @Column(nullable = false)
-    private String name;
-
-    public void usePoint(int amount) {
-        if (this.point < amount) {
-            throw new InsufficientPointException(this.memberId);
-        }
-        this.point -= amount;
-    }
-
-    public void chargePoint(int amount) {
-        this.point += amount;
-    }
 }

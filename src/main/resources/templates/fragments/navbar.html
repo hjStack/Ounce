@@ -5,12 +5,10 @@
 <nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-50/95 backdrop-blur-md border-b border-background-200/50">
     <div class="w-full px-4 md:px-8 lg:px-12">
         <div class="flex items-center justify-between h-20 md:h-24">
-            <!-- Logo -->
             <a href="/" class="flex items-center gap-2">
                 <span class="text-xl md:text-2xl font-semibold font-heading text-foreground-950 tracking-tight">Ounce</span>
             </a>
 
-            <!-- Desktop Nav -->
             <div class="hidden md:flex items-center gap-8">
                 <a href="/" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">Ounce</a>
                 <a href="/timedeal" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">미드나이트</a>
@@ -18,13 +16,12 @@
                 <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">베스트</a>
             </div>
 
-            <!-- Desktop Actions -->
-            <div class="hidden md:flex items-center gap-4">
-                <div th:if="${isLoggedIn}" class="relative" id="user-menu-wrap">
+            <div class="flex items-center gap-3 md:gap-4">
+
+                <div class="relative hidden" id="user-menu-wrap">
                     <button id="user-menu-btn" class="flex items-center gap-2 text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors cursor-pointer">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold"
-                             th:text="${currentUser != null ? #strings.substring(currentUser.name,0,1) : 'U'}">U</div>
-                        <span class="whitespace-nowrap" th:text="${currentUser?.name + '님'}">사용자님</span>
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold">U</div>
+                        <span class="whitespace-nowrap" id="nav-user-name">사용자님</span>
                         <i class="ri-arrow-down-s-line text-sm"></i>
                     </button>
                     <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-44 bg-background-50 border border-background-200/70 rounded-lg overflow-hidden z-50">
@@ -35,28 +32,25 @@
                             <i class="ri-file-list-3-line"></i> 주문 내역
                         </a>
                         <hr class="border-background-200/70"/>
-                        <form action="/logout" method="post">
-                            <button type="submit" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-accent-500 hover:bg-accent-50 transition-colors text-left cursor-pointer">
-                                <i class="ri-logout-box-r-line"></i> 로그아웃
-                            </button>
-                        </form>
+                        <button id="logoutBtn" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-accent-500 hover:bg-accent-50 transition-colors text-left cursor-pointer">
+                            <i class="ri-logout-box-r-line"></i> 로그아웃
+                        </button>
                     </div>
                 </div>
-                <a th:unless="${isLoggedIn}" href="/login" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">로그인</a>
+
+                <a href="/login" id="login-btn-desktop" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">로그인</a>
 
                 <a href="/cart" class="relative w-10 h-10 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 transition-colors">
                     <i class="ri-shopping-cart-line text-white text-lg"></i>
                 </a>
             </div>
 
-            <!-- Mobile Hamburger -->
             <button id="mobile-menu-btn" class="md:hidden w-10 h-10 flex items-center justify-center">
                 <i class="ri-menu-line text-2xl text-foreground-950"></i>
             </button>
         </div>
     </div>
 
-    <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200">
         <div class="px-4 py-4 flex flex-col gap-3">
             <a href="/" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">Ounce</a>
@@ -64,38 +58,105 @@
             <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">큐레이션</a>
             <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">베스트</a>
             <hr class="border-background-200"/>
-            <a th:unless="${isLoggedIn}" href="/login" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">로그인</a>
-            <a th:if="${isLoggedIn}" href="/account" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">내 계정</a>
+
+            <a href="/login" id="login-btn-mobile" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">로그인</a>
+            <a href="/account" id="account-btn-mobile" class="hidden text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">내 계정</a>
+            <button id="logout-btn-mobile" class="hidden text-left text-accent-500 hover:text-accent-600 text-sm font-medium py-2">로그아웃</button>
+
             <a href="/cart" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2 flex items-center gap-2">
                 <i class="ri-shopping-cart-line"></i> 장바구니
             </a>
         </div>
     </div>
-</nav>
+    <script th:inline="none">
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("🟢 1. 네비게이션 바 스크립트 실행됨!");
 
-<script th:inline="none">
-    document.addEventListener('DOMContentLoaded', function () {
-        var mobileBtn = document.getElementById('mobile-menu-btn');
-        var mobileMenu = document.getElementById('mobile-menu');
-        if (mobileBtn && mobileMenu) {
-            mobileBtn.addEventListener('click', function () {
-                mobileMenu.classList.toggle('hidden');
-            });
-        }
-        var userBtn = document.getElementById('user-menu-btn');
-        var userMenu = document.getElementById('user-menu');
-        if (userBtn && userMenu) {
-            userBtn.addEventListener('click', function () {
-                userMenu.classList.toggle('hidden');
-            });
-            document.addEventListener('click', function (e) {
-                if (!userBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                    userMenu.classList.add('hidden');
+            // 기존 드롭다운 로직
+            let mobileBtn = document.getElementById('mobile-menu-btn');
+            let mobileMenu = document.getElementById('mobile-menu');
+            if (mobileBtn && mobileMenu) {
+                mobileBtn.addEventListener('click', function () { mobileMenu.classList.toggle('hidden'); });
+            }
+            let userBtn = document.getElementById('user-menu-btn');
+            let userMenu = document.getElementById('user-menu');
+            if (userBtn && userMenu) {
+                userBtn.addEventListener('click', function () { userMenu.classList.toggle('hidden'); });
+                document.addEventListener('click', function (e) {
+                    if (!userBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // ==========================================
+            // 🌟 JWT 기반 UI 토글 로직 (디버깅 모드)
+            // ==========================================
+
+            const token = localStorage.getItem('accessToken');
+            // console.log("🟡 2. 금고에서 꺼낸 토큰 값:", token);
+
+            // 토큰이 진짜 존재하고, "null"이나 "undefined"라는 글자가 아닐 때만 실행!
+            if (token && token !== "null" && token !== "undefined") {
+                // console.log("🔵 3. 정상적인 토큰 확인! UI 변경 시작!");
+
+                const userMenuWrap = document.getElementById('user-menu-wrap');
+                const loginBtnDesktop = document.getElementById('login-btn-desktop');
+                const loginBtnMobile = document.getElementById('login-btn-mobile');
+                const accountBtnMobile = document.getElementById('account-btn-mobile');
+                const logoutBtnMobile = document.getElementById('logout-btn-mobile');
+
+                if(userMenuWrap) { userMenuWrap.classList.remove('hidden'); }
+                if(loginBtnDesktop) { loginBtnDesktop.classList.add('hidden'); }
+                if(loginBtnMobile) loginBtnMobile.classList.add('hidden');
+                if(accountBtnMobile) accountBtnMobile.classList.remove('hidden');
+                if(logoutBtnMobile) logoutBtnMobile.classList.remove('hidden');
+
+                try {
+                    // 1. "Bearer " 글자가 있으면 떼어냅니다.
+                    const pureToken = token.startsWith('Bearer ') ? token.substring(7) : token;
+
+                    // 2. 토큰의 가운데 부분(Payload)을 디코딩합니다. (Base64 디코딩)
+                    const base64Url = pureToken.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const payloadStr = decodeURIComponent(escape(window.atob(base64)));
+                    const payload = JSON.parse(payloadStr);
+
+                    const userEmail = payload.email || payload.sub;
+                    const navUserName = document.getElementById('nav-user-name');
+
+                    if(navUserName && userEmail) {
+                        const userId = userEmail.split('@')[0];
+                        navUserName.textContent = userId + '님';
+                    }
+                    else {
+                        console.log("⚠️ 토큰은 정상인데 이메일 정보(sub/email)가 없습니다.");
+                    }
+                } catch (error) {
+                    console.error("이름을 가져오는데 실패했습니다.", error);
+                    // 파싱에 실패해도 기존의 '사용자님' 텍스트가 유지되므로 UI가 깨지진 않습니다.
                 }
-            });
-        }
-    });
-</script>
+
+            }
+
+
+            // 로그아웃 공통 로직
+            const handleLogout = function(e) {
+                e.preventDefault();
+                localStorage.removeItem('accessToken');
+                // console.log("⭕ 로그아웃 완료! 토큰 삭제됨.");
+                alert('로그아웃 되었습니다.');
+                window.location.href = '/';
+            };
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutBtnMobile = document.getElementById('logout-btn-mobile');
+            if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+            if(logoutBtnMobile) logoutBtnMobile.addEventListener('click', handleLogout);
+        });
+    </script>
+
+</nav>
 
 </body>
 </html>

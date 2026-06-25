@@ -1,5 +1,9 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk AS build
+WORKDIR /app
+COPY . .
+RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
-COPY target/demo-0.0.1-SNAPSHOT.jar app.jar
-
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
