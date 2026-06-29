@@ -52,7 +52,7 @@ public class JWTUtil {
 
     // 3. 토큰에서 이메일(Subject) 꺼내기
     public String getEmail(String token) {
-        return getClaims(token).getSubject();
+        return getClaims(token).get("email", String.class);
     }
 
     // 4. 토큰에서 권한 꺼내기

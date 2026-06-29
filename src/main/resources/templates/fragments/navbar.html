@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
 <nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-50/95 backdrop-blur-md border-b border-background-200/50">
@@ -18,11 +20,19 @@
 
             <div class="flex items-center gap-3 md:gap-4">
 
-                <div class="relative hidden" id="user-menu-wrap">
-                    <button id="user-menu-btn" class="flex items-center gap-2 text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors cursor-pointer">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold">U</div>
-                        <span class="whitespace-nowrap" id="nav-user-name">사용자님</span>
-                        <i class="ri-arrow-down-s-line text-sm"></i>
+                <!-- 로그인 상태에서만 -->
+                <div class="relative" id="user-menu-wrap" sec:authorize="isAuthenticated()">
+                    <button
+                            id="user-menu-btn"
+                            class="group flex items-center gap-3 py-1.5 pl-2 pr-3 text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-full transition-all duration-200 hover:shadow-sm cursor-pointer active:scale-95"
+                    >
+                        <!-- 프로필 이미지/이니셜 영역 -->
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-500 text-white text-xs font-bold shadow-inner">U</div>
+
+                        <!-- 이름 영역 -->
+                        <span class="whitespace-nowrap text-slate-700" id="nav-user-name">사용자님</span>
+
+                        <i class="ri-arrow-down-s-line text-sm text-slate-400 group-hover:text-slate-600 transition-transform duration-200 group-hover:translate-y-0.5"></i>
                     </button>
                     <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-44 bg-background-50 border border-background-200/70 rounded-lg overflow-hidden z-50">
                         <a href="/account" class="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
@@ -38,9 +48,11 @@
                     </div>
                 </div>
 
-                <a href="/login" id="login-btn-desktop" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">로그인</a>
+                <!-- 비로그인 상태에서만 -->
+                <a href="/login" id="login-btn-desktop" sec:authorize="!isAuthenticated()"
+                   class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">로그인</a>
 
-                <a href="/cart" class="relative w-10 h-10 flex items-center justify-center rounded-full bg-primary-500 hover:bg-primary-600 transition-colors">
+                <a href="/cart" class="relative w-10 h-10 flex items-center justify-center rounded-full bg-indigo-500 hover:bg-indigo-600 transition-colors">
                     <i class="ri-shopping-cart-line text-white text-lg"></i>
                 </a>
             </div>
@@ -59,100 +71,74 @@
             <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">베스트</a>
             <hr class="border-background-200"/>
 
-            <a href="/login" id="login-btn-mobile" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">로그인</a>
-            <a href="/account" id="account-btn-mobile" class="hidden text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">내 계정</a>
-            <button id="logout-btn-mobile" class="hidden text-left text-accent-500 hover:text-accent-600 text-sm font-medium py-2">로그아웃</button>
+            <a href="/login" id="login-btn-mobile" sec:authorize="!isAuthenticated()" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">로그인</a>
+            <a href="/account" id="account-btn-mobile" sec:authorize="isAuthenticated()" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">내 계정</a>
+            <button id="logout-btn-mobile" sec:authorize="isAuthenticated()" class="text-left text-accent-500 hover:text-accent-600 text-sm font-medium py-2">로그아웃</button>
 
-            <a href="/cart" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2 flex items-center gap-2">
-                <i class="ri-shopping-cart-line"></i> 장바구니
+            <a
+                    href="/cart"
+                    class="w-11 h-11 flex items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm hover:bg-indigo-600 transition-all duration-200 active:scale-95 cursor-pointer"
+            >
+                <i class="ri-shopping-cart-line text-xl"></i>
             </a>
         </div>
     </div>
+
     <script th:inline="none">
         document.addEventListener('DOMContentLoaded', function () {
-            console.log("🟢 1. 네비게이션 바 스크립트 실행됨!");
-
-            // 기존 드롭다운 로직
-            let mobileBtn = document.getElementById('mobile-menu-btn');
-            let mobileMenu = document.getElementById('mobile-menu');
+            // 모바일 메뉴 토글
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
             if (mobileBtn && mobileMenu) {
-                mobileBtn.addEventListener('click', function () { mobileMenu.classList.toggle('hidden'); });
+                mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
             }
-            let userBtn = document.getElementById('user-menu-btn');
-            let userMenu = document.getElementById('user-menu');
+
+            // 유저 드롭다운 토글
+            const userBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
             if (userBtn && userMenu) {
-                userBtn.addEventListener('click', function () { userMenu.classList.toggle('hidden'); });
-                document.addEventListener('click', function (e) {
+                userBtn.addEventListener('click', () => userMenu.classList.toggle('hidden'));
+                document.addEventListener('click', (e) => {
                     if (!userBtn.contains(e.target) && !userMenu.contains(e.target)) {
                         userMenu.classList.add('hidden');
                     }
                 });
             }
 
-            // ==========================================
-            // 🌟 JWT 기반 UI 토글 로직 (디버깅 모드)
-            // ==========================================
-
-            const token = localStorage.getItem('accessToken');
-            // console.log("🟡 2. 금고에서 꺼낸 토큰 값:", token);
-
-            // 토큰이 진짜 존재하고, "null"이나 "undefined"라는 글자가 아닐 때만 실행!
-            if (token && token !== "null" && token !== "undefined") {
-                // console.log("🔵 3. 정상적인 토큰 확인! UI 변경 시작!");
-
-                const userMenuWrap = document.getElementById('user-menu-wrap');
-                const loginBtnDesktop = document.getElementById('login-btn-desktop');
-                const loginBtnMobile = document.getElementById('login-btn-mobile');
-                const accountBtnMobile = document.getElementById('account-btn-mobile');
-                const logoutBtnMobile = document.getElementById('logout-btn-mobile');
-
-                if(userMenuWrap) { userMenuWrap.classList.remove('hidden'); }
-                if(loginBtnDesktop) { loginBtnDesktop.classList.add('hidden'); }
-                if(loginBtnMobile) loginBtnMobile.classList.add('hidden');
-                if(accountBtnMobile) accountBtnMobile.classList.remove('hidden');
-                if(logoutBtnMobile) logoutBtnMobile.classList.remove('hidden');
-
-                try {
-                    // 1. "Bearer " 글자가 있으면 떼어냅니다.
-                    const pureToken = token.startsWith('Bearer ') ? token.substring(7) : token;
-
-                    // 2. 토큰의 가운데 부분(Payload)을 디코딩합니다. (Base64 디코딩)
-                    const base64Url = pureToken.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const payloadStr = decodeURIComponent(escape(window.atob(base64)));
-                    const payload = JSON.parse(payloadStr);
-
-                    const userEmail = payload.email || payload.sub;
-                    const navUserName = document.getElementById('nav-user-name');
-
-                    if(navUserName && userEmail) {
-                        const userId = userEmail.split('@')[0];
-                        navUserName.textContent = userId + '님';
-                    }
-                    else {
-                        console.log("⚠️ 토큰은 정상인데 이메일 정보(sub/email)가 없습니다.");
-                    }
-                } catch (error) {
-                    console.error("이름을 가져오는데 실패했습니다.", error);
-                    // 파싱에 실패해도 기존의 '사용자님' 텍스트가 유지되므로 UI가 깨지진 않습니다.
-                }
-
-            }
-
-
-            // 로그아웃 공통 로직
-            const handleLogout = function(e) {
+            // 로그아웃 (서버에 요청 → 쿠키 만료)
+            const handleLogout = async function(e) {
                 e.preventDefault();
-                localStorage.removeItem('accessToken');
-                // console.log("⭕ 로그아웃 완료! 토큰 삭제됨.");
+                try {
+                    await fetch('/api/members/logout', { method: 'POST', credentials: 'include' });
+                } catch (err) {
+                    console.error("로그아웃 요청 실패:", err);
+                }
                 alert('로그아웃 되었습니다.');
                 window.location.href = '/';
             };
 
+            // 로그인 상태면 이메일 @앞부분을 이름으로 채우기
+            fetch('/api/members/me', { credentials: 'include' })
+                .then(res => res.ok ? res.json() : null)
+                .then(data => {
+                    if (!data) return;  // 비로그인(401)이면 그냥 패스
+
+                    const namePart = data.email.split('@')[0];  // chulsoo@gmail.com → chulsoo
+
+                    // 이름 채우기
+                    const nameEl = document.getElementById('nav-user-name');
+                    if (nameEl) nameEl.textContent = namePart;
+
+                    // 아바타 글자도 첫 글자로
+                    const avatarEl = document.querySelector('#user-menu-btn .rounded-full');
+                    if (avatarEl) avatarEl.textContent = namePart.charAt(0).toUpperCase();
+                })
+                .catch(err => console.error('유저 정보 조회 실패:', err));
+
             const logoutBtn = document.getElementById('logoutBtn');
             const logoutBtnMobile = document.getElementById('logout-btn-mobile');
-            if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-            if(logoutBtnMobile) logoutBtnMobile.addEventListener('click', handleLogout);
+            if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+            if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', handleLogout);
         });
     </script>
 

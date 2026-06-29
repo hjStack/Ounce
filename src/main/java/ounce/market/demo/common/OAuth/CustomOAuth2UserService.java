@@ -1,9 +1,7 @@
 package ounce.market.demo.common.OAuth;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -11,21 +9,15 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
-
-
-
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import ounce.market.demo.member.entity.Role; // Role Enum이 있다고 가정
-
-
+import ounce.market.demo.member.entity.Role;
 import java.util.Collections;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+// 5. 유저 정보 조회 — CustomOAuth2UserService
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
@@ -54,7 +46,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 });
 
         // 4. Spring Security가 알아먹을 수 있는 객체로 포장해서 반환
-        // ✅ 수정된 코드
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails()
                 .getUserInfoEndpoint()
