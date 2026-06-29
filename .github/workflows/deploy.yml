@@ -3,7 +3,7 @@ name: 1인 가구를 위한 Ounce 배포
 
 on:
   push:
-    branches: [ "main","feature/**","dev" ]
+    branches: [ "main", "dev" ]
 
 # 하나의 workflows는 1개 이상의 job으로 구성
 jobs:
@@ -30,9 +30,9 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
 
-      - name: application-prod.yml 생성
-        run: |
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
+#      - name: application-prod.yml 생성
+#        run: |
+#          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
 
       # 4. 메이븐(Maven)으로 프로젝트 빌드 (.jar 파일 생성)
       - name: 프로젝트 빌드 (Maven)
