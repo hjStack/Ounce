@@ -68,4 +68,10 @@ public class MemberService {
         return jwtUtil.createAccessToken(request.getEmail(), "ROLE_USER");
     }
 
+    @Transactional(readOnly = true)
+    public Member findByEmail(String email) {
+        // Repository에서 Optional로 반환한다고 가정했을 때의 안전한 코드
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 유저를 찾을 수 없습니다."));
+    }
 }

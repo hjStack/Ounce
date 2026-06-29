@@ -2,7 +2,6 @@ services:
   ounce-db:
     image: mysql:8.0
     container_name: ounce-db
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: Mickey51799@@
       MYSQL_DATABASE: Ounce
@@ -21,6 +20,28 @@ services:
     ports:
       - "8080:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Mickey51799@@
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      DB_HOST: ounce-db
+    depends_on:
+      ounce-db:
+        condition: service_healthy
+    restart: always
+
+  app-green:
+    image: hyejun02/ounce-api:latest
+    container_name: app-green
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Mickey51799@@
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       DB_HOST: ounce-db
     depends_on:
       ounce-db:
@@ -36,7 +57,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/conf.d:/etc/nginx/conf.d
-# // EC2에 있는 파일(왼쪽)과 도커 안에 있는 파일(오른쪽)을 마치 거울처럼 실시간으로 똑같이 맞춰라!(볼륨 마운트)"라는 뜻입니다.
+    # // EC2에 있는 파일(왼쪽)과 도커 안에 있는 파일(오른쪽)을 마치 거울처럼 실시간으로 똑같이 맞춰라!(볼륨 마운트)"라는 뜻입니다.
     restart: always
 
 volumes:
