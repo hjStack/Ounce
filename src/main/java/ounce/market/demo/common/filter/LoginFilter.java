@@ -59,8 +59,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // JWT 발급
         String token = jwtUtil.createAccessToken(email, role);
 
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("Authorization", token)
+                .path("/")
+                .httpOnly(true)
+                // .secure(true) // 로컬 테스트 시 주석
+                .maxAge(60 * 60 * 24)
+                .sameSite("Lax")
+                .build();
+
+
         // 🔥 RFC 7235 규약에 따라 헤더에 Bearer 붙여서 응답
-        response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
