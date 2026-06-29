@@ -14,6 +14,16 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/mysql
+  redis-server:
+    image: redis
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+
 
   app-blue:
     image: hyejun02/ounce-api:latest

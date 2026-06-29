@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    # 기본적으로 'local' 파일을 읽어서 실행하라고 지시합니다.
+    active: local
+    # 만약 active를 지정하지 않으면 포함할 그룹 (선택사항)
+    group:
+      local: local
+      prod: prod
