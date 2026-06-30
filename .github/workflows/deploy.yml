@@ -44,7 +44,7 @@ jobs:
 
       # 5. 도커 허브(Docker Hub) 로그인
       - name: 🐳 도커 허브 로그인
-        if: github.ref == 'refs/heads/main'
+
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -52,7 +52,7 @@ jobs:
 
       # 6. 도커 이미지 빌드 및 도커 허브로 업로드(Push)
       - name: 🚀 도커 이미지 빌드 및 푸시
-        if: github.ref == 'refs/heads/main'
+
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/ounce-api:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/ounce-api:latest
