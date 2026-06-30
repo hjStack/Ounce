@@ -26,6 +26,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: Mickey51799@@
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       DB_HOST: ounce-db
+
     depends_on:
       ounce-db:
         condition: service_healthy
