@@ -38,3 +38,28 @@ function updateUIForLoggedIn(userName) {
     if (userGreeting) userGreeting.innerText = `${userName}님, 환영합니다! 🌿`;
 }
 
+    document.addEventListener('DOMContentLoaded', function() {
+    function updateMidnightTimer() {
+        const now = new Date();
+        const midnight = new Date();
+
+        // 오늘 밤 12시(자정)로 설정
+        midnight.setHours(24, 0, 0, 0);
+
+        const diff = midnight - now;
+
+        if (diff > 0) {
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+            const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+            const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+            document.getElementById('td-hours').textContent = h;
+            document.getElementById('td-minutes').textContent = m;
+            document.getElementById('td-seconds').textContent = s;
+        }
+    }
+
+    // 1초마다 업데이트
+    setInterval(updateMidnightTimer, 1000);
+    updateMidnightTimer(); // 로드 시 즉시 실행
+});

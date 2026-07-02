@@ -16,7 +16,7 @@ import ounce.market.demo.member.entity.Member;
 public class Order extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long orderId;
 
     private int totalAmount;

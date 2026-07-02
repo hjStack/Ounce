@@ -13,13 +13,13 @@ import ounce.market.demo.common.BaseEntity;
 public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long productId;
 
     private String productCode;
     private String name;
 
-    private int basePrice;
+    private Long basePrice;
     // 할인된 가격은 비지니스 로직으로
 
     @Enumerated(EnumType.STRING)
@@ -29,7 +29,7 @@ public class Product extends BaseEntity {
     private String imageUrl;
 
     @Builder
-    public Product(String productCode, String name, int basePrice, String description, String imageUrl) {
+    public Product(String productCode, String name, Long basePrice, String description, String imageUrl) {
         this.productCode = productCode;
         this.name = name;
         this.basePrice = basePrice;

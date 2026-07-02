@@ -13,7 +13,7 @@ import ounce.market.demo.member.entity.Member;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointHistory extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long pointHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)

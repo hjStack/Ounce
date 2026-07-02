@@ -1,13 +1,20 @@
 package ounce.market.demo.cart.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ounce.market.demo.product.entity.Product;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartProduct {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_product_id")
     private Long cartProductId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -17,5 +24,16 @@ public class CartProduct {
     private Product product;
 
     @Column(nullable = false)
-    private int quantity; // 🔥 수량은 여기에 있어야 합니다! (부대찌개 2개, 샐러드 3개)
+    private int quantity;
+
+    @Builder
+    public CartProduct(Cart cart, Product product, int quantity) {
+        this.cart = cart;
+        this.product = product;
+        this.quantity = quantity;
+    }
+
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }
