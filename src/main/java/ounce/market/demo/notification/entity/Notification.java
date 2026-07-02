@@ -7,7 +7,7 @@ import ounce.market.demo.member.entity.Member;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long notificationId;
 
     private String title;

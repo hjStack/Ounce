@@ -8,7 +8,7 @@ import ounce.market.demo.order.entity.Order;
 public class Coupon {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long couponId;
 
     @ManyToOne(fetch = FetchType.LAZY)

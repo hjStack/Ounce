@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ounce.market.demo.cart.entity.Cart;
+import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.common.Exception.DuplicateEmailException;
 import ounce.market.demo.common.dto.ErrorMessage;
 import ounce.market.demo.common.global.jwt.JWTUtil;
@@ -26,6 +28,9 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final CartRepository cartRepository; // 💡 장바구니 창고 직원 추가
+
+    // todo 관리자 권한 로직 및 버튼 만들기
 
     @Transactional
     public void signup(MemberCreateRequest request) {
@@ -47,7 +52,12 @@ public class MemberService {
                 .build();
 
         // 4. DB에 저장 (memberRepository.save)
-        memberRepository.save(member) ;
+        Member savedMember = memberRepository.save(member);
+
+        // 회원가입할때 카트 생성
+        Cart newCart = Cart.builder().member(savedMember).build();
+        cartRepository.save(newCart);
+
     }
 
 

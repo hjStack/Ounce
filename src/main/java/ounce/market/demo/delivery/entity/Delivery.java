@@ -8,7 +8,7 @@ import ounce.market.demo.order.entity.Order;
 public class Delivery {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long deliveryId;
 
     @OneToOne(fetch = FetchType.LAZY)

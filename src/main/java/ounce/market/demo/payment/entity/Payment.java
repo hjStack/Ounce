@@ -16,7 +16,7 @@ import ounce.market.demo.order.entity.Order;
 public class Payment extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long paymentId;
 
     @OneToOne(fetch = FetchType.LAZY)

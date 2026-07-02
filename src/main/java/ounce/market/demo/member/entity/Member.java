@@ -13,7 +13,8 @@ import ounce.market.demo.common.global.InsufficientPointException;
 public class Member extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
+    @Column(name = "member_id")
     private Long memberId;
 
     @Column(nullable = false, unique = true)

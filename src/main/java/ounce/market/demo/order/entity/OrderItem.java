@@ -15,7 +15,6 @@ public class OrderItem {
     @Id
     @GeneratedValue
     private Long orderItemId;
-
     private int price;
 
     @ManyToOne(fetch = FetchType.LAZY)
