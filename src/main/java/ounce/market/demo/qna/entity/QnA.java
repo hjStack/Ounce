@@ -8,7 +8,7 @@ import ounce.market.demo.member.entity.Member;
 public class QnA extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long qnaId;
 
     @ManyToOne

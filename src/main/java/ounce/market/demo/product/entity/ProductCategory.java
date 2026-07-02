@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductCategory {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue
     private Long id; // 매핑 테이블 자체의 식별자(PK)
 
     @ManyToOne(fetch = FetchType.LAZY)
