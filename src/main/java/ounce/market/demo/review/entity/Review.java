@@ -8,7 +8,7 @@ import ounce.market.demo.product.entity.Product;
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Long reviewId;
 
     @ManyToOne(fetch = FetchType.LAZY)

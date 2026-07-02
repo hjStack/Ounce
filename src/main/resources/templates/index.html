@@ -1,37 +1,175 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head(title='Ounce')}"></head>
-<body class="bg-white">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<body class="bg-[#fcfbf9]">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
 <main class="pt-20 md:pt-24">
-    <div class="flex items-center justify-center text-center px-6 py-16 md:py-20">
+    <div class="flex items-center justify-center text-center px-6 py-10 md:py-16">
         <div>
-            <h1 class="text-4xl md:text-5xl font-semibold font-heading italic mb-4">Ounce</h1>
-            <p class="text-gray-500">당신의 아침을 디자인합니다.</p>
+            <h1 class="text-5xl md:text-6xl mb-3 text-gray-950" style="font-family: 'Pacifico', cursive; tracking-normal;">Ounce</h1>
+            <p class="text-gray-500 text-sm md:text-base">당신의 아침을 디자인합니다.</p>
         </div>
     </div>
 
+    <section class="w-full px-6 md:px-8 lg:px-12 pb-16 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+        <div class="w-full md:w-1/2 flex flex-col items-start text-left z-10">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-8 h-[1px] bg-[#d95d22]"></div>
+                <span class="text-[#d95d22] text-xs font-bold tracking-[0.2em]">JUNE 2026</span>
+            </div>
+
+            <h2 class="text-4xl md:text-5xl font-black text-gray-900 leading-[1.2] mb-6 tracking-tight">
+                <span class="block pb-2">새벽에</span>
+                <span class="block pb-2">열리는</span>
+                <span class="block pb-2">감각</span>
+            </h2>
+
+            <p class="text-gray-600 text-base md:text-lg mb-8 leading-relaxed">
+                매일 밤 10시, 한정된 수량의 제철 식재료가<br class="hidden md:block">
+                특별한 가격에 펼쳐집니다.<br class="hidden md:block">
+                새벽 7시, 당신의 문 앞에 도착합니다.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3 mb-14">
+                <a href="/curation" class="px-6 py-3.5 bg-[#3b4055] text-white text-sm font-semibold rounded hover:bg-gray-800 transition-colors flex items-center gap-2">
+                    큐레이션 보기
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+                <a href="/timedeal" class="px-6 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    미드나이트 세일
+                </a>
+            </div>
+
+            <div class="flex items-center gap-8 md:gap-10">
+                <div class="text-center md:text-left">
+                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">10만<span class="text-lg font-sans">+</span></p>
+                    <p class="text-[11px] text-gray-400 font-sans">Ounce 멤버</p>
+                </div>
+                <div class="w-[1px] h-10 bg-gray-200"></div>
+                <div class="text-center md:text-left">
+                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">240</p>
+                    <p class="text-[11px] text-gray-400 font-sans">협력 농장</p>
+                </div>
+                <div class="w-[1px] h-10 bg-gray-200"></div>
+                <div class="text-center md:text-left">
+                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">7시</p>
+                    <p class="text-[11px] text-gray-400 font-sans">새벽 배송</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 relative">
+            <div class="aspect-[4/3] md:aspect-[4/5] lg:aspect-[4/3] w-full overflow-hidden relative shadow-sm rounded-lg">
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1200" alt="제철 식재료" class="w-full h-full object-cover">
+            </div>
+
+            <div class="absolute -bottom-6 left-4 md:-bottom-8 md:-left-8 lg:left-8 lg:bottom-8 bg-[#fdfaf5] p-5 rounded-lg shadow-xl border border-gray-100 max-w-[280px] flex items-start gap-3 z-20">
+                <div class="w-10 h-10 bg-[#d95d22] rounded-full flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-[13px] font-bold text-gray-900 mb-0.5">미드나이트 세일</h4>
+                    <p class="text-[11px] text-blue-500 font-medium mb-1.5">매일 22:00 - 23:00</p>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">
+                        한 시간만 열리는 특별한 가격의 제철 식재료. 선착순 한정 수량.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="w-full px-4 md:px-8 lg:px-12 pb-24 max-w-7xl mx-auto">
+        <div class="bg-gray-900 border-b border-gray-800 overflow-hidden rounded-t-xl">
+            <div class="px-4 md:px-8 lg:px-12 py-3 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 shrink-0">
+                    <span class="w-2 h-2 bg-[#d95d22] rounded-full animate-pulse"></span>
+                    <span id="total-viewers" class="text-sm text-[#d95d22] font-medium">
+                        지금 --명이 미드나이트 세일을 보고 있어요
+                    </span>
+                </div>
+                <div id="recent-purchases" class="hidden md:flex items-center gap-4 overflow-hidden">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 border-b border-gray-800">
+            <div class="px-4 md:px-8 lg:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#d95d22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="text-sm text-gray-300">매일 22:00 ~ 23:00</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#d95d22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <span class="text-sm text-gray-300">선착순 한정 수량</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#d95d22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                        <span class="text-sm text-gray-300">내일 아침 7시 배송</span>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-400">
+                    총 <span class="text-[#d95d22] font-semibold" th:text="${timeDealProducts != null ? #lists.size(timeDealProducts) : 12}">12</span>개 상품 참여중
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 px-4 md:px-8 lg:px-12 py-8 rounded-b-xl shadow-xl mb-12">
+            <div class="flex items-center gap-2 mb-6">
+                <span class="text-sm text-gray-400 mr-2">정렬:</span>
+                <button class="px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer whitespace-nowrap bg-[#d95d22] text-white">
+                    인기순
+                </button>
+                <button class="px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer whitespace-nowrap bg-white/5 text-gray-400 hover:bg-white/10">
+                    할인율순
+                </button>
+                <button class="px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer whitespace-nowrap bg-white/5 text-gray-400 hover:bg-white/10">
+                    낮은 가격순
+                </button>
+            </div>
+
+            <div th:if="${timeDealProducts == null or #lists.isEmpty(timeDealProducts)}" class="py-16 text-center text-gray-500 text-sm">
+                진행 중인 타임딜 상품이 없습니다.
+            </div>
+
+            <div th:unless="${timeDealProducts == null or #lists.isEmpty(timeDealProducts)}" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
+                <th:block th:each="product : ${timeDealProducts}">
+                    <div th:replace="~{fragments/time-deal-card :: timeDealCard(${product})}"></div>
+                </th:block>
+            </div>
+        </div>
+
+        <div class="px-4 md:px-8 lg:px-12 py-12 bg-[#0a0a0a] rounded-2xl shadow-lg border border-gray-800 text-center">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">
+                    놓치지 마세요
+                </h2>
+                <p class="text-sm text-gray-400 mb-6">
+                    매일 밤 10시, 신선한 식품을 초특가에 만나볼 수 있는 기회입니다.<br />
+                    회원가입하고 알림을 받아보세요.
+                </p>
+                <a href="/signup" class="inline-flex items-center gap-2 px-8 py-3 bg-[#d95d22] text-white text-sm font-medium rounded hover:bg-[#bf4e1a] transition-colors whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    미드나이트 알림 받기
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="w-full px-4 md:px-8 lg:px-12 pb-16 max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+        </div>
+    </section>
+
     <section class="w-full px-4 md:px-8 lg:px-12 pb-16 max-w-7xl mx-auto">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl md:text-2xl font-bold font-heading text-foreground-950">지금 만나보세요</h2>
-            <a href="/products" class="px-4 py-2 text-sm font-medium text-foreground-700 border border-background-300 rounded-md hover:bg-background-100 transition-colors whitespace-nowrap">
-                전체 상품 보기
-            </a>
-        </div>
-
-        <div th:if="${#lists.isEmpty(products)}" class="py-16 text-center text-foreground-500 text-sm">
-            아직 등록된 상품이 없습니다.
-        </div>
-
-        <div th:unless="${#lists.isEmpty(products)}" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            <th:block th:each="p : ${products}">
-                <div th:replace="~{fragments/product-card :: productCard(${p}, '/')}"></div>
-            </th:block>
-        </div>
     </section>
 
     <div th:replace="~{fragments/daily-deals :: dailyDeals(${categories})}"></div>
@@ -39,8 +177,77 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-
 <script src="/js/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. 자정 카운트다운 스크립트 ---
+        function updateMidnightTimer() {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+
+            const diff = midnight - now;
+
+            if (diff > 0) {
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+                const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+                if(document.getElementById('td-hours')) document.getElementById('td-hours').textContent = h;
+                if(document.getElementById('td-minutes')) document.getElementById('td-minutes').textContent = m;
+                if(document.getElementById('td-seconds')) document.getElementById('td-seconds').textContent = s;
+            }
+        }
+        setInterval(updateMidnightTimer, 1000);
+        updateMidnightTimer();
+
+
+        // --- 2. 실시간 뷰어 모의 스크립트 (React useEffect 대체) ---
+        const viewerEl = document.getElementById('total-viewers');
+        if (viewerEl) {
+            const updateViewers = () => {
+                const count = Math.floor(Math.random() * 400) + 200;
+                viewerEl.textContent = `지금 ${count.toLocaleString()}명이 미드나이트 세일을 보고 있어요`;
+            };
+            updateViewers();
+            setInterval(updateViewers, 5000);
+        }
+
+        // --- 3. 실시간 구매 틱커 모의 스크립트 (React useEffect 대체) ---
+        const tickerContainer = document.getElementById('recent-purchases');
+        if (tickerContainer) {
+            const cities = ['서울', '부산', '인천', '대구', '광주', '대전', '수원', '울산', '창원', '성남'];
+            const products = ['한돈 삼겹살', '제주 감귤', '국산 브로콜리', '생연어', '유기농 당근', '방울토마토', '아스파라거스', '애호박'];
+            let purchases = [];
+
+            const addPurchase = () => {
+                const city = cities[Math.floor(Math.random() * cities.length)];
+                const product = products[Math.floor(Math.random() * products.length)];
+                const text = `${city}에서 ${product} 구매 완료`;
+
+                purchases.unshift(text);
+                // 최대 3개까지만 노출
+                if (purchases.length > 3) purchases.pop();
+
+                tickerContainer.innerHTML = purchases.map(p =>
+                    `<span class="text-sm text-gray-500 whitespace-nowrap animate-pulse">${p}</span>`
+                ).join('');
+            };
+
+            const randomShow = () => {
+                const delay = 2000 + Math.random() * 5000;
+                setTimeout(() => {
+                    addPurchase();
+                    randomShow();
+                }, delay);
+            };
+
+            // 초기 틱커 세팅 후 실행
+            randomShow();
+        }
+    });
+</script>
 
 </body>
 </html>
