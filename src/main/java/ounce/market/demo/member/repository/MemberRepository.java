@@ -1,11 +1,14 @@
 package ounce.market.demo.member.repository;
 
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ounce.market.demo.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,9 +18,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByEmail(String email);
 
-    // @Query 테스트
-//    @Query("select m.memberId from Member m where m.memberId = :memberId")
-//    Optional<Member> findByMemberId(@Param("memberId") Long memberId);
+//    List<Member> findMemberByMemberId(Long memberId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select m from Member m where m.memberId = :id")
+    Optional<Member> findByIdForUpdate(@Param("id") Long id);
+
 }
 
 /*

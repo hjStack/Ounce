@@ -27,7 +27,6 @@ public class MemberController {
 
      private final MemberService memberService; // 나중에 서비스 연결
 
-
     // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request) {
