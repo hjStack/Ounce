@@ -3,16 +3,24 @@ services:
     image: mysql:8.0
     container_name: ounce-db
     environment:
-      MYSQL_ROOT_PASSWORD: Mickey51799@@
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: Ounce
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-pMickey51799@@"]
+      test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
       retries: 10
     volumes:
       - db_data:/var/lib/mysql
+  redis:
+    image: redis:7-alpine
+    container_name: ounce-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes   # 재시작 시 데이터 유지
+    volumes:
+      - redis-data:/data
 
   app-blue:
     image: hyejun02/ounce-api:latest
@@ -23,10 +31,12 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: Mickey51799@@
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       DB_HOST: ounce-db
       JWT_SECRET: ${JWT_SECRET}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
 
     depends_on:
       ounce-db:
@@ -42,9 +52,13 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: Mickey51799@@
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       DB_HOST: ounce-db
+      JWT_SECRET: ${JWT_SECRET}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
     depends_on:
       ounce-db:
         condition: service_healthy
@@ -63,3 +77,4 @@ services:
 
 volumes:
   db_data:
+  redis-data:

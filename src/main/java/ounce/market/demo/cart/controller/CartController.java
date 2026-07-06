@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.member.entity.Member;
 
 
+/*
+todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성
+ */
+
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
@@ -23,8 +27,7 @@ public class CartController {
 
     private final CartService cartService;
     private final MemberRepository memberRepository;
-
-    // 💡 1. 내 장바구니 목록 조회 (GET /api/carts/me)
+    
     @GetMapping("/me")
     public ResponseEntity<?> getMyCartItems(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {

@@ -9,6 +9,9 @@ import ounce.market.demo.delivery.entity.Delivery;
 import ounce.market.demo.common.BaseEntity;
 import ounce.market.demo.member.entity.Member;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "orders")
@@ -16,13 +19,13 @@ import ounce.market.demo.member.entity.Member;
 public class Order extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
     private int totalAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_ID")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Enumerated(EnumType.STRING)
@@ -32,6 +35,9 @@ public class Order extends BaseEntity {
     // 🔥 cascade를 걸어두면 주문 저장 시 배송도 자동으로 한 방에 세이브됩니다!
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Delivery delivery;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItem> items=new ArrayList<>();
 
     @Builder
     public Order(int totalAmount, Member member, OrderStatus status) {
@@ -46,5 +52,16 @@ public class Order extends BaseEntity {
 
     public void cancel() {
         this.status = OrderStatus.CANCELED;
+    }
+
+
+    public void addOrderItem(OrderItem orderItem) {
+        this.items.add(orderItem);
+        orderItem.assignOrder(this);   // ✅ 주인 쪽 FK 세팅
+    }
+
+    public void AssignDelivery(Delivery delivery) {
+        this.delivery = delivery;       // ① cascade 저장을 위한 연결
+        delivery.assignOrder(this);     // ② FK(order_id) 채우기
     }
 }
