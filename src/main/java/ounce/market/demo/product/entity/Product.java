@@ -13,7 +13,7 @@ import ounce.market.demo.common.BaseEntity;
 public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
 
     private String productCode;
@@ -31,10 +31,12 @@ public class Product extends BaseEntity {
     private int stock;
 
     @Builder
-    public Product(String productCode, String name, Long basePrice, String description, String imageUrl) {
+    public Product(String productCode, String name, Long basePrice, int stock,
+                   String description, String imageUrl) {
         this.productCode = productCode;
         this.name = name;
         this.basePrice = basePrice;
+        this.stock=stock;
         this.description = description;
         this.imageUrl = imageUrl;
         this.status = ProductStatus.PREPARING;
