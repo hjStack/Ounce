@@ -1,7 +1,5 @@
 package ounce.market.demo.member.service;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,7 +45,7 @@ public class MemberService {
         Member member = Member.builder()
                 .email(request.getEmail())
                 .password(encodedPassword)
-                .point(0) // (포인트 같은 초기값도 챙겨주시면 좋습니다)
+                .point(1000)   // 가입 축하금 1000원
                 .role(Role.USER)
                 .build();
 
@@ -59,7 +57,6 @@ public class MemberService {
         cartRepository.save(newCart);
 
     }
-
 
     // 로그인 로직 추가
     @Transactional
@@ -84,4 +81,8 @@ public class MemberService {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 유저를 찾을 수 없습니다."));
     }
+
+//     member.deductPoint(totalAmount); // 💡 Member 엔티티에 이 메서드를 추가해 주셔야 합니다!
+
+
 }
