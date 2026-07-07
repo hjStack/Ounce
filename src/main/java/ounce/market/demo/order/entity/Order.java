@@ -38,6 +38,7 @@ public class Order extends BaseEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items=new ArrayList<>();
+    // OrderItem이 연관관계의 주인임
 
     @Builder
     public Order(int totalAmount, Member member, OrderStatus status) {

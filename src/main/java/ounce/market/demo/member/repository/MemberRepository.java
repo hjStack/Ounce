@@ -23,9 +23,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from Member m where m.memberId = :id")
     Optional<Member> findByIdForUpdate(@Param("id") Long id);
-
 }
 
 /*
-todo 로그인시 멤버 쿼리가 3번 조회되는 n+1 문제 해결하고 해결로 바꾸기 
+todo 로그인시 멤버 쿼리가 3번 조회되는 n+1 문제 해결
  */
