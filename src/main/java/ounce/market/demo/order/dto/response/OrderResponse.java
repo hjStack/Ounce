@@ -17,6 +17,6 @@ public class OrderResponse {
     }
 
     public static OrderResponse from(Order order) {
-        return OrderResponse.from(order);
+        return new OrderResponse(order);
     }
 }

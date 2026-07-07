@@ -26,7 +26,6 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService; // 구글 정보 처리 클래스
     private final JWTUtil jwtUtil;
 
-
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -51,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup", "/login").permitAll()
                         .requestMatchers("/api/members/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/api/orders/**").authenticated()
 
                         .requestMatchers("/error").permitAll()
 

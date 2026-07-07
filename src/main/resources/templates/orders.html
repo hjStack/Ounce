@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주문 내역 · Ounce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+  :root {
+    /* Ounce 팔레트 */
+    --background-50:  #faf9f7;
+    --background-100: #f1efea;
+    --background-200: #e4e0d8;
+
+    --foreground-950: #1c1a17;
+    --foreground-800: #3d3a34;
+    --foreground-700: #55514a;
+    --foreground-600: #6b665e;
+    --foreground-500: #8a857c;
+    --foreground-400: #a8a39a;
+    --foreground-300: #c7c2b9;
+    --foreground-100: #eceae5;
+
+    /* primary: 인디고 (브랜드 메인) */
+    --primary-100: #e0e3f5;
+    --primary-500: #4f52c9;
+    --primary-600: #4144ab;
+    --primary-700: #34368a;
+
+    /* accent: 앰버 (결제/포인트 강조) */
+    --accent-100: #fdeccb;
+    --accent-500: #e0952a;
+    --accent-700: #a86a12;
+
+    /* secondary: 세이지 (준비중 등) */
+    --secondary-100: #dbe9dd;
+    --secondary-800: #37624a;
+
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--background-50);
+    color: var(--foreground-950);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .font-heading { font-family: 'Gowun Batang', serif; }
+
+  .page {
+    min-height: 100vh;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+
+  /* ── Header ── */
+  .header { margin-bottom: 1.5rem; }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--foreground-950);
+  }
+  .header p {
+    font-size: 0.875rem;
+    color: var(--foreground-500);
+    margin-top: 0.35rem;
+  }
+
+  /* ── Filter tabs ── */
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: inherit;
+    border: none;
+    border-radius: 999px;
+    background: var(--background-100);
+    color: var(--foreground-600);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.18s, color 0.18s;
+  }
+  .filter-btn:hover { background: var(--background-200); }
+  .filter-btn.active {
+    background: var(--primary-500);
+    color: #fff;
+  }
+  .filter-btn:focus-visible {
+    outline: 2px solid var(--primary-700);
+    outline-offset: 2px;
+  }
+
+  /* ── Orders list ── */
+  .orders { display: flex; flex-direction: column; gap: 1rem; }
+
+  .order-card {
+    background: var(--background-50);
+    border: 1px solid var(--background-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .order-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .order-head-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .thumb {
+    width: 3.5rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--background-100);
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .order-meta { min-width: 0; }
+  .order-id-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .order-id { font-size: 0.875rem; font-weight: 700; color: var(--foreground-950); }
+
+  .badge {
+    padding: 0.1rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .badge-preparing { background: var(--secondary-100); color: var(--secondary-800); }
+  .badge-shipping  { background: var(--primary-100);  color: var(--primary-700); }
+  .badge-delivered { background: var(--accent-100);   color: var(--accent-700); }
+  .badge-completed { background: var(--foreground-100); color: var(--foreground-600); }
+
+  .order-items-summary {
+    font-size: 0.875rem;
+    color: var(--foreground-700);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .order-items-summary .more { color: var(--foreground-400); }
+  .order-date {
+    font-size: 0.75rem;
+    color: var(--foreground-500);
+    margin-top: 0.15rem;
+  }
+
+  .order-head-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  .order-price { text-align: right; }
+  .order-price .amount { font-size: 0.875rem; font-weight: 700; color: var(--foreground-950); }
+  .order-price .method { font-size: 0.75rem; color: var(--foreground-500); }
+  @media (max-width: 640px) { .order-price { display: none; } }
+
+  .toggle-btn {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--foreground-400);
+    cursor: pointer;
+    transition: color 0.18s;
+  }
+  .toggle-btn:hover { color: var(--foreground-600); }
+  .toggle-btn:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  .toggle-btn i {
+    font-size: 1.25rem;
+    transition: transform 0.25s ease;
+  }
+  .order-card.open .toggle-btn i { transform: rotate(180deg); }
+
+  /* ── Expanded details (애니메이션) ── */
+  .details {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.28s ease;
+    border-top: 1px solid transparent;
+  }
+  .order-card.open .details {
+    grid-template-rows: 1fr;
+    border-top-color: var(--background-200);
+  }
+  .details-inner {
+    overflow: hidden;
+    padding: 0 1rem;
+  }
+
+  .detail-section { padding: 1rem 0; }
+  .detail-section + .detail-section { border-top: 1px solid var(--background-200); }
+
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .item-row + .item-row { margin-top: 0.75rem; }
+  .item-thumb {
+    width: 3rem; height: 3rem; flex-shrink: 0;
+    border-radius: 8px; overflow: hidden; background: var(--background-100);
+  }
+  .item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name {
+    font-size: 0.875rem; color: var(--foreground-800);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .item-sub { font-size: 0.75rem; color: var(--foreground-500); }
+  .item-total { font-size: 0.875rem; font-weight: 700; color: var(--foreground-950); }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+  .summary-row .label { color: var(--foreground-500); }
+  .summary-row .value { color: var(--foreground-800); }
+  .summary-row .free { color: var(--primary-600); }
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--background-200);
+  }
+  .summary-total .grand { color: var(--accent-500); }
+
+  .delivery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+  @media (min-width: 768px) { .delivery-grid { grid-template-columns: 1fr 1fr; } }
+  .delivery-field { display: flex; flex-direction: column; gap: 0.25rem; }
+  .delivery-field .k { font-size: 0.75rem; color: var(--foreground-500); }
+  .delivery-field .v { color: var(--foreground-800); }
+
+  /* ── Empty ── */
+  .empty {
+    text-align: center;
+    padding: 3rem 0;
+  }
+  .empty i { font-size: 2.25rem; color: var(--foreground-300); margin-bottom: 0.75rem; display: block; }
+  .empty p { font-size: 0.875rem; color: var(--foreground-500); }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="container">
+      <div class="header">
+        <h1 class="font-heading">주문 내역</h1>
+        <p>Ounce에서의 모든 감각적인 순간들</p>
+      </div>
+
+      <div class="filters" id="filters"></div>
+
+      <div class="orders" id="orders"></div>
+
+      <div class="empty" id="empty" style="display:none;">
+        <i class="ri-file-list-3-line"></i>
+        <p>해당 상태의 주문이 없습니다.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ── 목 데이터 (실제로는 GET /api/orders 응답을 넣으면 됨) ──
+  const ORDERS = [
+    {
+      id: 'ORD-20260706-001',
+      status: 'shipping', statusLabel: '배송중',
+      orderedAt: '2026.07.06',
+      paymentMethod: '포인트',
+      address: '서울 마포구 · 1인 가구 배송',
+      totalPrice: 18700, shipping: 0, finalPrice: 18700,
+      items: [
+        { id: 'i1', name: '한 끼 소분 현미밥 (150g × 7)', price: 8900, quantity: 1, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&h=200&fit=crop' },
+        { id: 'i2', name: '유기농 방울토마토 (200g)', price: 4900, quantity: 2, image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&h=200&fit=crop' },
+      ],
+    },
+    {
+      id: 'ORD-20260705-014',
+      status: 'preparing', statusLabel: '준비중',
+      orderedAt: '2026.07.05',
+      paymentMethod: '포인트',
+      address: '서울 마포구 · 1인 가구 배송',
+      totalPrice: 12500, shipping: 3000, finalPrice: 15500,
+      items: [
+        { id: 'i3', name: '싱글 드립백 커피 (10입)', price: 12500, quantity: 1, image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=200&h=200&fit=crop' },
+      ],
+    },
+    {
+      id: 'ORD-20260701-009',
+      status: 'delivered', statusLabel: '배송완료',
+      orderedAt: '2026.07.01',
+      deliveredAt: '2026.07.03',
+      paymentMethod: '포인트',
+      address: '서울 마포구 · 1인 가구 배송',
+      totalPrice: 27800, shipping: 0, finalPrice: 27800,
+      items: [
+        { id: 'i4', name: '소분 견과 믹스 (30g × 15)', price: 15900, quantity: 1, image: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=200&h=200&fit=crop' },
+        { id: 'i5', name: '수제 그래놀라 (250g)', price: 11900, quantity: 1, image: 'https://images.unsplash.com/photo-1517093157656-b9eccef91cb1?w=200&h=200&fit=crop' },
+      ],
+    },
+    {
+      id: 'ORD-20260620-003',
+      status: 'completed', statusLabel: '구매확정',
+      orderedAt: '2026.06.20',
+      deliveredAt: '2026.06.22',
+      paymentMethod: '포인트',
+      address: '서울 마포구 · 1인 가구 배송',
+      totalPrice: 9800, shipping: 3000, finalPrice: 12800,
+      items: [
+        { id: 'i6', name: '1인용 미니 파스타 소스 (3종)', price: 9800, quantity: 1, image: 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop' },
+      ],
+    },
+  ];
+
+  // ── 상태 ──
+  let currentFilter = 'all';
+  let expandedId = null;
+
+  const won = (n) => n.toLocaleString('ko-KR');
+
+  const FILTERS = [
+    { key: 'all', label: '전체' },
+    { key: 'preparing', label: '준비중' },
+    { key: 'shipping', label: '배송중' },
+    { key: 'delivered', label: '배송완료' },
+    { key: 'completed', label: '구매확정' },
+  ];
+
+  function renderFilters() {
+    const el = document.getElementById('filters');
+    el.innerHTML = FILTERS.map((f) => {
+      const count = f.key === 'all'
+        ? ORDERS.length
+        : ORDERS.filter((o) => o.status === f.key).length;
+      const active = currentFilter === f.key ? ' active' : '';
+      return `<button class="filter-btn${active}" data-filter="${f.key}">${f.label} (${count})</button>`;
+    }).join('');
+  }
+
+  function badgeClass(status) {
+    return {
+      preparing: 'badge-preparing',
+      shipping: 'badge-shipping',
+      delivered: 'badge-delivered',
+      completed: 'badge-completed',
+    }[status] || 'badge-completed';
+  }
+
+  function orderCard(order) {
+    const first = order.items[0];
+    const moreCount = order.items.length - 1;
+    const open = expandedId === order.id ? ' open' : '';
+
+    const itemsHtml = order.items.map((item) => `
+      <div class="item-row">
+        <div class="item-thumb"><img src="${item.image}" alt="${item.name}"></div>
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-sub">${won(item.price)}원 × ${item.quantity}개</div>
+        </div>
+        <div class="item-total">${won(item.price * item.quantity)}원</div>
+      </div>
+    `).join('');
+
+    const deliveredField = order.deliveredAt ? `
+      <div class="delivery-field">
+        <span class="k">배송 완료</span>
+        <span class="v">${order.deliveredAt}</span>
+      </div>` : '';
+
+    return `
+      <div class="order-card${open}" data-id="${order.id}">
+        <div class="order-head">
+          <div class="order-head-left">
+            <div class="thumb"><img src="${first.image}" alt="${first.name}"></div>
+            <div class="order-meta">
+              <div class="order-id-row">
+                <span class="order-id">${order.id}</span>
+                <span class="badge ${badgeClass(order.status)}">${order.statusLabel}</span>
+              </div>
+              <div class="order-items-summary">
+                ${first.name}${moreCount > 0 ? `<span class="more"> 외 ${moreCount}건</span>` : ''}
+              </div>
+              <div class="order-date">${order.orderedAt}</div>
+            </div>
+          </div>
+          <div class="order-head-right">
+            <div class="order-price">
+              <div class="amount">${won(order.finalPrice)}원</div>
+              <div class="method">${order.paymentMethod}</div>
+            </div>
+            <button class="toggle-btn" data-toggle="${order.id}" aria-label="주문 상세 펼치기">
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="details">
+          <div class="details-inner">
+            <div class="detail-section">${itemsHtml}</div>
+
+            <div class="detail-section">
+              <div class="summary-row">
+                <span class="label">상품 금액</span>
+                <span class="value">${won(order.totalPrice)}원</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">배송비</span>
+                <span class="${order.shipping === 0 ? 'free' : 'value'}">
+                  ${order.shipping === 0 ? '무료' : won(order.shipping) + '원'}
+                </span>
+              </div>
+              <div class="summary-total">
+                <span>총 결제 금액</span>
+                <span class="grand">${won(order.finalPrice)}원</span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <div class="delivery-grid">
+                <div class="delivery-field">
+                  <span class="k">배송지</span>
+                  <span class="v">${order.address}</span>
+                </div>
+                <div class="delivery-field">
+                  <span class="k">결제 수단</span>
+                  <span class="v">${order.paymentMethod}</span>
+                </div>
+                ${deliveredField}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderOrders() {
+    const list = currentFilter === 'all'
+      ? ORDERS
+      : ORDERS.filter((o) => o.status === currentFilter);
+
+    const ordersEl = document.getElementById('orders');
+    const emptyEl = document.getElementById('empty');
+
+    if (list.length === 0) {
+      ordersEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    ordersEl.innerHTML = list.map(orderCard).join('');
+  }
+
+  function render() {
+    renderFilters();
+    renderOrders();
+  }
+
+  // ── 이벤트 (위임) ──
+  document.getElementById('filters').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-filter]');
+    if (!btn) return;
+    currentFilter = btn.dataset.filter;
+    expandedId = null;      // 필터 바꾸면 펼침 초기화
+    render();
+  });
+
+  document.getElementById('orders').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-toggle]');
+    if (!btn) return;
+    const id = btn.dataset.toggle;
+    expandedId = (expandedId === id) ? null : id;
+    renderOrders();
+  });
+
+  render();
+</script>
+</body>
+</html>

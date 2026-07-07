@@ -28,14 +28,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-
             ObjectMapper om = new ObjectMapper();
             LoginRequest loginRequest = om.readValue(request.getInputStream(), LoginRequest.class);
 
             String email = loginRequest.getEmail();
             String password = loginRequest.getPassword();
 
-            log.info("로그인 시도 이메일: {}", email);
+//            log.info("로그인 시도 이메일: {}", email);
 
             // 토큰을 만들어서 보안 팀장(AuthenticationManager)에게 검증을 맡김
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
