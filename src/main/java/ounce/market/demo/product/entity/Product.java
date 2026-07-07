@@ -31,8 +31,8 @@ public class Product extends BaseEntity {
     private int stock;
 
     @Builder
-    public Product(String productCode, String name, Long basePrice,
-                   int stock, String description, String imageUrl) {
+    public Product(String productCode, String name, Long basePrice, int stock,
+                   String description, String imageUrl) {
         this.productCode = productCode;
         this.name = name;
         this.basePrice = basePrice;
