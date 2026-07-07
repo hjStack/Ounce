@@ -22,6 +22,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
 
+    /** todo
+      구글 로그인을 하면 자꾸 로컬로 url이 바뀌는 오류 발견
+
+     */
+
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // 1. 구글에서 유저 정보 가져오기 (기본 기능 호출)
