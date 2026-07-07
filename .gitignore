@@ -11,11 +11,11 @@ nginx/nginx.conf
 
 docker-compose.yml
 
-
+.env
 src/main/resources/application-local.yml
 src/main/resources/application-prod.yml
 src/main/resources/application.yml
-.env
+
 
 echo -e ".env\napplication-local.yml" >> .gitignore
 
