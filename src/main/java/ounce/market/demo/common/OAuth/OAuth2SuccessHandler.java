@@ -26,6 +26,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
+    @Value("${app.cookie-secure}")
+    private boolean cookieSecure;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
@@ -40,7 +43,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                 .path("/")
                 .httpOnly(true)
-                 .secure(false)
+                .secure(cookieSecure)
                 .maxAge(60 * 60 * 24)
                 .sameSite("Lax")
                 .build();
