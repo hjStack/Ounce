@@ -19,6 +19,7 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long deliveryId;
 
+
     // 받는 사람 이름
     private String receiverName;
 

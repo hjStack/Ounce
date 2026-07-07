@@ -13,6 +13,7 @@ import ounce.market.demo.delivery.entity.Delivery;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
 import ounce.market.demo.order.dto.request.OrderCreateRequest;
+import ounce.market.demo.order.dto.response.OrderResponse;
 import ounce.market.demo.order.entity.Order;
 import ounce.market.demo.order.entity.OrderItem;
 import ounce.market.demo.order.entity.OrderStatus;
@@ -41,6 +42,14 @@ public class OrderService {
     @Transactional
     public Long createOrderFromCart(Long memberId, OrderCreateRequest request) {
 
+        /**
+        사용자가 장바구니에서 상품 몇 개를 체크하고 "주문하기"를 누르면, 그 요청이 OrderController로 들어와요.
+        컨트롤러는 JWT 토큰에서 로그인한 회원 id를 꺼내고(CustomUserDetails),
+        어떤 장바구니 상품을 골랐는지(selectedCartProductIds)와
+        배송 종류(deliveryType)를 담은 요청을 OrderService.createOrderFromCart로 넘깁니다.
+        여기서부터 하나의 트랜잭션 시작
+         */
+
         // 1. 회원 · 장바구니 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
@@ -63,6 +72,15 @@ public class OrderService {
         }
 
         // 4. 🔑 Redis 재고 차감 (선착순 관문). 실패 시 여태 깎은 것 보상 후 종료
+        /** Redis 재고
+         -> 선택한 상품마다 Redis에서 재고 원자적 차감 By Lua Script
+         -> 재고가 충분하면 통과, 부족하면 재고 부족
+         -> 수천 명이 동시에 몰려도 대부분을 Redis 단계에서 마이크로초 단위로 걸러내고 실제 재고가 되는 사람만 다음으로 보낸다는 거예요.
+         만약 여러 상품 중 하나라도 재고가 모자라서 실패하면, 그때까지 이 주문에서 깎은 다른 상품 재고를 도로 되돌리고(보상) 종료합니다.
+
+         레디스를 통과하면 DB 처리 -> 상품마다 DB 재고 차감 -> 판매가로 총액을 계산해서 주문 시점 가격을 OrderItem에 스냅샷으로 박아둠
+
+         */
         List<CartProduct> decreased = new ArrayList<>();
         try {
             for (CartProduct cp : selectedCartProducts) {
@@ -131,5 +149,13 @@ public class OrderService {
                         cp.getProduct().getProductId(), cp.getQuantity(), ex);
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getMyOrders(Long memberId) {
+        return orderRepository.findAllByMemberMemberIdOrderByOrderIdDesc(memberId)
+                .stream()
+                .map(OrderResponse::from)
+                .toList();
     }
 }
