@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='마이페이지 - Ounce')}"></head>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - Ounce</title>
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1' },
+                        foreground: { 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 950: '#020617' },
+                        primary: { 100: '#dbeafe', 200: '#bfdbfe', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                        secondary: { 100: '#d1fae5', 200: '#a7f3d0', 600: '#059669', 700: '#047857' },
+                        accent: { 100: '#fee2e2', 200: '#fecaca', 400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c' }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                        heading: ['Pretendard', 'sans-serif'], // 폰트 설정 예시
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#fcfbf9]">
+<div class="min-h-screen bg-background-50 font-sans">
+
+    <!-- 타임리프 Navbar 공통 모듈 적용 -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="pt-20 md:pt-24">
+
+        <!-- ── Welcome Editorial Section ── -->
+        <section class="relative w-full bg-background-50 overflow-hidden">
+            <div class="w-full px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+                <div class="flex flex-col lg:flex-row">
+
+                    <!-- Left: Editorial Typography -->
+                    <div class="w-full lg:w-1/2 flex flex-col justify-center py-16 md:py-24 lg:py-32">
+
+                        <!-- Season tag -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-px bg-accent-500"></div>
+                            <span class="text-accent-500 text-xs font-medium tracking-widest uppercase">
+                  My Account
+                </span>
+                        </div>
+
+                        <!-- Main Title -->
+                        <h1 class="font-heading text-foreground-950 text-4xl md:text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+                            반가워요,
+                            <br>
+                            <span id="titleName" class="italic font-normal">김아운스</span>님
+                        </h1>
+
+                        <p class="mt-6 text-foreground-500 text-base md:text-lg leading-relaxed max-w-sm">
+                            Ounce 멤버십과 함께 특별한 새벽 식탁을 만들어가세요.
+                            <br>
+                            매일 밤 10시, 새로운 큐레이션이 기다리고 있어요.
+                        </p>
+
+                        <!-- Stats -->
+                        <div class="mt-10 flex items-center gap-6 md:gap-8">
+                            <div class="flex flex-col">
+                  <span class="text-2xl md:text-3xl font-heading font-semibold text-foreground-950">
+                    12
+                  </span>
+                                <span class="text-xs text-foreground-400 mt-1">총 주문</span>
+                            </div>
+                            <div class="w-px h-8 bg-background-200"></div>
+                            <div class="flex flex-col">
+                  <span class="text-2xl md:text-3xl font-heading font-semibold text-foreground-950">
+                    45만+
+                  </span>
+                                <span class="text-xs text-foreground-400 mt-1">누적 결제</span>
+                            </div>
+                            <div class="w-px h-8 bg-background-200"></div>
+                            <div class="flex flex-col">
+                  <span class="text-2xl md:text-3xl font-heading font-semibold text-foreground-950">
+                    3
+                  </span>
+                                <span class="text-xs text-foreground-400 mt-1">보유 쿠폰</span>
+                            </div>
+                        </div>
+
+                        <!-- CTAs -->
+                        <div class="mt-10 flex flex-col sm:flex-row items-start gap-4">
+                            <button class="inline-flex items-center gap-3 px-8 py-4 bg-primary-500 text-white text-sm font-medium tracking-wide rounded-md hover:bg-primary-600 transition-colors group whitespace-nowrap cursor-pointer ready-btn">
+                                프로필 수정
+                                <i class="ri-arrow-right-line text-sm group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+<!--                            <button class="inline-flex items-center gap-2 px-6 py-4 border border-foreground-200 text-foreground-700 text-sm font-medium tracking-wide rounded-md hover:border-accent-500 hover:text-accent-500 transition-colors whitespace-nowrap cursor-pointer">-->
+<!--                                <i class="ri-logout-box-r-line"></i>-->
+<!--                                로그아웃-->
+<!--                            </button>-->
+                        </div>
+                    </div>
+
+                    <!-- Right: Editorial Image -->
+                    <div class="w-full lg:w-1/2 relative min-h-[400px] md:min-h-[500px] lg:min-h-[700px]">
+                        <img
+                                src="https://readdy.ai/api/search-image?query=Editorial%20still%20life%20of%20warm%20breakfast%20scene%20with%20artisan%20bread%2C%20fresh%20figs%2C%20honey%20jar%20and%20dried%20flowers%20on%20rustic%20wooden%20table%2C%20soft%20natural%20morning%20light%20from%20window%2C%20warm%20cream%20and%20terracotta%20tones%2C%20fine%20art%20food%20photography%20with%20linen%20napkins%20and%20ceramic%20bowls%2C%20muted%20earthy%20palette&width=900&height=1100&seq=mypage-editorial-2026&orientation=portrait"
+                                alt="Ounce"
+                                class="absolute inset-0 w-full h-full object-cover"
+                        >
+                        <div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background-50/30 lg:to-background-50/60"></div>
+
+                        <!-- Floating membership card -->
+                        <div class="absolute bottom-8 left-8 right-8 lg:left-8 lg:right-auto lg:max-w-xs bg-background-50/95 backdrop-blur-md border border-background-200/60 rounded-lg p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-9 h-9 rounded-full bg-accent-500 flex items-center justify-center">
+                                    <i class="ri-vip-crown-line text-white text-sm"></i>
+                                </div>
+                                <div>
+                                    <p id="vipRole" class="text-sm font-medium text-foreground-950">Ounce VIP</p>
+                                    <p id="vipEmail" class="text-xs text-foreground-400">ounce.kim@example.com</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-background-200/60">
+                                <span class="text-xs text-foreground-500">적립금</span>
+                                <span class="text-sm font-semibold text-accent-500">
+                    2,850P
+                  </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Recent Orders Section ── -->
+        <section class="w-full bg-background-100 py-20 md:py-28">
+            <div class="w-full px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+
+                <!-- Section Header -->
+                <div class="mb-14 md:mb-20">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-px bg-accent-500"></div>
+                        <span class="text-accent-500 text-xs font-medium tracking-widest uppercase">
+                History
+              </span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                        <h2 class="font-heading text-foreground-950 text-4xl md:text-5xl font-semibold leading-tight">
+                            주문 <span class="italic font-normal">내역</span>
+                        </h2>
+                        <a href="/orders" class="text-sm text-primary-600 hover:text-primary-700 transition-colors font-medium whitespace-nowrap inline-flex items-center gap-1.5">
+                            전체 보기
+                            <i class="ri-arrow-right-line"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tab Switcher -->
+                <div class="flex items-center gap-1 mb-8 p-1 bg-background-200/60 rounded-full w-fit">
+                    <button class="px-5 py-2.5 text-sm font-medium rounded-full transition-all cursor-pointer whitespace-nowrap bg-background-50 text-foreground-950 shadow-sm">
+                        전체
+                        <span class="ml-1.5 text-xs text-foreground-400">12</span>
+                    </button>
+                    <button class="px-5 py-2.5 text-sm font-medium rounded-full transition-all cursor-pointer whitespace-nowrap text-foreground-500 hover:text-foreground-700">
+                        배송중
+                        <span class="ml-1.5 text-xs text-foreground-400">4</span>
+                    </button>
+                    <button class="px-5 py-2.5 text-sm font-medium rounded-full transition-all cursor-pointer whitespace-nowrap text-foreground-500 hover:text-foreground-700">
+                        완료
+                        <span class="ml-1.5 text-xs text-foreground-400">8</span>
+                    </button>
+                </div>
+
+                <!-- Order List -->
+                <div class="flex flex-col gap-4">
+
+                    <!-- Order Item 1: 배송중 -->
+                    <a href="/orders" class="flex items-center gap-5 p-5 md:p-6 bg-background-50 border border-background-200/80 rounded-xl hover:border-background-300 transition-all group">
+                        <div class="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-background-100">
+                            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=200&h=200" alt="상품 이미지" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-xs font-mono text-foreground-400">ORD-2023-001</span>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-primary-100 text-primary-700">
+                    <i class="ri-truck-line text-[10px]"></i>
+                    배송중
+                  </span>
+                            </div>
+                            <div class="text-sm md:text-base font-medium text-foreground-800 truncate mb-1">
+                                모던 스마트 워치 블랙
+                                <span class="text-foreground-400 font-normal ml-1">외 1건</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs md:text-sm text-foreground-400">
+                                <span>2023. 10. 25</span>
+                                <span class="w-px h-3 bg-background-300"></span>
+                                <span class="font-medium text-foreground-600">89,000원</span>
+                            </div>
+                        </div>
+                        <i class="ri-arrow-right-s-line text-foreground-200 group-hover:text-foreground-400 transition-colors text-lg md:text-xl"></i>
+                    </a>
+
+                    <!-- Order Item 2: 배송완료 -->
+                    <a href="/orders" class="flex items-center gap-5 p-5 md:p-6 bg-background-50 border border-background-200/80 rounded-xl hover:border-background-300 transition-all group">
+                        <div class="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-background-100">
+                            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=200&h=200" alt="상품 이미지" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-xs font-mono text-foreground-400">ORD-2023-002</span>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-accent-100 text-accent-700">
+                    <i class="ri-check-double-line text-[10px]"></i>
+                    배송완료
+                  </span>
+                            </div>
+                            <div class="text-sm md:text-base font-medium text-foreground-800 truncate mb-1">
+                                프리미엄 노이즈 캔슬링 헤드폰
+                            </div>
+                            <div class="flex items-center gap-3 text-xs md:text-sm text-foreground-400">
+                                <span>2023. 10. 12</span>
+                                <span class="w-px h-3 bg-background-300"></span>
+                                <span class="font-medium text-foreground-600">249,000원</span>
+                            </div>
+                        </div>
+                        <i class="ri-arrow-right-s-line text-foreground-200 group-hover:text-foreground-400 transition-colors text-lg md:text-xl"></i>
+                    </a>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Profile & Quick Links Section ── -->
+        <section class="w-full bg-background-50 py-20 md:py-28">
+            <div class="w-full px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+
+                <!-- Section Header -->
+                <div class="mb-14 md:mb-20">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-px bg-accent-500"></div>
+                        <span class="text-accent-500 text-xs font-medium tracking-widest uppercase">
+                Settings
+              </span>
+                    </div>
+                    <h2 class="font-heading text-foreground-950 text-4xl md:text-5xl font-semibold leading-tight">
+                        계정 <span class="italic font-normal">관리</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+                    <!-- Profile Card -->
+                    <div class="lg:col-span-5">
+                        <div class="p-6 md:p-8 bg-background-50 border border-background-200/80 rounded-xl">
+                            <div class="flex items-center gap-4 mb-8">
+                                <div class="w-14 h-14 flex items-center justify-center rounded-full bg-primary-100 text-primary-500 ring-2 ring-primary-200 flex-shrink-0">
+                                    <span id="avatarInitial" class="text-xl font-semibold font-heading">
+                                      김
+                                    </span>
+                                </div>
+                                <div>
+                                    <p id="profileName" class="text-base font-medium text-foreground-950">김아운스</p>
+                                    <p id="profileEmail" class="text-sm text-foreground-400 truncate max-w-[200px]">ounce.kim@example.com</p>
+                                </div>
+                            </div>
+
+                            <!-- 읽기 모드 예시 -->
+                            <div class="flex flex-col gap-1">
+                                <div class="flex justify-between items-center py-3 border-b border-background-100">
+                                    <span class="text-sm text-foreground-400">이름</span>
+                                    <span id="detailName" class="text-sm font-medium text-foreground-800">김아운스</span>
+                                </div>
+                                <div class="flex justify-between items-center py-3 border-b border-background-100">
+                                    <span class="text-sm text-foreground-400">이메일</span>
+                                    <span id="detailEmail" class="text-sm font-medium text-foreground-800 truncate max-w-40">
+                      ounce.kim@example.com
+                    </span>
+                                </div>
+                                <div class="flex justify-between items-center py-3 border-b border-background-100">
+                                    <span class="text-sm text-foreground-400">회원 등급</span>
+                                    <span class="px-2.5 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded-md">
+                      Ounce VIP
+                    </span>
+                                </div>
+                                <div class="flex justify-between items-center py-3">
+                                    <span class="text-sm text-foreground-400">적립금</span>
+                                    <span class="text-sm font-semibold text-accent-500">
+                      2,850P
+                    </span>
+                                </div>
+                                <button class="mt-4 w-full py-3 text-sm font-medium text-foreground-700 border border-foreground-200 rounded-lg hover:border-accent-500 hover:text-accent-500 transition-colors cursor-pointer whitespace-nowrap ready-btn">
+                                    <i class="ri-pencil-line mr-2"></i>
+                                    프로필 수정
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="lg:col-span-7">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                            <a href="/orders" class="group flex flex-col p-6 md:p-8 bg-background-50 border border-background-200/80 rounded-xl hover:border-accent-300 transition-all ready-btn">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-primary-100 mb-5 group-hover:bg-primary-200 transition-colors">
+                                    <i class="ri-file-list-3-line text-xl text-primary-500"></i>
+                                </div>
+                                <h3 class="text-base font-medium text-foreground-950 mb-1">주문 내역</h3>
+                                <p class="text-sm text-foreground-400 mb-4">지난 주문을 확인하고 배송 상태를 추적하세요</p>
+                                <span class="text-sm text-primary-600 font-medium inline-flex items-center gap-1 mt-auto">
+                    바로가기
+                    <i class="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </span>
+                            </a>
+
+                            <a href="/cart" class="group flex flex-col p-6 md:p-8 bg-background-50 border border-background-200/80 rounded-xl hover:border-accent-300 transition-all ready-btn">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-accent-100 mb-5 group-hover:bg-accent-200 transition-colors">
+                                    <i class="ri-shopping-cart-line text-xl text-accent-500"></i>
+                                </div>
+                                <h3 class="text-base font-medium text-foreground-950 mb-1">장바구니</h3>
+                                <p class="text-sm text-foreground-400 mb-4">담아둔 제철 식재료를 확인하고 결제하세요</p>
+                                <span class="text-sm text-accent-600 font-medium inline-flex items-center gap-1 mt-auto">
+                    바로가기
+                    <i class="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </span>
+                            </a>
+
+                            <a href="/products" class="group flex flex-col p-6 md:p-8 bg-background-50 border border-background-200/80 rounded-xl hover:border-accent-300 transition-all ready-btn">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-secondary-100 mb-5 group-hover:bg-secondary-200 transition-colors">
+                                    <i class="ri-store-line text-xl text-secondary-600"></i>
+                                </div>
+                                <h3 class="text-base font-medium text-foreground-950 mb-1">큐레이션</h3>
+                                <p class="text-sm text-foreground-400 mb-4">매일 새로운 제철 식재료 큐레이션을 탐색하세요</p>
+                                <span class="text-sm text-secondary-700 font-medium inline-flex items-center gap-1 mt-auto">
+                    바로가기
+                    <i class="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </span>
+                            </a>
+
+                            <a href="/timedeal" class="group flex flex-col p-6 md:p-8 bg-background-50 border border-background-200/80 rounded-xl hover:border-accent-300 transition-all ready-btn">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-foreground-100 mb-5 group-hover:bg-foreground-200 transition-colors">
+                                    <i class="ri-moon-line text-xl text-foreground-600"></i>
+                                </div>
+                                <h3 class="text-base font-medium text-foreground-950 mb-1">미드나이트 세일</h3>
+                                <p class="text-sm text-foreground-400 mb-4">매일 22시, 한 시간만 열리는 특별한 가격</p>
+                                <span class="text-sm text-foreground-700 font-medium inline-flex items-center gap-1 mt-auto">
+                    바로가기
+                    <i class="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </span>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Placeholder -->
+    <footer class="w-full py-8 text-center bg-background-200/50 mt-10">
+        <p class="text-sm text-foreground-500">&copy; 2026 OUNCE. All rights reserved.</p>
+    </footer>
+
+    <!-- ── Modals & Toasts (기본 hidden 처리) ── -->
+
+    <!-- Toast -->
+    <div class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-foreground-950 text-white text-sm font-medium rounded-full shadow-lg animate-[slideUp_0.3s_ease-out]">
+        <div class="flex items-center gap-2">
+            <i class="ri-check-line text-accent-400"></i>
+            프로필이 저장되었습니다
+        </div>
+    </div>
+
+<!--    &lt;!&ndash; Logout Confirm Modal &ndash;&gt;-->
+<!--    <div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-foreground-950/40 backdrop-blur-sm">-->
+<!--        <div class="bg-background-50 rounded-2xl p-6 md:p-8 w-full max-w-sm mx-4 shadow-lg">-->
+<!--            <div class="text-center mb-6">-->
+<!--                <div class="w-14 h-14 flex items-center justify-center rounded-full bg-accent-100 mx-auto mb-4">-->
+<!--                    <i class="ri-logout-box-r-line text-2xl text-accent-500"></i>-->
+<!--                </div>-->
+<!--                <h3 class="text-lg font-bold text-foreground-950 mb-2">로그아웃 하시겠어요?</h3>-->
+<!--                <p class="text-sm text-foreground-500">언제든지 다시 로그인하실 수 있습니다</p>-->
+<!--            </div>-->
+<!--            <div class="flex gap-3">-->
+<!--                <button class="flex-1 py-2.5 text-sm font-medium text-foreground-600 border border-background-300 rounded-xl hover:bg-background-100 transition-colors cursor-pointer whitespace-nowrap">-->
+<!--                    취소-->
+<!--                </button>-->
+<!--                <button class="flex-1 py-2.5 text-sm font-medium text-white bg-accent-500 hover:bg-accent-600 rounded-xl transition-colors cursor-pointer whitespace-nowrap">-->
+<!--                    로그아웃-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+</div>
+</body>
+</html>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 현재 로그인한 회원의 정보를 백엔드에 요청합니다.
+        fetch('/api/members/me', { credentials: 'include' })
+            .then(res => {
+                if (!res.ok) {
+                    alert('로그인이 필요한 페이지입니다.');
+                    window.location.href = '/login';
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                console.log("서버 응답 데이터:", data);
+
+                // 1. API 응답에서 이름과 이메일 추출
+                // (백엔드 MemberDTO 등에 name 필드가 있다고 가정합니다)
+                const realName = data.name;
+                const realEmail = data.email;
+
+                // 2. 이름 변경 (id로 정확하게 찾아 덮어쓰기)
+                const titleNameEl = document.getElementById('titleName');
+                if (titleNameEl) titleNameEl.textContent = realName;
+
+                const profileNameEl = document.getElementById('profileName');
+                if (profileNameEl) profileNameEl.textContent = realName;
+
+                const detailNameEl = document.getElementById('detailName');
+                if (detailNameEl) detailNameEl.textContent = realName;
+
+                // 3. 이메일 변경
+                const vipEmailEl = document.getElementById('vipEmail');
+                if (vipEmailEl) vipEmailEl.textContent = realEmail;
+
+                const profileEmailEl = document.getElementById('profileEmail');
+                if (profileEmailEl) profileEmailEl.textContent = realEmail;
+
+                const detailEmailEl = document.getElementById('detailEmail');
+                if (detailEmailEl) detailEmailEl.textContent = realEmail;
+
+                // 4. 프로필 아바타 첫 글자 이니셜 바꾸기 (이름의 첫 글자 추출)
+                const avatarEl = document.getElementById('avatarInitial');
+                if (avatarEl && realName && realName !== "이름없음") {
+                    avatarEl.textContent = realName.charAt(0).toUpperCase();
+                }
+            })
+            .catch(err => console.error('마이페이지 데이터 바인딩 실패:', err));
+    });
+
+
+</script>

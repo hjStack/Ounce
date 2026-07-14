@@ -1,12 +1,9 @@
 package ounce.market.demo.cart.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.core.parameters.P;
-import ounce.market.demo.cart.entity.Cart;
 import ounce.market.demo.cart.entity.CartProduct;
 
 import java.util.List;
-import java.util.Optional;
 
 // 2. CartProductRepository.java (아이템 찾기용)
 public interface CartProductRepository extends JpaRepository<CartProduct, Long> {

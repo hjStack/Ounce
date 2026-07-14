@@ -18,22 +18,23 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 // 5. 유저 정보 조회 — CustomOAuth2UserService
+
+// todo DefaultOAuth2UserService  ⭐️
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
 
     /** todo
       구글 로그인을 하면 자꾸 로컬로 url이 바뀌는 오류 발견
-
      */
 
-
+    // ⭐️
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // 1. 구글에서 유저 정보 가져오기 (기본 기능 호출)
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 2. 구글이 던져준 정보(Attributes) 중에서 이메일 추출
+        // 2. 구글이 던져준 정보(Attributes) 중에서 이메일  추출
         String email = oAuth2User.getAttribute("email");
 
         // 3. 우리 DB에 이 이메일이 있는지 확인하고, 없으면 회원가입(저장) 처리
