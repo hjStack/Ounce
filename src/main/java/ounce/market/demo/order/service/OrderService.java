@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ounce.market.demo.cart.entity.Cart;
-import ounce.market.demo.cart.entity.CartProduct;
+ import ounce.market.demo.cart.entity.CartProduct;
 import ounce.market.demo.cart.repository.CartProductRepository;
-import ounce.market.demo.cart.repository.CartRepository;
-import ounce.market.demo.delivery.entity.Delivery;
+
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
 import ounce.market.demo.order.dto.request.OrderCreateRequest;
