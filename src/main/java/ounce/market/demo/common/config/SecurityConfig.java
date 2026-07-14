@@ -23,7 +23,7 @@ import ounce.market.demo.common.global.jwt.JWTUtil;
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler oAuth2SuccessHandler; // 우리가 직접 만들 클래스
-    private final CustomOAuth2UserService customOAuth2UserService; // 구글 정보 처리 클래스
+    private final CustomOAuth2UserService  customOAuth2UserService; // 구글 정보 처리 클래스
     private final JWTUtil jwtUtil;
 
     @Bean
