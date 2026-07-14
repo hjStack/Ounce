@@ -7,7 +7,7 @@ import ounce.market.demo.common.global.InsufficientPointException;
 
 @Entity
 @Getter
-@NoArgsConstructor()
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Member extends BaseEntity {
@@ -22,6 +22,9 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private String name;
 
     @Enumerated(EnumType.STRING)
     private Role role;

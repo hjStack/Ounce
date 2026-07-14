@@ -63,3 +63,4 @@ function updateUIForLoggedIn(userName) {
     setInterval(updateMidnightTimer, 1000);
     updateMidnightTimer(); // 로드 시 즉시 실행
 });
+

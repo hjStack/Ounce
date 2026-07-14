@@ -29,6 +29,7 @@ public class MemberService {
     private final CartRepository cartRepository; // 💡 장바구니 창고 직원 추가
 
     // todo 관리자 권한 로직 및 버튼 만들기
+    // todo n+1 문제 발생 -> 해결하기
 
     @Transactional
     public void signup(MemberCreateRequest request) {
@@ -45,6 +46,7 @@ public class MemberService {
         Member member = Member.builder()
                 .email(request.getEmail())
                 .password(encodedPassword)
+                .name(request.getName())
                 .point(1000)   // 가입 축하금 1000원
                 .role(Role.USER)
                 .build();

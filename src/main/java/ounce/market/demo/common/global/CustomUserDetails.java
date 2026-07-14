@@ -25,4 +25,5 @@ public record CustomUserDetails(Member member) implements UserDetails {
         return member.getEmail();
     }
 
+
 }

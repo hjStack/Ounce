@@ -13,9 +13,9 @@
 
             <div class="hidden md:flex items-center gap-8">
                 <a href="/" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">Ounce</a>
-                <a href="/timedeal" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">미드나이트</a>
-                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">큐레이션</a>
-                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">베스트</a>
+                <a href="/timedeal" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">미드나이트</a>
+                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">큐레이션</a>
+                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">베스트</a>
             </div>
 
             <div class="flex items-center gap-3 md:gap-4">
@@ -138,6 +138,15 @@
             const logoutBtnMobile = document.getElementById('logout-btn-mobile');
             if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
             if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', handleLogout);
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.ready-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 404 페이지로 넘어가는 것을 차단!
+                    alert("🚧 현재 22시 타임딜 대규모 트래픽 방어를 위해 '주문 및 결제 아키텍처'를 치열하게 튜닝 중입니다. 곧 정식 오픈됩니다!");
+                });
+            });
         });
     </script>
 

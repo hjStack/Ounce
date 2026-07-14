@@ -22,6 +22,8 @@ public class MemberCreateRequest {
             message = "비밀번호는 8~20자리수어야 하며, 영문/숫자/특수문자를 모두 포함해야 합니다.")
     private String password;
 
+    private String name;
+
     private Role role;
 
 }
