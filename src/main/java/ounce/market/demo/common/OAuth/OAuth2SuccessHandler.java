@@ -9,9 +9,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 
 import java.io.IOException;
@@ -26,8 +24,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
-    @Value("${app.cookie-secure}")
-    private boolean cookieSecure;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -43,7 +39,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                 .path("/")
                 .httpOnly(true)
-                .secure(cookieSecure)
+                .secure(true)
                 .maxAge(60 * 60 * 24)
                 .sameSite("Lax")
                 .build();

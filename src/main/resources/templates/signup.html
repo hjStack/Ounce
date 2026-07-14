@@ -25,7 +25,13 @@
                 <p>Ounce의 회원이 되어 특별한 혜택을 받아보세요</p>
             </div>
 
-            <form id="signupForm" class="auth-form" method="post">
+            <form id="signupForm" class="auth-form" method="post" novalidate>
+
+                <div class="input-group">
+                    <label>이름</label>
+                    <input type="text" id="name" name="name" placeholder="홍길동" required />
+                    <div id="nameError" class="error-text"></div>
+                </div>
 
                 <div class="input-group">
                     <label>이메일</label>
@@ -55,13 +61,13 @@
             </div>
 
             <div class="social-login">
-                <button class="btn-social btn-google">
+                <button type="button" class="btn-social btn-google" onclick="location.href='/oauth2/authorization/google'">
                     <i class="ri-google-fill"></i> Google로 계속하기
                 </button>
             </div>
 
             <div class="form-footer">
-                <p>이미 계정이 있으신가요? <a href="/login.html">로그인</a></p>
+                <p>이미 계정이 있으신가요? <a href="/login">로그인</a></p>
             </div>
         </div>
     </div>

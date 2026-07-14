@@ -12,9 +12,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.common.global.jwt.JWTUtil;
+import ounce.market.demo.member.entity.Member;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -56,11 +57,17 @@ public class JwtFilter extends OncePerRequestFilter {
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
 
-        // 4. 스프링 시큐리티의 '임시 신분증(Authentication)' 만들기
+        Member temporaryMember = Member.builder()
+                .email(email)
+                .role(ounce.market.demo.member.entity.Role.valueOf(role.replace("ROLE_", "")))
+                .build();
+
+        CustomUserDetails userDetails = new CustomUserDetails(temporaryMember);
+
         Authentication authToken = new UsernamePasswordAuthenticationToken(
-                email,
-                null, // 비밀번호는 이미 앞선 과정에서 검증되었으므로 null 처리
-                Collections.singleton(new SimpleGrantedAuthority(role))
+                userDetails, // 💡 기존 email 문자열에서 userDetails 객체로 변경!
+                null,
+                userDetails.getAuthorities()
         );
 
         // 5. 💡 핵심: "이 유저 인증 통과했어!" 라고 스프링 시큐리티 상황실(SecurityContext)에 등록

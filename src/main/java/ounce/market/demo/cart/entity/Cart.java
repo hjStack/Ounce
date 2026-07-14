@@ -29,7 +29,7 @@ public class Cart extends BaseEntity {
     @JoinColumn(name = "quantity", nullable = false)
     private int quantity;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cart")
     private List<CartProduct> cartItems = new ArrayList<>();  // ← 이 필드가 있어야 getCartItems() 생성됨
 
     @Builder

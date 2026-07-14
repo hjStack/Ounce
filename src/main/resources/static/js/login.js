@@ -10,9 +10,12 @@ if (loginForm) {
         try {
             const response = await fetch('/api/members/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // 💡 이게 없으면 브라우저가 백엔드에서 주는 쿠키를 튕겨냅니다!
                 credentials: 'include',
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email: email, password: password })
             });
 
             if (response.ok) {
@@ -27,6 +30,37 @@ if (loginForm) {
         }
     });
 }
+
+window.addEventListener('DOMContentLoaded', function () {
+    const ua = navigator.userAgent.toLowerCase();
+    const isKakao = ua.includes('kakaotalk');
+    const isInApp =
+        isKakao ||
+        ua.includes('instagram') ||
+        ua.includes('line') ||
+        ua.includes('fban') ||
+        ua.includes('fbav') ||
+        ua.includes('naver');
+
+    if (!isInApp) return;
+
+    const targetUrl = 'https://ouncefresh.com/login';
+
+    if (isKakao) {
+        location.href =
+            'kakaotalk://web/openExternal?url=' + encodeURIComponent(targetUrl);
+        return;
+    }
+
+    document.body.innerHTML = `
+    <div style="padding:24px; text-align:center; font-family:sans-serif;">
+      <h2>외부 브라우저로 열어주세요</h2>
+      <p>구글 로그인은 앱 내 브라우저에서 지원되지 않습니다.</p>
+      <p>오른쪽 위 메뉴(⋮)를 눌러<br>
+      <b>'다른 브라우저로 열기'</b> 또는 <b>'Chrome으로 열기'</b>를<br>
+      선택해 주세요.</p>
+    </div>`;
+});
 
 /*
 todo

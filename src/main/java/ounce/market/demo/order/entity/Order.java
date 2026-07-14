@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.delivery.entity.Delivery;
 import ounce.market.demo.common.BaseEntity;
+import ounce.market.demo.delivery.entity.DeliveryStatus;
 import ounce.market.demo.member.entity.Member;
 
 import java.util.ArrayList;
@@ -32,13 +33,14 @@ public class Order extends BaseEntity {
     private OrderStatus status;
 
     // 🔥mappedBy를 통해 "내 진짜 주인은 Delivery 테이블의 order 필드야"라고 선언합니다.
-    // 🔥 cascade를 걸어두면 주문 저장 시 배송도 자동으로 한 방에 세이브됩니다!
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Delivery delivery;
+    // @OneToOne 파라미터에 cascade = CascadeType.ALL 삭제
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order")
     private List<OrderItem> items=new ArrayList<>();
     // OrderItem이 연관관계의 주인임
+    //   @OneToMany 파라미터에 cascade = CascadeType.ALL 삭제
 
     @Builder
     public Order(int totalAmount, Member member, OrderStatus status) {
@@ -47,14 +49,17 @@ public class Order extends BaseEntity {
         this.status = status;
     }
 
+    // for DDD
     public void complete() {
         this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 
     public void cancel() {
+        if (this.delivery != null && this.delivery.getStatus() == DeliveryStatus.SHIPPED) {
+            throw new IllegalStateException("이미 배송이 시작되어 취소할 수 없습니다.");
+        }
         this.status = OrderStatus.CANCELED;
     }
-
 
     public void addOrderItem(OrderItem orderItem) {
         this.items.add(orderItem);

@@ -8,15 +8,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.dto.request.LoginRequest;
+import ounce.market.demo.member.dto.response.MemberResponse;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.service.MemberService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -43,35 +42,37 @@ public class MemberController {
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                 .path("/")
                 .httpOnly(true)
-                .maxAge(60 * 60 * 24)
+                .maxAge(60 * 60)
                 .sameSite("Lax")
+                .secure(false)
                 .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok("로그인 성공!");
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body("로그인 성공! 쿠키를 확인하세요.");
     }
 
     // 2. 💡 내 정보 조회 API
     @GetMapping("/me")
-    public ResponseEntity<?> getMyInfo(Authentication authentication) {
+    public ResponseEntity<MemberResponse> getMyInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         // JwtFilter를 통과하지 못해 Authentication이 없다면 401 에러 반환
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // JwtFilter에서 SecurityContext에 넣어둔 이메일 꺼내기
-        String email = (String) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+
         Member member = memberService.findByEmail(email);
 
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("email", member.getEmail());
-        userInfo.put("role", member.getRole().name());
-        userInfo.put("point", member.getPoint());
-
-        return ResponseEntity.ok(userInfo);
+        // 3. 완전한 엔티티를 DTO로 변환하여 응답합니다.
+        MemberResponse response = MemberResponse.from(member);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
+    
     public ResponseEntity<?> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("Authorization", "")
                 .path("/")

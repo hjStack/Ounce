@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="~{fragments/head :: head(title='Ounce')}"></head>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 <body class="bg-[#fcfbf9]">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
-
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
 <main class="pt-20 md:pt-24">
@@ -36,11 +35,11 @@
             </p>
 
             <div class="flex flex-wrap items-center gap-3 mb-14">
-                <a href="/curation" class="px-6 py-3.5 bg-[#3b4055] text-white text-sm font-semibold rounded hover:bg-gray-800 transition-colors flex items-center gap-2">
+                <a href="/curation" class="px-6 py-3.5 bg-[#3b4055] text-white text-sm font-semibold rounded hover:bg-gray-800 transition-colors flex items-center gap-2 ready-btn">
                     큐레이션 보기
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </a>
-                <a href="/timedeal" class="px-6 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
+                <a href="/timedeal" class="px-6 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm ready-btn">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     미드나이트 세일
                 </a>
@@ -156,10 +155,17 @@
                     매일 밤 10시, 신선한 식품을 초특가에 만나볼 수 있는 기회입니다.<br />
                     회원가입하고 알림을 받아보세요.
                 </p>
-                <a href="/signup" class="inline-flex items-center gap-2 px-8 py-3 bg-[#d95d22] text-white text-sm font-medium rounded hover:bg-[#bf4e1a] transition-colors whitespace-nowrap">
+
+                <a sec:authorize="isAnonymous()" href="/signup" class="inline-flex items-center gap-2 px-8 py-3 bg-[#d95d22] text-white text-sm font-medium rounded hover:bg-[#bf4e1a] transition-colors whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     미드나이트 알림 받기
                 </a>
+
+                <a sec:authorize="isAuthenticated()" href="#" onclick="alert('이미 Ounce 멤버십 알림이 활성화되어 있습니다!'); return false;" class="inline-flex items-center gap-2 px-8 py-3 bg-[#3b4055] text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    알림 수신 중
+                </a>
+
             </div>
         </div>
     </section>
@@ -247,6 +253,8 @@
             randomShow();
         }
     });
+
+
 </script>
 
 </body>
