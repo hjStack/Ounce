@@ -50,7 +50,6 @@ public class SecurityConfig {
                         .requestMatchers("/signup", "/login").permitAll()
                         .requestMatchers("/api/members/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/error").permitAll()
 
