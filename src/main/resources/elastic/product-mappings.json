@@ -1,0 +1,24 @@
+{
+  "properties": {
+    "productId":   { "type": "long" },
+    "productCode": { "type": "keyword" },
+    "name": {
+      "type": "text",
+      "analyzer": "korean_index_analyzer",
+      "search_analyzer": "korean_search_analyzer",
+      "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } }
+    },
+    "description": {
+      "type": "text",
+      "analyzer": "korean_index_analyzer",
+      "search_analyzer": "korean_search_analyzer"
+    },
+    "basePrice":  { "type": "long" },
+    "salePrice":  { "type": "long" },
+    "status":     { "type": "keyword" },
+    "inStock":    { "type": "boolean" },
+    "categories": { "type": "keyword" },
+    "imageUrl":   { "type": "keyword", "index": false },
+    "createdAt":  { "type": "date", "format": "date_optional_time" }
+  }
+}

@@ -1,6 +1,8 @@
 package ounce.market.demo.product.repository;
 
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,9 +18,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByStatusIn(Collection<ProductStatus> statuses);
 
-    List<CartProduct> findByProductId(Long productId);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)   // ✅ 이게 있어야 락임
+    @Query("select p from Product p where p.productId in :id order by p.productId")
+    List<Product> findByIdWithPessimisticLock(@Param("id") List<Long> ids);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select p from Product p where p.productId in :ids order by p.productId")
-    List<Product> findAllByIdForUpdate(@Param("ids") List<Long> ids);
+    @Query("select p from Product p where p.productId > :lastId order by p.productId asc")
+    List<Product> findForIndexing(@Param("lastId") Long lastId, Pageable pageable);
+
+    // ES
+    @Query("select p from Product p where p.name like %:keyword%")
+    Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }
