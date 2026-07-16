@@ -14,6 +14,8 @@ import ounce.market.demo.order.dto.request.OrderCreateRequest;
 import ounce.market.demo.order.dto.response.OrderResponse;
 import ounce.market.demo.order.repository.OrderRepository;
 import ounce.market.demo.product.repository.StockRedisRepository;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -38,7 +40,7 @@ public class OrderService {
     Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
-    List<CartProduct> selectedProducts = cartProductRepository.findAllById(request.getSelectedCartProductIds());
+    List<CartProduct> selectedProducts = cartProductRepository.findByIdsWithProduct(request.getSelectedCartProductIds());
 
     if (selectedProducts.isEmpty()) {
         throw new IllegalArgumentException("선택된 상품이 없어 결제를 진행할 수 없습니다.");
@@ -53,22 +55,18 @@ public class OrderService {
         throw new IllegalArgumentException("포인트가 부족합니다. (현재 잔액: " + member.getPoint() + "원)");
     }
 
-    // 3. 진짜 쓰기(Write) 작업은 분리된 서비스로 넘겨버리기!
-    return orderCommandService.executeOrderTransaction(member, selectedProducts, totalAmount);
+        for (CartProduct cp : selectedProducts) {
+            stockRedisRepository.decrease(cp.getProduct().getProductId(), cp.getQuantity());
+        }
+        try {
+            return orderCommandService.executeOrderTransaction(member, selectedProducts, totalAmount);
+        } catch (RuntimeException e) {
+            orderCommandService.rollbackRedisStock(selectedProducts);
+            throw e;
+        }
+
 }
 
-
-    private void rollbackRedisStock(List<CartProduct> products) {
-        for (CartProduct cp : products) {
-            try {
-                stockRedisRepository.increase(cp.getProduct().getProductId(), cp.getQuantity());
-            } catch (RuntimeException ex) {
-                // 보상 실패는 로그로 남겨 반드시 추적 (여기서 또 던지면 원래 예외를 덮음)
-                log.error("Redis 재고 보상 실패 productId={}, qty={}",
-                        cp.getProduct().getProductId(), cp.getQuantity(), ex);
-            }
-        }
-    }
 
     @Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders(Long memberId) {

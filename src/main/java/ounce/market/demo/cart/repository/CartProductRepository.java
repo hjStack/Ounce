@@ -1,6 +1,8 @@
 package ounce.market.demo.cart.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ounce.market.demo.cart.entity.CartProduct;
 
 import java.util.List;
@@ -11,5 +13,7 @@ public interface CartProductRepository extends JpaRepository<CartProduct, Long> 
 //    List<CartProduct> findByCartProductId(Long cartProductId);
 //
 //    // 특정 장바구니(Cart)에 특정 상품(Product)이 이미 있는지 확인
-//    Optional<CartProduct> findByCartIdAndProductId(Long cartId, Long productId);
+
+    @Query("SELECT cp FROM CartProduct cp JOIN FETCH cp.product WHERE cp.cartProductId IN :ids")
+    List<CartProduct> findByIdsWithProduct(@Param("ids") List<Long> ids);
 }
