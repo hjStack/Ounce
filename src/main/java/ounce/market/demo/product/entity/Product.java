@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.common.BaseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,6 +32,8 @@ public class Product extends BaseEntity {
     private String imageUrl;
 
     private int stock;
+
+    private List<String> productCategories;
 
     @Builder
     public Product(String productCode, String name, Long basePrice, int stock,
@@ -55,7 +60,7 @@ public class Product extends BaseEntity {
     /** ✅ 재고 차감 (부족하면 예외 → 트랜잭션 롤백) */
     public void decreaseStock(int quantity) {
 
-        // todo 이렇게 하면 동시성 이슈 발생 -> 비관적 락으로 수정
+        // todo 이렇게 하면 동시성 이슈 발생 -> redis Lua Script
         if (quantity <= 0) {
             throw new IllegalArgumentException("차감 수량은 1 이상이어야 합니다.");
         }

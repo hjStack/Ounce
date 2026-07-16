@@ -5,10 +5,17 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-
 app:
   frontend-url: "https://ouncefresh.com/"
   cookie-secure: true
 
 server:
   forward-headers-strategy: framework
+
+search:
+  engine: jpa
+
+management:
+  health:
+    elasticsearch:
+      enabled: false
