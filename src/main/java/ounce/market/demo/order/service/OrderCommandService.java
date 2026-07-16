@@ -1,5 +1,6 @@
 package ounce.market.demo.order.service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ounce.market.demo.cart.entity.CartProduct;
@@ -9,15 +10,18 @@ import ounce.market.demo.order.entity.Order;
 import ounce.market.demo.order.entity.OrderItem;
 import ounce.market.demo.order.entity.OrderStatus;
 import ounce.market.demo.order.repository.OrderRepository;
+import ounce.market.demo.product.repository.StockRedisRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderCommandService {
 
     private final OrderRepository orderRepository;
     private final CartProductRepository cartProductRepository;
+    private final StockRedisRepository stockRedisRepository;
 
     // 🚨 핵심: 오직 데이터를 수정하는 이 부분만 트랜잭션으로 꽉 묶어줍니다!
     @Transactional
@@ -35,6 +39,7 @@ public class OrderCommandService {
 
         // 3. 선택된 장바구니 상품들을 주문 상품(OrderItem)으로 변환
         for (CartProduct cp : products) {
+
             OrderItem orderItem = OrderItem.builder()
                     .product(cp.getProduct())
                     .price(Math.toIntExact(cp.getProduct().getBasePrice()))
@@ -51,5 +56,17 @@ public class OrderCommandService {
         cartProductRepository.deleteAll(products);
 
         return order.getOrderId();
+    }
+
+    void rollbackRedisStock(List<CartProduct> products) {
+        for (CartProduct cp : products) {
+            try {
+                stockRedisRepository.increase(cp.getProduct().getProductId(), cp.getQuantity());
+            } catch (RuntimeException ex) {
+                // 보상 실패는 로그로 남겨 반드시 추적 (여기서 또 던지면 원래 예외를 덮음)
+                log.error("Redis 재고 보상 실패 productId={}, qty={}",
+                        cp.getProduct().getProductId(), cp.getQuantity(), ex);
+            }
+        }
     }
 }

@@ -1,0 +1,54 @@
+{
+  "index": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "tokenizer": {
+        "korean_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed",
+          "user_dictionary_rules": [
+            "샛별배송 샛별 배송",
+            "샛별",
+            "무항생제",
+            "무농약",
+            "무설탕",
+            "무염",
+            "친환경",
+            "유기농",
+            "국내산",
+            "1인용", "1인분", "1인가구", "2인용",
+            "자취방", "원룸템",
+            "무선이어폰 무선 이어폰",
+            "전기밥솥 전기 밥솥"
+          ]
+        }
+      },
+      "filter": {
+        "korean_pos_filter": {
+          "type": "nori_part_of_speech"
+        },
+        "synonym_filter": {
+          "type": "synonym_graph",
+          "synonyms": [
+            "1인가구, 자취, 원룸",
+            "계란, 달걀",
+            "감귤, 귤"
+          ]
+        }
+      },
+      "analyzer": {
+        "korean_index_analyzer": {
+          "type": "custom",
+          "tokenizer": "korean_tokenizer",
+          "filter": ["korean_pos_filter", "lowercase"]
+        },
+        "korean_search_analyzer": {
+          "type": "custom",
+          "tokenizer": "korean_tokenizer",
+          "filter": ["korean_pos_filter", "lowercase", "synonym_filter"]
+        }
+      }
+    }
+  }
+}
