@@ -10,6 +10,7 @@ import ounce.market.demo.cart.dto.response.CartItemDto;
 import ounce.market.demo.cart.service.CartService;
 import ounce.market.demo.member.repository.MemberRepository;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
@@ -44,23 +45,24 @@ public class CartController {
     }
 
 //    // 💡 2. 장바구니 상품 수량 변경 (PATCH /api/carts/{cartId}?quantity=X)
-//    @PatchMapping("/{cartId}")
-//    public ResponseEntity<?> updateQuantity(
-//            Authentication authentication,
-//            @PathVariable("cartId") Long cartProductId,
-//            @RequestParam int quantity) {
-//
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            return ResponseEntity.status(401).build();
-//        }
-//
-//        String email = authentication.getName();
-//        Member member = memberRepository.findByEmail(email).orElseThrow();
-//
-//        // 서비스단에서 회원 ID와 상품 검증을 함께 처리
-//        cartService.updateQuantity(member.getMemberId(), cartProductId, quantity);
-//        return ResponseEntity.ok().build();
-//    }
+    @PatchMapping("/{cartId}")
+    public ResponseEntity<?> updateQuantity(
+            Authentication authentication,
+            @PathVariable("cartId") Long cartProductId,
+            @RequestParam int quantity) throws AccessDeniedException {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String email = authentication.getName();
+        Member member = memberRepository.findByEmail(email).orElseThrow();
+
+        // 서비스단에서 회원 ID와 상품 검증을 함께 처리
+        cartService.updateQuantity(member.getMemberId(), cartProductId, quantity);
+
+        return ResponseEntity.ok().build();
+    }
 //
 //    // 💡 3. 장바구니 상품 삭제 (DELETE /api/carts/{cartId})
 //    @DeleteMapping("/{cartId}")
