@@ -1,4 +1,6 @@
 -- 재고 충분하면 차감하고 남은 재고 반환, 부족하면 -1
+
+-- 원자적 차감 연산
 local stock = tonumber(redis.call('GET', KEYS[1]))
 if stock == nil then
     return -2            -- 재고 키 없음 (초기화 안 됨)
