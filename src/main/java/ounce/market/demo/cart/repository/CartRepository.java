@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import ounce.market.demo.cart.entity.Cart;
+import ounce.market.demo.member.entity.Member;
+
 import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
@@ -16,4 +18,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 //    Optional<Cart> findByMemberEmailWithItems(@Param("email") String email);
 
     Optional<Cart> findByMemberMemberId(Long memberMemberId);
+
+    boolean existsByMember(Member member);
 }

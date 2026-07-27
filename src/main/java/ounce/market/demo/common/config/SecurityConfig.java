@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 1. 프론트엔드 디자인 파일들 (css, js, img) 통과!
-                        .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**","/favicon.ico","/favicon.png").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup", "/login").permitAll()
                         .requestMatchers("/api/members/**").permitAll()
