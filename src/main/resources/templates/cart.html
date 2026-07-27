@@ -148,7 +148,8 @@
         const cartContentEl = document.getElementById('cart-content');
         const cartItemsContainer = document.getElementById('cart-items-container');
 
-        // 💡 2. 네비게이션 바를 타고 오자마자 백엔드 API(/api/carts/me)를 찔러 데이터 가져오기
+
+        // 💡 1. 네비게이션 바를 타고 오자마자 백엔드 API(/api/carts/me)를 찔러 데이터 가져오기
         async function fetchMyCart() {
             try {
                 const response = await fetch('/api/carts/me', { credentials: 'include' });
