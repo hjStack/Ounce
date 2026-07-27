@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
 <body>
 
 <nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-50/95 backdrop-blur-md border-b border-background-200/50">
@@ -21,7 +20,6 @@
 
             <div class="flex items-center gap-3 md:gap-4">
 
-                <!-- 로그인 상태에서만 -->
                 <!-- 로그인 상태에서만 -->
                 <div class="relative" id="user-menu-wrap" sec:authorize="isAuthenticated()">
                     <button
@@ -53,8 +51,7 @@
 
                 <a href="/cart" class="relative text-foreground-700 hover:text-primary-500 transition-colors">
                     <i class="ri-shopping-cart-2-line text-xl"></i>
-                    <span class="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center
-                 bg-primary-500 text-white text-[10px] font-bold rounded-full">3</span>
+                    <span class="cart-badge hidden absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center bg-primary-500 text-white text-[10px] font-bold rounded-full">0</span>
                 </a>
             </div>
 
@@ -64,24 +61,46 @@
         </div>
     </div>
 
-    <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200">
-        <div class="px-4 py-4 flex flex-col gap-3">
-            <a href="/" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">Ounce</a>
-            <a href="/timedeal" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">미드나이트</a>
-            <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">큐레이션</a>
-            <a href="/products" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">베스트</a>
-            <hr class="border-background-200"/>
+    <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200 shadow-lg">
+        <div class="px-4 py-5">
 
-            <a href="/login" id="login-btn-mobile" sec:authorize="!isAuthenticated()" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">로그인</a>
-            <a href="/account" id="account-btn-mobile" sec:authorize="isAuthenticated()" class="text-foreground-700 hover:text-foreground-950 text-sm font-medium py-2">내 계정</a>
-            <button id="logout-btn-mobile" sec:authorize="isAuthenticated()" class="text-left text-accent-500 hover:text-accent-600 text-sm font-medium py-2">로그아웃</button>
+            <!-- 네비게이션 섹션 -->
+            <p class="px-1 mb-2 text-[11px] font-semibold text-foreground-400 tracking-wider uppercase">둘러보기</p>
+            <div class="grid grid-cols-2 gap-2 mb-5">
+                <a href="/" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-home-4-line text-primary-500 text-lg"></i> Ounce
+                </a>
+                <a href="/timedeal" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors ready-btn">
+                    <i class="ri-moon-line text-primary-500 text-lg"></i> 미드나이트
+                </a>
+                <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors ready-btn">
+                    <i class="ri-leaf-line text-primary-500 text-lg"></i> 큐레이션
+                </a>
+                <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors ready-btn">
+                    <i class="ri-star-line text-primary-500 text-lg"></i> 베스트
+                </a>
+            </div>
 
-            <a
-                    href="/cart"
-                    class="w-11 h-11 flex items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm hover:bg-indigo-600 transition-all duration-200 active:scale-95 cursor-pointer"
-            >
-                <i class="ri-shopping-cart-line text-xl"></i>
-            </a>
+            <!-- 계정 섹션 -->
+            <p class="px-1 mb-2 text-[11px] font-semibold text-foreground-400 tracking-wider uppercase">내 계정</p>
+            <div class="flex flex-col gap-0.5">
+                <!-- 비로그인 -->
+                <a href="/login" sec:authorize="!isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-login-box-line text-foreground-400 text-base"></i> 로그인
+                </a>
+
+                <!-- 로그인 -->
+                <a href="/account" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-user-line text-foreground-400 text-base"></i> 내 계정
+                </a>
+                <a href="/orders" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors ready-btn">
+                    <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
+                </a>
+                <button id="logout-btn-mobile" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left w-full">
+                    <i class="ri-logout-box-r-line text-base"></i> 로그아웃
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -117,6 +136,26 @@
                 alert('로그아웃 되었습니다.');
                 window.location.href = '/';
             };
+
+            // navbar 스크립트 안, DOMContentLoaded 콜백에 추가
+            fetch('/api/carts/me', { credentials: 'include' })
+                .then(res => res.ok ? res.json() : null)
+                .then(cart => {
+                    if (!cart) return;  // 비로그인이면 패스
+
+                    // 장바구니에 담긴 상품 종류 수 (또는 수량 합)
+                    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+                    document.querySelectorAll('.cart-badge').forEach(badge => {
+                        if (count > 0) {
+                            badge.textContent = count > 99 ? '99+' : count;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');  // 0개면 배지 숨김
+                        }
+                    });
+                })
+                .catch(err => console.error('장바구니 개수 조회 실패:', err));
 
             // 로그인 상태면 이메일 @앞부분을 이름으로 채우기
             fetch('/api/members/me', { credentials: 'include' })
