@@ -3,7 +3,6 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-
 <body>
 
 <nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-50/95 backdrop-blur-md border-b border-background-200/50">
@@ -23,28 +22,27 @@
             <div class="flex items-center gap-3 md:gap-4">
 
                 <!-- 로그인 상태에서만 -->
+                <!-- 로그인 상태에서만 -->
                 <div class="relative" id="user-menu-wrap" sec:authorize="isAuthenticated()">
                     <button
                             id="user-menu-btn"
-                            class="group flex items-center gap-3 py-1.5 pl-2 pr-3 text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-full transition-all duration-200 hover:shadow-sm cursor-pointer active:scale-95"
+                            class="group flex items-center gap-1.5 text-sm font-medium text-foreground-700 hover:text-foreground-950 transition-colors cursor-pointer"
                     >
-                        <!-- 프로필 이미지/이니셜 영역 -->
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-500 text-white text-xs font-bold shadow-inner">U</div>
-
                         <!-- 이름 영역 -->
-                        <span class="whitespace-nowrap text-slate-700" id="nav-user-name">사용자님</span>
-                        <i class="ri-arrow-down-s-line text-sm text-slate-400 group-hover:text-slate-600 transition-transform duration-200 group-hover:translate-y-0.5"></i>
+                        <span class="whitespace-nowrap" id="nav-user-name">사용자</span>
+                        <span class="text-foreground-500">님</span>
+                        <i class="ri-arrow-down-s-line text-sm text-foreground-400 group-hover:text-foreground-600 transition-transform duration-200 group-hover:translate-y-0.5"></i>
                     </button>
-                    <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-44 bg-background-50 border border-background-200/70 rounded-lg overflow-hidden z-50">
-                        <a href="/account" class="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
-                            <i class="ri-user-line"></i> 내 계정
+                    <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border border-background-200 rounded-xl shadow-lg overflow-hidden z-50 py-1">
+                        <a href="/account" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
+                            <i class="ri-user-line text-foreground-400 text-base"></i> 내 계정
                         </a>
-                        <a href="/orders" class="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors ready-btn">
-                            <i class="ri-file-list-3-line"></i> 주문 내역
+                        <a href="/orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors ready-btn">
+                            <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
                         </a>
-                        <hr class="border-background-200/70"/>
-                        <button id="logoutBtn" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-accent-500 hover:bg-accent-50 transition-colors text-left cursor-pointer">
-                            <i class="ri-logout-box-r-line"></i> 로그아웃
+                        <hr class="my-1 border-background-200"/>
+                        <button id="logoutBtn" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors text-left cursor-pointer">
+                            <i class="ri-logout-box-r-line text-base"></i> 로그아웃
                         </button>
                     </div>
                 </div>
@@ -53,8 +51,10 @@
                 <a href="/login" id="login-btn-desktop" sec:authorize="!isAuthenticated()"
                    class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">로그인</a>
 
-                <a href="/cart" class="relative w-10 h-10 flex items-center justify-center rounded-full bg-indigo-500 hover:bg-indigo-600 transition-colors">
-                    <i class="ri-shopping-cart-line text-white text-lg"></i>
+                <a href="/cart" class="relative text-foreground-700 hover:text-primary-500 transition-colors">
+                    <i class="ri-shopping-cart-2-line text-xl"></i>
+                    <span class="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center
+                 bg-primary-500 text-white text-[10px] font-bold rounded-full">3</span>
                 </a>
             </div>
 
