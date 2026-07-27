@@ -9,6 +9,6 @@ public class MypageViewController {
 
     @GetMapping("/account") // 💡 내비바의 '/account' 링크와 주소를 일치시킵니다.
     public String mypageView() {
-        return "mypage"; // ➡️ src/main/resources/templates/mypage.html 을 찾아가서 열어줍니다!
+        return "account"; // ➡️ src/main/resources/templates/mypage.html 을 찾아가서 열어줍니다!
     }
 }
