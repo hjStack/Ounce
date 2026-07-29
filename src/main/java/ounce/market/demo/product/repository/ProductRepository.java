@@ -28,4 +28,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // ES
     @Query("select p from Product p where p.name like %:keyword%")
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    Page<Product> findByStatusIn(Collection<ProductStatus> statuses, Pageable pageable);
 }

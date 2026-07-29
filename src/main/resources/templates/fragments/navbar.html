@@ -14,7 +14,7 @@
             <div class="hidden md:flex items-center gap-8">
                 <a href="/" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">Ounce</a>
                 <a href="/timedeal" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">미드나이트</a>
-                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">큐레이션</a>
+                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">상품</a>
                 <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">베스트</a>
             </div>
 
@@ -35,7 +35,7 @@
                         <a href="/account" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-user-line text-foreground-400 text-base"></i> 내 계정
                         </a>
-                        <a href="/orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors ready-btn">
+                        <a href="/orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
                         </a>
                         <hr class="my-1 border-background-200"/>
@@ -74,7 +74,7 @@
                     <i class="ri-moon-line text-primary-500 text-lg"></i> 미드나이트
                 </a>
                 <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors ready-btn">
-                    <i class="ri-leaf-line text-primary-500 text-lg"></i> 큐레이션
+                    <i class="ri-leaf-line text-primary-500 text-lg"></i> 상품 보
                 </a>
                 <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors ready-btn">
                     <i class="ri-star-line text-primary-500 text-lg"></i> 베스트
@@ -93,7 +93,7 @@
                 <a href="/account" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-user-line text-foreground-400 text-base"></i> 내 계정
                 </a>
-                <a href="/orders" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors ready-btn">
+                <a href="/orders" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
                 </a>
                 <button id="logout-btn-mobile" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left w-full">
