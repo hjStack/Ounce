@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='주문서 - Ounce')}">
+    <link rel="icon" type="image/png" href="/favicon.png?v=2"></head>
+<body class="bg-[#fcfbf9]">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
+
+<main class="pt-20 md:pt-24 min-h-screen pb-20">
+    <div class="w-full px-4 md:px-8 lg:px-12 py-6 max-w-6xl mx-auto">
+
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-px bg-[#d95d22]"></div>
+                <span class="text-[#d95d22] text-xs font-bold tracking-[0.2em]">CHECKOUT</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">주문서</h1>
+            <p class="text-sm text-gray-500 mt-1">주문 내용을 확인하고 결제를 완료하세요</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left: 주문 정보 -->
+            <div class="flex-1 flex flex-col gap-6">
+
+                <!-- 주문 상품 -->
+                <section class="p-5 md:p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-sm font-bold text-gray-900 mb-4">주문 상품</h2>
+                    <div id="order-items" class="flex flex-col gap-4">
+                        <!-- JS 렌더링 -->
+                        <div class="py-8 text-center text-sm text-gray-400">주문 상품을 불러오는 중...</div>
+                    </div>
+                </section>
+
+                <!-- 배송 방법 -->
+                <section class="p-5 md:p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-sm font-bold text-gray-900 mb-4">배송 방법</h2>
+                    <div class="flex flex-col gap-3">
+                        <label class="flex items-start gap-3 p-4 border-2 border-[#d95d22] bg-[#d95d22]/5 rounded-lg cursor-pointer transition-colors" data-delivery="DAWN">
+                            <input type="radio" name="deliveryType" value="DAWN" checked class="mt-0.5 accent-[#d95d22]"/>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <i class="ri-moon-line text-[#d95d22]"></i>
+                                    <span class="text-sm font-bold text-gray-900">새벽 배송</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-medium rounded-full bg-[#d95d22] text-white">추천</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">밤 10시 마감 · 내일 아침 7시 전 도착</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-colors" data-delivery="NORMAL">
+                            <input type="radio" name="deliveryType" value="NORMAL" class="mt-0.5 accent-gray-700"/>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <i class="ri-truck-line text-gray-500"></i>
+                                    <span class="text-sm font-bold text-gray-900">일반 배송</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">일반 택배 · 1~2일 소요</p>
+                            </div>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 배송지 (UI만 — 현재 API 미연동) -->
+                <section class="p-5 md:p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-bold text-gray-900">배송지</h2>
+                        <span class="text-[11px] text-gray-400">회원 정보 기준</span>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs text-gray-500">받는 분</label>
+                            <input type="text" id="receiver-name" placeholder="이름"
+                                   class="w-full px-4 py-3 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:border-[#d95d22] focus:ring-2 focus:ring-[#d95d22]/10 focus:outline-none transition-colors"/>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs text-gray-500">연락처</label>
+                            <input type="tel" id="receiver-phone" placeholder="010-0000-0000"
+                                   class="w-full px-4 py-3 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:border-[#d95d22] focus:ring-2 focus:ring-[#d95d22]/10 focus:outline-none transition-colors"/>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs text-gray-500">주소</label>
+                            <input type="text" id="receiver-address" placeholder="주소를 입력하세요"
+                                   class="w-full px-4 py-3 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:border-[#d95d22] focus:ring-2 focus:ring-[#d95d22]/10 focus:outline-none transition-colors"/>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right: 결제 요약 -->
+            <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="sticky top-24 p-5 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-sm font-bold text-gray-900 mb-4">결제 금액</h2>
+
+                    <div class="flex flex-col gap-2.5 mb-4">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">상품 금액</span>
+                            <span id="summary-total-price" class="text-gray-800 font-medium">0원</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">배송비</span>
+                            <span id="summary-shipping" class="text-[#3b4055] font-medium">무료</span>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-gray-200 mb-4"></div>
+
+                    <div class="flex items-center justify-between mb-5">
+                        <span class="text-sm font-bold text-gray-900">총 결제 금액</span>
+                        <span id="summary-final-price" class="text-xl font-bold text-[#d95d22]">0원</span>
+                    </div>
+
+                    <button id="place-order-btn" onclick="placeOrder()"
+                            class="w-full h-12 flex items-center justify-center gap-2 bg-[#3b4055] text-white font-semibold rounded-md hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="order-btn-text">0원 주문하기</span>
+                    </button>
+
+                    <div class="mt-4 flex items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <i class="ri-shield-check-line text-gray-500 mt-0.5"></i>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            주문 완료 후 배송이 시작되면 취소가 어려울 수 있어요.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let cart = [];
+        const FREE_SHIPPING_THRESHOLD = 30000;
+        const SHIPPING_FEE = 3000;
+
+        const orderItemsEl = document.getElementById('order-items');
+
+        // 배송 방법 선택 시 카드 테두리 강조
+        document.querySelectorAll('input[name="deliveryType"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('label[data-delivery]').forEach(label => {
+                    const isSelected = label.querySelector('input').checked;
+                    if (isSelected) {
+                        label.classList.add('border-[#d95d22]', 'bg-[#d95d22]/5');
+                        label.classList.remove('border-gray-200');
+                    } else {
+                        label.classList.remove('border-[#d95d22]', 'bg-[#d95d22]/5');
+                        label.classList.add('border-gray-200');
+                    }
+                });
+                renderSummary();
+            });
+        });
+
+        // 장바구니 불러오기
+        async function fetchCart() {
+            try {
+                const res = await fetch('/api/carts/me', { credentials: 'include' });
+                if (res.status === 401) {
+                    alert('로그인이 필요한 서비스입니다.');
+                    window.location.href = '/login';
+                    return;
+                }
+                if (!res.ok) throw new Error('장바구니 로드 실패');
+
+                cart = await res.json();
+
+                if (cart.length === 0) {
+                    alert('장바구니가 비어 있습니다.');
+                    window.location.href = '/cart';
+                    return;
+                }
+
+                renderItems();
+                renderSummary();
+            } catch (err) {
+                console.error('주문서 로딩 오류:', err);
+                orderItemsEl.innerHTML = '<div class="py-8 text-center text-sm text-red-500">주문 상품을 불러오지 못했습니다.</div>';
+            }
+        }
+
+        function renderItems() {
+            orderItemsEl.innerHTML = cart.map(item => `
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-md overflow-hidden bg-gray-50 border border-gray-100">
+                        <img src="${item.imageUrl}" alt="${item.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 flex flex-col justify-center min-w-0">
+                        <p class="text-sm font-medium text-gray-900 line-clamp-1">${item.name}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">수량 ${item.quantity}개</p>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-sm font-bold text-gray-900">${(item.basePrice * item.quantity).toLocaleString()}원</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSummary() {
+            const totalPrice = cart.reduce((sum, item) => sum + item.basePrice * item.quantity, 0);
+            const shipping = totalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+            const finalPrice = totalPrice + shipping;
+
+            document.getElementById('summary-total-price').textContent = `${totalPrice.toLocaleString()}원`;
+            document.getElementById('summary-shipping').textContent = shipping === 0 ? '무료' : `${shipping.toLocaleString()}원`;
+            document.getElementById('summary-final-price').textContent = `${finalPrice.toLocaleString()}원`;
+            document.getElementById('order-btn-text').textContent = `${finalPrice.toLocaleString()}원 주문하기`;
+        }
+
+        // 주문하기
+        window.placeOrder = async function () {
+            const btn = document.getElementById('place-order-btn');
+            const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+            const selectedCartProductIds = cart.map(item => item.cartId);
+
+            if (selectedCartProductIds.length === 0) {
+                alert('주문할 상품이 없습니다.');
+                return;
+            }
+
+            btn.disabled = true;
+            document.getElementById('order-btn-text').textContent = '주문 처리 중...';
+
+            try {
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ selectedCartProductIds, deliveryType })
+                });
+
+                if (res.status === 401) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (res.ok) {
+                    const orderId = await res.json();  // 서버가 orderId 반환
+                    alert('주문이 완료되었습니다!');
+                    window.location.href = '/orders';   // 주문내역으로 이동
+                } else {
+                    alert('주문에 실패했습니다. 다시 시도해주세요.');
+                    btn.disabled = false;
+                    renderSummary();
+                }
+            } catch (err) {
+                console.error('주문 처리 오류:', err);
+                alert('주문 처리 중 오류가 발생했습니다.');
+                btn.disabled = false;
+                renderSummary();
+            }
+        };
+
+        fetchCart();
+    });
+</script>
+
+</body>
+</html>

@@ -64,7 +64,6 @@ public class OrderService {
             orderCommandService.rollbackRedisStock(selectedProducts);
             throw e;
         }
-
 }
 
 
