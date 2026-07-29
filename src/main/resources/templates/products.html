@@ -1,27 +1,145 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head(title='전체 상품 - Ounce')}"></head>
-<body class="bg-white">
+<head th:replace="~{fragments/head :: head(title='큐레이션 - Ounce')}">
+    <link rel="icon" type="image/png" href="/favicon.png?v=2"></head>
+<body class="bg-[#fcfbf9]">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
-<main class="pt-20 md:pt-24">
-    <section class="w-full px-4 md:px-8 lg:px-12 py-10 max-w-7xl mx-auto">
-        <h1 class="text-xl md:text-2xl font-bold font-heading text-foreground-950 mb-6">전체 상품</h1>
+<main class="pt-20 md:pt-24 min-h-screen pb-20">
+    <div class="w-full px-4 md:px-8 lg:px-12 py-6 max-w-7xl mx-auto">
 
-        <div th:if="${#lists.isEmpty(products)}" class="py-16 text-center text-foreground-500 text-sm">
-            아직 등록된 상품이 없습니다.
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-px bg-[#d95d22]"></div>
+                <span class="text-[#d95d22] text-xs font-bold tracking-[0.2em]">Products</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">든든한 한끼</h1>
+            <p class="text-sm text-gray-500 mt-1">자취생 맞춤 1인분 밀키트, 내일 새벽 문 앞 도착</p>
         </div>
 
-        <div th:unless="${#lists.isEmpty(products)}" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            <th:block th:each="p : ${products}">
-                <div th:replace="~{fragments/product-card :: productCard(${p}, '/products')}"></div>
-            </th:block>
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
+            <!-- JS 렌더링 -->
         </div>
-    </section>
+
+        <!-- Loading / Empty -->
+        <div id="grid-status" class="py-16 text-center text-sm text-gray-400">상품을 불러오는 중...</div>
+
+        <!-- 더보기 -->
+        <div class="mt-8 flex justify-center">
+            <button id="load-more-btn"
+                    class="hidden px-8 py-3 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                더보기
+            </button>
+        </div>
+    </div>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let currentPage = 0;
+        const PAGE_SIZE = 20;
+        let isLast = false;
+        let isLoading = false;
+
+        const grid = document.getElementById('product-grid');
+        const statusEl = document.getElementById('grid-status');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+
+        async function loadProducts() {
+            if (isLoading || isLast) return;
+            isLoading = true;
+
+            try {
+                const res = await fetch(`/api/products?page=${currentPage}&size=${PAGE_SIZE}`, {
+                    credentials: 'include'
+                });
+                if (!res.ok) throw new Error('상품 로드 실패');
+
+                const data = await res.json();  // Spring Page 객체
+                const products = data.content;
+
+                if (currentPage === 0 && products.length === 0) {
+                    statusEl.textContent = '등록된 상품이 없습니다.';
+                    return;
+                }
+
+                renderProducts(products);
+
+                isLast = data.last;      // Spring Page의 마지막 페이지 여부
+                currentPage++;
+
+                statusEl.classList.add('hidden');
+                loadMoreBtn.classList.toggle('hidden', isLast);
+            } catch (err) {
+                console.error('상품 로딩 오류:', err);
+                statusEl.textContent = '상품을 불러오지 못했습니다.';
+                statusEl.classList.remove('hidden');
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        function renderProducts(products) {
+            const html = products.map(p => `
+                <div class="group rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors bg-white">
+                    <div class="relative aspect-square bg-gray-50 overflow-hidden">
+                        <img src="${p.imageUrl || '/img/no-image.png'}" alt="${p.name}"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                             onerror="this.src='/img/no-image.png'"/>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-medium text-gray-900 line-clamp-1">${p.name}</h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-1">${p.description || ''}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <p class="text-sm font-bold text-gray-900">${p.basePrice.toLocaleString()}원</p>
+                            <button onclick="addToCart(${p.productId})"
+                                    class="w-8 h-8 flex items-center justify-center rounded-full bg-[#d95d22] hover:bg-[#bf4e1a] text-white transition-colors">
+                                <i class="ri-add-line text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            grid.insertAdjacentHTML('beforeend', html);
+        }
+
+        // 장바구니 담기
+        window.addToCart = async function (productId) {
+            try {
+                const res = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    credentials: 'include',
+                    body: `productId=${productId}&quantity=1`
+                });
+
+                if (res.status === 401) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/login';
+                    return;
+                }
+                if (res.ok) {
+                    alert('장바구니에 담았습니다.');
+                } else {
+                    alert('담기에 실패했습니다.');
+                }
+            } catch (err) {
+                console.error('담기 오류:', err);
+                alert('오류가 발생했습니다.');
+            }
+        };
+
+        loadMoreBtn.addEventListener('click', loadProducts);
+        loadProducts();  // 첫 로드
+    });
+</script>
+
 </body>
 </html>
+

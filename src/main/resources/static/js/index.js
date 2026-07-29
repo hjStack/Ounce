@@ -38,8 +38,18 @@ function updateUIForLoggedIn(userName) {
     if (userGreeting) userGreeting.innerText = `${userName}님, 환영합니다! 🌿`;
 }
 
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     function updateMidnightTimer() {
+        // 1. 화면에 타이머 태그가 있는지 먼저 찾습니다.
+        const hoursEl = document.getElementById('td-hours');
+        const minutesEl = document.getElementById('td-minutes');
+        const secondsEl = document.getElementById('td-seconds');
+
+        // 2. 태그가 하나라도 없으면(메인 페이지가 아니면) 여기서 함수를 종료합니다!
+        if (!hoursEl || !minutesEl || !secondsEl) {
+            return;
+        }
+
         const now = new Date();
         const midnight = new Date();
 
@@ -53,9 +63,10 @@ function updateUIForLoggedIn(userName) {
             const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
             const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
 
-            document.getElementById('td-hours').textContent = h;
-            document.getElementById('td-minutes').textContent = m;
-            document.getElementById('td-seconds').textContent = s;
+            // 3. 태그가 있을 때만 텍스트를 변경합니다.
+            hoursEl.textContent = h;
+            minutesEl.textContent = m;
+            secondsEl.textContent = s;
         }
     }
 
@@ -63,4 +74,3 @@ function updateUIForLoggedIn(userName) {
     setInterval(updateMidnightTimer, 1000);
     updateMidnightTimer(); // 로드 시 즉시 실행
 });
-
