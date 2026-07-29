@@ -11,4 +11,14 @@ public class MypageViewController {
     public String mypageView() {
         return "account"; // ➡️ src/main/resources/templates/mypage.html 을 찾아가서 열어줍니다!
     }
+
+    @GetMapping("/orders")
+    public String ordersView() {
+        return "checkout";
+    }
+
+    @GetMapping("/products")
+    public String productsView() {
+        return "products";
+    }
 }
