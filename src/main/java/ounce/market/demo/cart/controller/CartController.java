@@ -18,7 +18,8 @@ import ounce.market.demo.member.entity.Member;
 
 
 /*
-todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성
+todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성 -> 완료
+todo 7/30 n+1 해결하기
  */
 
 @RestController
@@ -28,6 +29,25 @@ public class CartController {
 
     private final CartService cartService;
     private final MemberRepository memberRepository;
+
+    @PostMapping("/items")
+    public ResponseEntity<?> addCartItem(
+            Authentication authentication,
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "1") int quantity) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        String email = authentication.getName();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        cartService.addCartItem(member.getMemberId(), productId, quantity);
+        return ResponseEntity.ok().build();
+    }
+
     
     @GetMapping("/me")
     public ResponseEntity<?> getMyCartItems(Authentication authentication) {

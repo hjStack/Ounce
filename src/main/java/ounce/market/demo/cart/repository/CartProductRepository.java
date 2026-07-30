@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import ounce.market.demo.cart.entity.CartProduct;
 
 import java.util.List;
+import java.util.Optional;
 
 // 2. CartProductRepository.java (아이템 찾기용)
 public interface CartProductRepository extends JpaRepository<CartProduct, Long> {
@@ -16,4 +17,6 @@ public interface CartProductRepository extends JpaRepository<CartProduct, Long> 
 
     @Query("SELECT cp FROM CartProduct cp JOIN FETCH cp.product WHERE cp.cartProductId IN :ids")
     List<CartProduct> findByIdsWithProduct(@Param("ids") List<Long> ids);
+
+    Optional<CartProduct> findByCartCartIdAndProductProductId(Long cartId, Long productId);
 }
