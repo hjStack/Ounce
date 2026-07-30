@@ -16,10 +16,9 @@ import java.util.List;
 import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.member.entity.Member;
 
-
 /*
 todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성 -> 완료
-todo 7/30 n+1 해결하기
+todo 7/30 cart n+1 해결하기
  */
 
 @RestController
@@ -47,7 +46,6 @@ public class CartController {
         cartService.addCartItem(member.getMemberId(), productId, quantity);
         return ResponseEntity.ok().build();
     }
-
     
     @GetMapping("/me")
     public ResponseEntity<?> getMyCartItems(Authentication authentication) {
@@ -83,21 +81,4 @@ public class CartController {
 
         return ResponseEntity.ok().build();
     }
-//
-//    // 💡 3. 장바구니 상품 삭제 (DELETE /api/carts/{cartId})
-//    @DeleteMapping("/{cartId}")
-//    public ResponseEntity<?> removeCartItem(
-//            Authentication authentication,
-//            @PathVariable("cartId") Long cartProductId) {
-//
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            return ResponseEntity.status(401).build();
-//        }
-//
-//        String email = authentication.getName();
-//        Member member = memberRepository.findByEmail(email).orElseThrow();
-//
-//        cartService.removeCartItem(member.getMemberId(), cartProductId);
-//        return ResponseEntity.ok().build();
-//    }
 }

@@ -25,6 +25,7 @@ public class CartService {
     private final CartProductRepository cartProductRepository;
     private final ProductRepository productRepository;
 
+    @Transactional
     // 💡 1. 내 장바구니 조회
     public List<CartItemDto> getCartItems(Long memberId) {
         Cart cart = cartRepository.findByMemberMemberId(memberId)
@@ -48,7 +49,6 @@ public class CartService {
 
         // 3. 수량 변경
         cartProduct.updateQuantity(quantity);
-        // JPA 변경 감지(dirty checking)로 자동 저장됨 (@Transactional)
     }
 
     @Transactional
