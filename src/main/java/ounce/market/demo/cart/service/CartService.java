@@ -8,9 +8,12 @@ import ounce.market.demo.cart.entity.CartProduct;
 import ounce.market.demo.cart.repository.CartProductRepository;
 import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.cart.dto.response.CartItemDto;
+import ounce.market.demo.product.entity.Product;
+import ounce.market.demo.product.repository.ProductRepository;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +23,7 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartProductRepository cartProductRepository;
+    private final ProductRepository productRepository;
 
     // 💡 1. 내 장바구니 조회
     public List<CartItemDto> getCartItems(Long memberId) {
@@ -47,4 +51,29 @@ public class CartService {
         // JPA 변경 감지(dirty checking)로 자동 저장됨 (@Transactional)
     }
 
+    @Transactional
+    public void addCartItem(Long memberId, Long productId, int quantity) {
+
+        Cart cart = cartRepository.findByMemberMemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+        Optional<CartProduct> existing = cartProductRepository.findByCartCartIdAndProductProductId(cart.getCartId(), productId);
+
+        if (existing.isPresent()){
+            existing.get().addQuantity(quantity);
+        }
+
+        else {
+            // 없으면 → 새로 만들어 저장
+            CartProduct newItem = CartProduct.builder()
+                    .cart(cart)
+                    .product(product)
+                    .quantity(quantity)
+                    .build();
+            cartProductRepository.save(newItem);
+        }
+    }
 }

@@ -6,8 +6,6 @@
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
 <body class="bg-[#fcfbf9]">
 
-<!-- 물건 정해지면 물건 이미지 추가해도 괜찮을듯 -->
-
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
@@ -40,11 +38,11 @@
             </p>
 
             <div class="flex flex-wrap items-center gap-3 mb-14">
-                <a href="/products" class="px-6 py-3.5 bg-[#3b4055] text-white text-sm font-semibold rounded hover:bg-gray-800 transition-colors flex items-center gap-2 ready-btn">
+                <a href="/products" class="px-6 py-3.5 bg-[#3b4055] text-white text-sm font-semibold rounded hover:bg-gray-800 transition-colors flex items-center gap-2">
                     상품 보기
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </a>
-                <a href="/timedeal" class="px-6 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm ready-btn">
+                <a href="/timedeal" class="px-6 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
                     미드나이트 세일
                 </a>
             </div>
