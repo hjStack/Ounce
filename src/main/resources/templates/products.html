@@ -98,10 +98,10 @@
                         <p class="text-xs text-gray-500 mt-1 line-clamp-1">${p.description || ''}</p>
                         <div class="flex items-center justify-between mt-2">
                             <p class="text-sm font-bold text-gray-900">${p.basePrice.toLocaleString()}원</p>
-                            <button onclick="addToCart(${p.productId})"
-                                    class="w-8 h-8 flex items-center justify-center rounded-full bg-[#d95d22] hover:bg-[#bf4e1a] text-white transition-colors">
-                                <i class="ri-add-line text-sm"></i>
-                            </button>
+                            <button data-product-id="${p.productId}" aria-label="장바구니 담기"
+        class="add-to-cart-btn w-9 h-9 flex items-center justify-center rounded-full bg-[#d95d22] text-white shadow-sm hover:bg-[#bf4e1a] hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-150">
+    <i class="ri-shopping-cart-2-line text-sm"></i>
+</button>
                         </div>
                     </div>
                 </div>
@@ -109,19 +109,43 @@
             grid.insertAdjacentHTML('beforeend', html);
         }
 
+        grid.addEventListener('click', function (e) {
+            const btn = e.target.closest('.add-to-cart-btn');
+            if (!btn) return;
+            const productId = btn.dataset.productId;
+            addToCart(productId);
+        });
+
+        let isLoggedIn = false;
+
+// 로그인 여부 미리 확인
+        fetch('/api/members/me', { credentials: 'include' })
+            .then(res => { isLoggedIn = res.ok; })
+            .catch(() => { isLoggedIn = false; });
+
         // 장바구니 담기
         window.addToCart = async function (productId) {
+            if (!isLoggedIn) {
+                if (confirm('로그인이 필요합니다.\n로그인 페이지로 이동할까요?')) {
+                    window.location.href = '/login';
+                }
+                return;
+            }
+
             try {
-                const res = await fetch('/cart/add', {
+                const res = await fetch('/api/carts/items', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     credentials: 'include',
                     body: `productId=${productId}&quantity=1`
                 });
 
+
                 if (res.status === 401) {
-                    alert('로그인이 필요합니다.');
-                    window.location.href = '/login';
+                    // 세션이 만료된 경우 대비 (fallback)
+                    if (confirm('로그인이 필요합니다.\n로그인 페이지로 이동할까요?')) {
+                        window.location.href = '/login';
+                    }
                     return;
                 }
                 if (res.ok) {
