@@ -1,16 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/head :: head(title='Ounce 홈페이지')}">
-</head>
+<head th:replace="~{fragments/head :: head(title='Ounce 홈페이지')}"></head>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
 <body class="bg-[#fcfbf9]">
-
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PCJJBBGP"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
