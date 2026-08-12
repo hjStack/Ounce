@@ -286,9 +286,8 @@
                                 </div>
                                 <div class="flex justify-between items-center py-3 border-b border-background-100">
                                     <span class="text-sm text-foreground-400">회원 등급</span>
-                                    <span class="px-2.5 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded-md">
-                      Ounce VIP
-                    </span>
+                                    <span id="member-grade" class="px-2.5 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded-md">
+                      BASIC </span>
                                 </div>
                                 <div class="flex justify-between items-center py-3">
                                     <span class="text-sm text-foreground-400">적립금</span>
@@ -451,9 +450,17 @@
                 if (avatarEl && realName && realName !== "이름없음") {
                     avatarEl.textContent = realName.charAt(0).toUpperCase();
                 }
+
+                const gradeEl = document.getElementById('member-grade');
+                if (gradeEl) gradeEl.textContent = data.grade;
+
+                const vipRoleEl = document.getElementById('vipRole');
+                if (vipRoleEl) vipRoleEl.textContent = 'Ounce ' + data.grade;   // "Ounce VIP" 형식 유지
             })
             .catch(err => console.error('마이페이지 데이터 바인딩 실패:', err));
     });
+
+
 
 
 </script>

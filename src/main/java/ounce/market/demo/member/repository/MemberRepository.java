@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ounce.market.demo.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,7 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByEmail(String email);
 
-//    List<Member> findMemberByMemberId(Long memberId);
+    List<Member> findMemberByMemberId(Long memberId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from Member m where m.memberId = :id")
