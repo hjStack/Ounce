@@ -173,7 +173,7 @@
             cart.forEach(item => {
                 totalItems += item.quantity;
                 // 🚨 기존 item.price -> 백엔드 DTO 규격인 item.basePrice 로 변경!
-                totalPrice += (item.basePrice * item.quantity);
+                totalPrice += (item.finalPrice * item.quantity);
 
                 cartHTML += `
                 <div class="flex gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors shadow-sm">
@@ -196,12 +196,13 @@
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                 </button>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-sm font-bold text-gray-900">${(item.basePrice * item.quantity).toLocaleString()}원</span>
-                                <button onclick="removeItem(${item.cartId})" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            ${item.timeDeal ? `<span class="text-xs text-gray-400 line-through">${(item.basePrice * item.quantity).toLocaleString()}원</span>` : ``}
+                            <span class="text-sm font-bold ${item.timeDeal ? 'text-[#d95d22]' : 'text-gray-900'}">${(item.finalPrice * item.quantity).toLocaleString()}원</span>
+                            <button onclick="removeItem(${item.cartId})" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
                         </div>
                     </div>
                 </div>

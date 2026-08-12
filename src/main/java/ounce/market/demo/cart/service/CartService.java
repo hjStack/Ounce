@@ -10,9 +10,14 @@ import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.cart.dto.response.CartItemDto;
 import ounce.market.demo.product.entity.Product;
 import ounce.market.demo.product.repository.ProductRepository;
+import ounce.market.demo.timeDeal.entity.DealStatus;
+import ounce.market.demo.timeDeal.entity.TimeDeal;
+import ounce.market.demo.timeDeal.repository.TimeDealRepository;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,6 +29,8 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartProductRepository cartProductRepository;
     private final ProductRepository productRepository;
+    private final TimeDealRepository timeDealRepository;   // 👈 주입 추가
+
 
     @Transactional
     // 💡 1. 내 장바구니 조회
@@ -32,8 +39,18 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
 
         List<CartProduct> cartProducts = cartProductRepository.findByCartCartId(cart.getCartId());
+
+        Map<Long, Integer> dealRateMap = timeDealRepository
+                .findActiveDealsWithProduct(DealStatus.IN_PROGRESS, LocalDateTime.now())
+                .stream()
+                .collect(Collectors.toMap(
+                        deal -> deal.getProduct().getProductId(),
+                        TimeDeal::getDiscountRate,
+                        (a, b) -> a   // 혹시 같은 상품 중복 딜이면 첫 번째
+                ));
+
         return cartProducts.stream()
-                .map(CartItemDto::from)
+                .map(cp -> CartItemDto.from(cp, dealRateMap.get(cp.getProduct().getProductId())))
                 .collect(Collectors.toList());
     }
 
