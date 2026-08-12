@@ -15,7 +15,10 @@ if (loginForm) {
                 },
                 // 💡 이게 없으면 브라우저가 백엔드에서 주는 쿠키를 튕겨냅니다!
                 credentials: 'include',
-                body: JSON.stringify({ email: email, password: password })
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
             });
 
             if (response.ok) {

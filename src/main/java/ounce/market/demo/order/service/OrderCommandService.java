@@ -63,7 +63,7 @@ public class OrderCommandService {
             try {
                 stockRedisRepository.increase(cp.getProduct().getProductId(), cp.getQuantity());
             } catch (RuntimeException ex) {
-                // 보상 실패는 로그로 남겨 반드시 추적 (여기서 또 던지면 원래 예외를 덮음)
+                // 보상 실패는 로그로 남겨 반드시 (여기서 또 던지면 원래 예외를 덮음)
                 log.error("Redis 재고 보상 실패 productId={}, qty={}",
                         cp.getProduct().getProductId(), cp.getQuantity(), ex);
             }
