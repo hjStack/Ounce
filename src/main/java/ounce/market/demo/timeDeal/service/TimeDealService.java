@@ -1,77 +1,140 @@
-//package ounce.market.demo.timeDeal.service;
-//
-//import lombok.RequiredArgsConstructor;
-//import ounce.market.demo.product.entity.Product;
-//import ounce.market.demo.product.entity.ProductStatus;
-//import ounce.market.demo.product.entity.Stock;
-//import ounce.market.demo.product.repository.ProductRepository;
-//import ounce.market.demo.product.repository.StockRepository;
-//import ounce.market.demo.timeDeal.dto.TimeDealCreateCommand;
-//import ounce.market.demo.timeDeal.entity.TimeDeal;
-//import ounce.market.demo.timeDeal.repository.TimeDealRepository;
-//import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import java.time.LocalDateTime;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class TimeDealService {
-//
-//    private final TimeDealRepository timeDealRepository;
-//    private final ProductRepository productRepository;
-//    private final StockRepository stockRepository;
-//
-//    // 타임딜의 선착순 한도(maxPurchaseLimit)는 별도 카운터 없이, 등록 시점의 재고(Stock)로 통제한다는 전제.
-//    // 즉 admin은 "이 타임딜에 100개만 풀겠다"는 의도를 반영해 Stock 수량을 100으로 맞춰서 등록해야 함.
-//    @Transactional
-//    public Long createTimeDeal(TimeDealCreateCommand command) {
-//        Product product = productRepository.findById(command.productId())
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. productId=" + command.productId()));
-//
-//        if (product.getStatus() != ProductStatus.ON_SALE) {
-//            throw new IllegalStateException("정상 판매중인 상품만 타임딜로 등록할 수 있습니다. status=" + product.getStatus());
+package ounce.market.demo.timeDeal.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ounce.market.demo.product.dto.response.ProductResponse;
+import ounce.market.demo.product.entity.Product;
+import ounce.market.demo.product.repository.ProductRepository;
+import ounce.market.demo.product.repository.StockRedisRepository;
+import ounce.market.demo.timeDeal.entity.DealStatus;
+import ounce.market.demo.timeDeal.entity.TimeDeal;
+import ounce.market.demo.timeDeal.repository.TimeDealRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class TimeDealService {
+
+    private final TimeDealRepository timeDealRepository;
+    private final ProductRepository productRepository;
+    private final StockRedisRepository stockRedisRepository;   // 👈 추가
+
+    public List<ProductResponse> getTodayTimeDealProducts() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalTime currentTime = now.toLocalTime();
+
+//        // 1. 시간 철통 방어: 22:00 ~ 23:00 사이가 아니면 빈 리스트 반환
+//        if (currentTime.isBefore(LocalTime.of(22, 0)) || currentTime.isAfter(LocalTime.of(23, 0))) {
+//            log.info("현재 시간 [{}] - 미드나이트 세일 시간이 아닙니다.", currentTime);
+//            return Collections.emptyList();
 //        }
-//
-//        Stock stock = stockRepository.findByProduct_ProductId(product.getProductId())
-//                .orElseThrow(() -> new IllegalStateException("재고 정보가 없습니다. productId=" + product.getProductId()));
-//
-//        if (stock.getQuantity() < command.maxPurchaseLimit()) {
-//            throw new IllegalArgumentException(
-//                    "타임딜 한도가 남은 재고보다 많습니다. stock=" + stock.getQuantity() + ", limit=" + command.maxPurchaseLimit());
-//        }
-//
-//        TimeDeal timeDeal = TimeDeal.builder()
-//                .product(product)
-//                .discountRate(command.discountRate())
-//                .startTime(command.startTime())
-//                .endTime(command.endTime())
-//                .maxPurchaseLimit(command.maxPurchaseLimit())
-//                .build();
-//        timeDealRepository.save(timeDeal);
-//
-//        return timeDeal.getTimeDealId();
-//    }
-//
-//    // READY -> IN_PROGRESS, 상품 상태도 TIME_DEAL로 전환 (밤 10시에 호출되는 부분)
-//    @Transactional
-//    public void open(Long timeDealId) {
-//        TimeDeal timeDeal = timeDealRepository.findById(timeDealId)
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 타임딜입니다. timeDealId=" + timeDealId));
-//
-//        if (LocalDateTime.now().isBefore(timeDeal.getStartTime())) {
-//            throw new IllegalStateException("아직 타임딜 시작 시각이 아닙니다. startTime=" + timeDeal.getStartTime());
-//        }
-//
-//        timeDeal.open();
-//        timeDeal.getProduct().changeStatus(ProductStatus.TIME_DEAL);
-//    }
-//
-//    // endTime이 지났는데 아직 재고가 남아 자연 종료되는 경우 (밤 12시에 호출되는 부분)
-//    @Transactional
-//    public void close(Long timeDealId) {
-//        TimeDeal timeDeal = timeDealRepository.findById(timeDealId)
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 타임딜입니다. timeDealId=" + timeDealId));
-//        timeDeal.close();
-//    }
-//}
+
+        // 2. DB에서 현재 시간 기준 활성화된 타임딜 5개 가져오기
+        List<TimeDeal> activeDeals = timeDealRepository.findActiveDealsWithProduct(DealStatus.IN_PROGRESS, now);
+//        List<TimeDeal> activeDeals = timeDealRepository.findAllWithProductForTest();  // 🧪 임시
+
+        // 3. TimeDeal 엔티티를 프론트엔드가 요구하는 ProductResponse DTO로 변환
+        return activeDeals.stream()
+                .map(deal -> {
+                    Long productId = deal.getProduct().getProductId();
+                    // Redis에서 현재 남은 재고 읽기 (없으면 한정수량으로 폴백)
+                    int remaining = stockRedisRepository.getStock(productId)
+                            .orElse(deal.getMaxPurchaseLimit());
+
+                    return ProductResponse.builder()
+                            .productId(productId)
+                            .name(deal.getProduct().getName())
+                            .basePrice(deal.getProduct().getBasePrice())
+                            .salePrice(deal.getProduct().getSalePrice() * (100 - deal.getDiscountRate()) / 100)
+                            .discountPercent(deal.getDiscountRate())
+                            .imageUrl(deal.getProduct().getImageUrl())
+                            .stock(remaining)                          // 👈 Redis 현재 재고
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional // DB에 Insert(저장)를 해야 하므로 트랜잭션 필수!
+    @Scheduled(cron = "0 56 21 * * *")   // 21:56 (여유 3분)
+    public void generateMidnightDealsAutomatically() {
+        log.info("🌙 [시스템] 미드나이트 세일 상품 자동 생성 스케줄러 기상!");
+
+        LocalDate today = LocalDate.now();
+        LocalDateTime startTime = today.atTime(22, 0); // 오늘 밤 10시
+        LocalDateTime endTime = today.atTime(23, 0);   // 오늘 밤 11시
+
+        // 1. 혹시 이미 오늘 세팅된 타임딜이 있는지 갯수로 확인 (안전 방어막)
+        // (실무에서는 중복 생성을 막기 위해 꼭 필요합니다)
+        // timeDealRepository에 countByStartTime 쿼리를 만들어 써도 좋지만, 지금은 과감히 패스!
+        if (timeDealRepository.existsByStartTime(startTime)) {
+            log.warn("🚨 오늘 밤 10시 타임딜 상품이 이미 세팅되어 있습니다. 중복 생성을 방지합니다.");
+            return;
+        }
+
+        // 2. 전체 상품 가져오기
+        List<Product> allProducts = productRepository.findAll();
+        if (allProducts.isEmpty()) {
+            log.warn("🚨 등록된 상품이 없어 타임딜을 생성할 수 없습니다!");
+            return;
+        }
+
+        // 3. 자바 메모리 단에서 안전하게 셔플 (랜덤 섞기)
+        Collections.shuffle(allProducts);
+
+        // 4. 앞에서부터 5개만 뽑아서 TimeDeal 엔티티로 조립
+        List<TimeDeal> newDeals = allProducts.stream()
+                .limit(5)
+                .map(product -> TimeDeal.builder()
+                        .product(product)
+                        .discountRate(30)
+                        .startTime(startTime)
+                        .endTime(endTime)
+                        .maxPurchaseLimit(50)
+
+                        .build())
+                .collect(Collectors.toList());
+
+        // 5. DB에 한 번에 쾅! 저장 (Batch Insert)
+        timeDealRepository.saveAll(newDeals);
+
+        newDeals.forEach(deal ->
+                stockRedisRepository.setStock(
+                        deal.getProduct().getProductId(),
+                        deal.getMaxPurchaseLimit()
+                )
+        );
+
+        log.info("🌙 [시스템] 오늘 밤 10시를 위한 타임딜 상품 5개 세팅 완료! {}", newDeals.size());
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 22 * * *")
+    public void openMidnightDeals() {
+        LocalDateTime startTime = LocalDate.now().atTime(22, 0);
+        List<TimeDeal> deals = timeDealRepository.findByStartTime(startTime);
+        deals.forEach(TimeDeal::open);
+        log.info("🌙 [시스템] 미드나이트 세일 오픈! {}건 IN_PROGRESS 전환", deals.size());
+    }
+
+    // 🌙 매일 23:00 정각: IN_PROGRESS → CLOSED
+    @Transactional
+    @Scheduled(cron = "0 0 23 * * *")
+    public void closeMidnightDeals() {
+        LocalDateTime startTime = LocalDate.now().atTime(22, 0);
+        List<TimeDeal> deals = timeDealRepository.findByStartTime(startTime);
+        deals.forEach(TimeDeal::close);
+        log.info("🌙 [시스템] 미드나이트 세일 종료! {}건 CLOSED 전환", deals.size());
+    }
+}

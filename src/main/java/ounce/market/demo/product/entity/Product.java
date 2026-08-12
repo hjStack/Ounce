@@ -24,6 +24,7 @@ public class Product extends BaseEntity {
 
     private Long basePrice;
     // 할인된 가격은 비지니스 로직으로
+    private long discountPercent;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
@@ -36,11 +37,14 @@ public class Product extends BaseEntity {
     private List<String> productCategories;
 
     @Builder
-    public Product(String productCode, String name, Long basePrice, int stock,
-                   String description, String imageUrl) {
+    public Product(String productCode, String name, Long basePrice,
+                   Long discountPercent,
+                   int stock, String description, String imageUrl) {
+   
         this.productCode = productCode;
         this.name = name;
         this.basePrice = basePrice;
+        this.discountPercent=discountPercent;
         this.stock=stock;
         this.description = description;
         this.imageUrl = imageUrl;
