@@ -67,7 +67,7 @@ public class TimeDealService {
     }
 
     @Transactional // DB에 Insert(저장)를 해야 하므로 트랜잭션 필수!
-    @Scheduled(cron = "0 56 21 * * *")   // 21:56 (여유 3분)
+    @Scheduled(cron = "0 50 21 * * *")
     public void generateMidnightDealsAutomatically() {
         log.info("🌙 [시스템] 미드나이트 세일 상품 자동 생성 스케줄러 기상!");
 
@@ -98,10 +98,10 @@ public class TimeDealService {
                 .limit(5)
                 .map(product -> TimeDeal.builder()
                         .product(product)
-                        .discountRate(30)
+                        .discountRate(30)  //30퍼할인
                         .startTime(startTime)
                         .endTime(endTime)
-                        .maxPurchaseLimit(50)
+                        .maxPurchaseLimit(50)  // 수량은 +50개
 
                         .build())
                 .collect(Collectors.toList());
