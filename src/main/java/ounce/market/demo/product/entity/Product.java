@@ -7,9 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.common.BaseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,8 +31,6 @@ public class Product extends BaseEntity {
 
     private int stock;
 
-    private List<String> productCategories;
-
     @Builder
     public Product(String productCode, String name, Long basePrice,
                    Long discountPercent,
@@ -51,9 +46,11 @@ public class Product extends BaseEntity {
         this.status = ProductStatus.PREPARING;
     }
 
+
+    // todo 수정하기
     public long getSalePrice() {
-        // TODO: 할인 로직 추가 지점 (지금은 정가)
-        return this.basePrice;
+        // TODO: 할인 로직 추가 지점
+        return this.discountPercent * basePrice;
     }
 
     public void changeStatus(ProductStatus status) {
