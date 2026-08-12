@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,8 +23,13 @@ public class StockRedisRepository {
             return redis.call('DECRBY', KEYS[1], ARGV[1])
             """, Long.class);
 
-    private String key(Long productId) {
+    public String key(Long productId) {
         return STOCK_KEY_PREFIX + productId;
+    }
+
+    public Optional<Integer> getStock(Long productId) {
+        String value = redisTemplate.opsForValue().get(key(productId));
+        return (value == null) ? Optional.empty() : Optional.of(Integer.parseInt(value));
     }
 
     /**  관리자가 재입고 등으로 의도적으로 값을 확정할 때 쓰는 용도로 남겨둠 */
