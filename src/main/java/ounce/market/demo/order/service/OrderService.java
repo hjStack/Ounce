@@ -51,6 +51,8 @@ public class OrderService {
             .mapToInt(cp -> Math.toIntExact(cp.getProduct().getBasePrice() * cp.getQuantity()))
             .sum();
 
+
+
     if (member.getPoint() < totalAmount) {
         throw new IllegalArgumentException("포인트가 부족합니다. (현재 잔액: " + member.getPoint() + "원)");
     }

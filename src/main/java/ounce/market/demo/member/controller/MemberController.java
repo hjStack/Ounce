@@ -17,6 +17,8 @@ import ounce.market.demo.member.dto.response.MemberResponse;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
 import ounce.market.demo.member.service.MemberService;
+import ounce.market.demo.order.entity.OrderStatus;
+import ounce.market.demo.order.repository.OrderRepository;
 
 @Slf4j
 @RestController
@@ -26,6 +28,7 @@ public class MemberController {
 
      private final MemberService memberService; // 나중에 서비스 연결
      private final MemberRepository memberRepository;
+     private final OrderRepository orderRepository;
 
     // 회원가입
     @PostMapping("/signup")
@@ -64,12 +67,18 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        String email = userDetails.getUsername();
 
+        String email = userDetails.getUsername();
         Member member = memberService.findByEmail(email);
 
+        long totalSpent = orderRepository.sumTotalAmountByMemberId(
+                member.getMemberId(), OrderStatus.PAYMENT_COMPLETED);
+        String grade = totalSpent >= 500_000 ? "VIP"
+                : totalSpent >= 100_000 ? "GOLD"
+                : "BASIC";
+
         // 3. 완전한 엔티티를 DTO로 변환하여 응답합니다.
-        MemberResponse response = MemberResponse.from(member);
+        MemberResponse response = MemberResponse.from(member,grade);
         return ResponseEntity.ok(response);
     }
 
