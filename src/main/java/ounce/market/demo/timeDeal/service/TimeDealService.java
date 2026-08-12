@@ -34,11 +34,11 @@ public class TimeDealService {
         LocalDateTime now = LocalDateTime.now();
         LocalTime currentTime = now.toLocalTime();
 
-//        // 1. 시간 철통 방어: 22:00 ~ 23:00 사이가 아니면 빈 리스트 반환
-//        if (currentTime.isBefore(LocalTime.of(22, 0)) || currentTime.isAfter(LocalTime.of(23, 0))) {
-//            log.info("현재 시간 [{}] - 미드나이트 세일 시간이 아닙니다.", currentTime);
-//            return Collections.emptyList();
-//        }
+        // 1. 시간 철통 방어: 22:00 ~ 23:00 사이가 아니면 빈 리스트 반환
+        if (currentTime.isBefore(LocalTime.of(22, 0)) || currentTime.isAfter(LocalTime.of(23, 0))) {
+            log.info("현재 시간 [{}] - 미드나이트 세일 시간이 아닙니다.", currentTime);
+            return Collections.emptyList();
+        }
 
         // 2. DB에서 현재 시간 기준 활성화된 타임딜 5개 가져오기
         List<TimeDeal> activeDeals = timeDealRepository.findActiveDealsWithProduct(DealStatus.IN_PROGRESS, now);
@@ -63,7 +63,6 @@ public class TimeDealService {
                             .build();
                 })
                 .collect(Collectors.toList());
-
     }
 
     @Transactional // DB에 Insert(저장)를 해야 하므로 트랜잭션 필수!

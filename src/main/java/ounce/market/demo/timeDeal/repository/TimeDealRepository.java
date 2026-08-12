@@ -24,4 +24,5 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
     List<TimeDeal> findByStartTime(LocalDateTime startTime);
 
     boolean existsByStartTime(LocalDateTime startTime);
+
 }

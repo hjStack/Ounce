@@ -1,9 +1,7 @@
 package ounce.market.demo.product.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import ounce.market.demo.product.entity.Product;
 import ounce.market.demo.product.entity.ProductStatus;
 
@@ -33,7 +31,6 @@ public class ProductResponse {
         this.stock = stock;
         this.status = status;
     }
-
 
     public static ProductResponse from(Product product) {
         return new ProductResponse(product.getProductId(), product.getName(), product.getBasePrice()

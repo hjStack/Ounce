@@ -15,6 +15,7 @@ import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.dto.request.LoginRequest;
 import ounce.market.demo.member.dto.response.MemberResponse;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.repository.MemberRepository;
 import ounce.market.demo.member.service.MemberService;
 
 @Slf4j
@@ -24,6 +25,7 @@ import ounce.market.demo.member.service.MemberService;
 public class MemberController {
 
      private final MemberService memberService; // 나중에 서비스 연결
+     private final MemberRepository memberRepository;
 
     // 회원가입
     @PostMapping("/signup")
@@ -72,7 +74,6 @@ public class MemberController {
     }
 
     @PostMapping("/logout")
-    
     public ResponseEntity<?> logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("Authorization", "")
                 .path("/")
@@ -83,6 +84,11 @@ public class MemberController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok("로그아웃 성공");
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> getMemberCount() {
+        return ResponseEntity.ok(memberRepository.count());   // JpaRepository 기본 제공
     }
 
 }
