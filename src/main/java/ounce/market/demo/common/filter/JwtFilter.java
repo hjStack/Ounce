@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.entity.Role;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -59,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         Member temporaryMember = Member.builder()
                 .email(email)
-                .role(ounce.market.demo.member.entity.Role.valueOf(role.replace("ROLE_", "")))
+                .role(Role.valueOf(role.replace("ROLE_", "")))
                 .build();
 
         CustomUserDetails userDetails = new CustomUserDetails(temporaryMember);
