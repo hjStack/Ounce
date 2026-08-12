@@ -50,7 +50,9 @@
 
             <div class="flex items-center gap-8 md:gap-10">
                 <div class="text-center md:text-left">
-                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">10만<span class="text-lg font-sans">+</span></p>
+                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">
+                        <span id="member-count">10만</span><span class="text-lg font-sans">+</span>
+                    </p>
                     <p class="text-[11px] text-gray-400 font-sans">Ounce 멤버</p>
                 </div>
                 <div class="w-[1px] h-10 bg-gray-200"></div>
@@ -285,6 +287,17 @@
             randomShow();
         }
     });
+
+    async function loadMemberCount() {
+        try {
+            const res = await fetch('/api/members/count');
+            if (!res.ok) return;
+            const count = await res.json();
+            const el = document.getElementById('member-count');
+            if (el) el.textContent = count.toLocaleString();   // 1,234 형식
+        } catch (e) { /* 실패하면 기본값(10만) 유지 */ }
+    }
+    loadMemberCount();
 </script>
 
 </body>
