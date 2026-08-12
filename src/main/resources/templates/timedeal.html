@@ -115,26 +115,10 @@
         }
     }
 
-    // // 1. Mock Data (React의 productsData.ts 대체)
-    // const mockProducts = [
-    //     { id: 1, name: '프리미엄 한돈 삼겹살 500g', originalPrice: 20000, discountPrice: 9900, discountPercent: 50, sold: 85, total: 100, unit: '100g 당 1,980원', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&q=80' },
-    //     { id: 2, name: '유기농 제주 감귤 3kg', originalPrice: 15000, discountPrice: 8900, discountPercent: 40, sold: 95, total: 100, unit: '100g 당 296원', image: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=400&q=80' },
-    //     { id: 3, name: '노르웨이 생연어 300g', originalPrice: 18000, discountPrice: 12000, discountPercent: 33, sold: 100, total: 100, unit: '100g 당 4,000원', image: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400&q=80' }
-    // ];
-
-    let currentSort = 'popular';
-
     // 2. DOM 요소 렌더링 함수 (React 컴포넌트 렌더링 대체)
     function renderProducts() {
         const grid = document.getElementById('product-grid');
         grid.innerHTML = ''; // 기존 내용 초기화 (Re-rendering)
-
-        // 정렬 로직
-        const sorted = [...mockProducts].sort((a, b) => {
-            if (currentSort === 'discount') return b.discountPercent - a.discountPercent;
-            if (currentSort === 'price') return a.discountPrice - b.discountPrice;
-            return b.sold - a.sold;
-        });
 
         // 템플릿 리터럴로 HTML 문자열 생성 및 삽입
         sorted.forEach((product, index) => {
@@ -231,6 +215,39 @@
     nav.fixed i {
         color: #ffffff !important;
     }
+
+    nav.fixed a[href*="cart"] span {
+        color: #ff7f00 !important;
+        font-weight: 700 !important;
+    }
+
+    /* 검색 오버레이는 밝은 배경이므로 흰 글씨 강제에서 제외 */
+    #search-overlay a,
+    #search-overlay span,
+    #search-overlay p {
+        color: #475569 !important;   /* foreground-600, 밝은 배경 위 어두운 글씨 */
+    }
+
+    #search-overlay input,
+    #search-overlay button{
+        color: #0f172a !important;   /* foreground-950, 잘 보이는 진한 색 */
+    }
+
+    /* placeholder도 또렷하게 */
+    #search-overlay input::placeholder {
+        color: #64748b !important;   /* foreground-500 */
+    }
+
+    /* 뒤로/닫기 아이콘은 원래 회색 톤 유지하고 싶다면 */
+    #search-back i,
+    #search-close i {
+        color: #94a3b8 !important;   /* foreground-400 */
+    }
+
+    #search-overlay div[class*="focus-within:ring-primary"]:focus-within {
+        --tw-ring-color: rgba(255, 127, 0, 0.45) !important;
+    }
+
 </style>
 </body>
 </html>
