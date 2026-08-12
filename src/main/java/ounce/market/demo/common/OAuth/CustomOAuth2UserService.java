@@ -34,8 +34,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 1. 구글에서 유저 정보 가져오기 (기본 기능 호출)
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 2. 구글이 던져준 정보(Attributes) 중에서 이메일  추출
+        // 2. 구글이 던져준 정보(Attributes) 중에서 이메일 추출
         String email = oAuth2User.getAttribute("email");
+        String name=oAuth2User.getAttribute("name");
 
         // 3. 우리 DB에 이 이메일이 있는지 확인하고, 없으면 회원가입(저장) 처리
         Member member = memberRepository.findByEmail(email)
@@ -46,6 +47,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     Member newMember = Member.builder()
                             .email(email)
                             .password(password)
+                            .name(name)
                             .role(Role.USER)
                             .point(0) // 초기 포인트 설정
                             .build();

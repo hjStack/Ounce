@@ -21,4 +21,10 @@ public class MypageViewController {
     public String productsView() {
         return "products";
     }
+
+    @GetMapping("/timedeal")
+    public String timeDealPage() {
+        // src/main/resources/templates/timedeal.html 파일을 찾아서 렌더링하라는 뜻!
+        return "timedeal";
+    }
 }
