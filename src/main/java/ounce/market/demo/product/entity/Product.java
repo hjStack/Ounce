@@ -40,6 +40,7 @@ public class Product extends BaseEntity {
     public Product(String productCode, String name, Long basePrice,
                    Long discountPercent,
                    int stock, String description, String imageUrl) {
+   
         this.productCode = productCode;
         this.name = name;
         this.basePrice = basePrice;
