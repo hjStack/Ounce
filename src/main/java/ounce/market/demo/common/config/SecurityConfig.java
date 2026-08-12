@@ -16,6 +16,7 @@ import ounce.market.demo.common.OAuth.CustomOAuth2UserService;
 import ounce.market.demo.common.OAuth.OAuth2SuccessHandler;
 import ounce.market.demo.common.filter.JwtFilter;
 import ounce.market.demo.common.global.jwt.JWTUtil;
+import org.springframework.http.HttpMethod;
 
 
 @Configuration
@@ -54,8 +55,10 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/products/search").permitAll()
                         .requestMatchers("/dev/**").permitAll()
+                        .requestMatchers("/timedeal").permitAll()   // 미드나이트 페이지 자체도 열기
                         .requestMatchers("/api/products/**","/products/**").permitAll()
-                        .requestMatchers("/api/timedeal").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
+                        .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
                         .anyRequest().authenticated()
                 )
 
