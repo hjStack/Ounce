@@ -268,12 +268,27 @@
 <style>
     nav.fixed { background-color: rgba(3, 7, 18, 0.85) !important; border-color: rgba(255, 255, 255, 0.08) !important; }
     nav.fixed a, nav.fixed button, nav.fixed span, nav.fixed i { color: #ffffff !important; }
-    nav.fixed a[href*="cart"] span { color: #ff7f00 !important; font-weight: 700 !important; }
+    nav.fixed a[href*="cart"] span { color: #ffffff !important; font-weight: 700 !important; }
     #search-overlay a, #search-overlay span, #search-overlay p { color: #475569 !important; }
     #search-overlay input, #search-overlay button { color: #0f172a !important; }
     #search-overlay input::placeholder { color: #64748b !important; }
     #search-back i, #search-close i { color: #94a3b8 !important; }
     #search-overlay div[class*="focus-within:ring-primary"]:focus-within { --tw-ring-color: rgba(255, 127, 0, 0.45) !important; }
+
+    #user-menu a,
+    #user-menu button,
+    #user-menu span,
+    #user-menu p {
+        color: #374151 !important;   /* foreground-700, 밝은 배경 위 어두운 글씨 */
+    }
+    #user-menu i {
+        color: #9ca3af !important;   /* foreground-400, 아이콘 회색 */
+    }
+    /* 로그아웃은 빨간색 유지 */
+    #user-menu #logout-btn-mobile,
+    #user-menu #logout-btn-mobile i {
+        color: #ef4444 !important;
+    }
 </style>
 </body>
 </html>
