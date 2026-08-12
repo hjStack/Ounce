@@ -24,7 +24,6 @@ public class ProductController {
     private final ProductService productService;
     private final ProductRepository productRepository;
 
-
     @GetMapping
     public Page<ProductResponse> getProducts(Pageable pageable) {
         // 고객 노출 상태만 (PREPARING, STOPPED 제외)
