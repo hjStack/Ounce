@@ -38,12 +38,11 @@ public class JWTUtil {
     }
 
     // 2. Refresh Token 발급
-    public String createRefreshToken(Long memberId) {
+    public String createRefreshToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshExpirationTime);
-
         return Jwts.builder()
-                .setSubject(String.valueOf(memberId))
+                .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -53,6 +52,10 @@ public class JWTUtil {
     // 3. 토큰에서 이메일(Subject) 꺼내기
     public String getEmail(String token) {
         return getClaims(token).get("email", String.class);
+    }
+
+    public String getEmailFromRefresh(String token) {
+        return getClaims(token).getSubject();
     }
 
     // 4. 토큰에서 권한 꺼내기

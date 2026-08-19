@@ -10,16 +10,19 @@ import ounce.market.demo.member.entity.Member;
 public class MemberResponse {
     private Long memberId;
     private String email;
-    private int point; // 💡 화면에 보여줘야 하니까 여기엔 꼭 포함!
+    private int point;
     private String name;
+    private String grade;
+
     // Entity -> DTO 변환 편의 메서드
-    public static MemberResponse from(Member member) {
+    public static MemberResponse from(Member member,String grade) {
 
         return new MemberResponse(
                 member.getMemberId(),
                 member.getEmail(),
                 member.getPoint(),
-                member.getName()
+                member.getName(),
+                grade
         );
     }
 }
