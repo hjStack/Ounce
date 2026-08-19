@@ -43,11 +43,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-
-        System.out.println(">>> 구글이 준 email = " + oAuth2User.getAttribute("email"));
-        System.out.println(">>> 전체 attributes = " + oAuth2User.getAttributes());
-
-
         // 3. 우리 DB에 이 이메일이 있는지 확인하고, 없으면 회원가입(저장) 처리
         Member member = memberRepository.findByEmail(email)
                 .orElseGet(() -> {

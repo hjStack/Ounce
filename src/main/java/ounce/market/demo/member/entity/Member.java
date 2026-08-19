@@ -33,8 +33,6 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private int point;
 
-    private String grade;
-
     public void deductPoint(int amount) {
         // 1. 비정상적인 마이너스 금액 차감 시도 방어 (해킹/버그 원천 차단)
         if (amount < 0) {

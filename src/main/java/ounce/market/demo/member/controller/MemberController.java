@@ -78,7 +78,7 @@ public class MemberController {
                 : "BASIC";
 
         // 3. 완전한 엔티티를 DTO로 변환하여 응답합니다.
-        MemberResponse response = MemberResponse.from(member,grade);
+        MemberResponse response = MemberResponse.from(member);
         return ResponseEntity.ok(response);
     }
 
