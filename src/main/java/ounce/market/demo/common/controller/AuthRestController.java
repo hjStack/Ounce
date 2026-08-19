@@ -41,6 +41,7 @@ public class AuthRestController {
 
         // 4. Redis에 저장된 refresh랑 일치하는지 (핵심 — 무효화 검증)
         String stored = redisTemplate.opsForValue().get("refresh:" + email);
+
         if (stored == null || !stored.equals(refreshToken)) {
             return ResponseEntity.status(401).body("무효한 refresh");
         }

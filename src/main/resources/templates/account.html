@@ -68,6 +68,10 @@
                             <span class="text-gray-400">회원 등급</span>
                             <span id="member-grade" class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[#fdf0e8] text-[#d95d22]">BASIC</span>
                         </div>
+                        <div class="flex justify-between text-sm items-center">
+                            <span class="text-gray-400">포인트</span>
+                            <span id="point" class="text-sm font-bold text-gray-900 tabular-nums">-</span>
+                        </div>
                         <a href="#" class="mt-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">프로필 수정</a>
                     </div>
                 </div>
@@ -83,7 +87,7 @@
                             <i class="ri-shopping-cart-2-line text-gray-400"></i> 장바구니
                         </a>
                         <a href="/products" class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                            <i class="ri-store-line text-gray-400"></i> 큐레이션 둘러보기
+                            <i class="ri-store-line text-gray-400"></i> 상품 둘러보기
                         </a>
                     </div>
                 </div>
@@ -124,6 +128,10 @@
                 setText('profile-email', data.email);
                 setText('detail-name', namePart);
                 setText('detail-email', data.email);
+
+                // 👇 추가 — 포인트 (숫자에 콤마 찍어서)
+                setText('point', data.point.toLocaleString() + 'P');
+                setText('member-grade', data.grade);
 
                 const avatar = document.getElementById('profile-avatar');
                 if (avatar) avatar.textContent = namePart.charAt(0).toUpperCase();

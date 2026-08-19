@@ -56,7 +56,7 @@ public class MemberController {
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                 .path("/")
                 .httpOnly(true)
-                .maxAge(60 * 30)
+                .maxAge(60 * 30)  // 30분
                 .sameSite("Lax")
                 .secure(false)
                 .build();
@@ -65,10 +65,11 @@ public class MemberController {
         String refreshToken = jwtUtil.createRefreshToken(email);
         redisTemplate.opsForValue().set("refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
 
+        // refresh token
         ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
                 .path("/api/auth/refresh")
                 .httpOnly(true)
-                .maxAge(60 * 60 * 24 * 14)
+                .maxAge(60 * 60 * 24 * 14)  // 2주
                 .sameSite("Lax")
                 .secure(false)
                 .build();
@@ -96,6 +97,7 @@ public class MemberController {
         long totalSpent = orderRepository.sumTotalAmountByMemberId(
                 member.getMemberId(), OrderStatus.PAYMENT_COMPLETED);
 
+        // 등급 구분
         String grade = totalSpent >= 500_000 ? "VIP"
                 : totalSpent >= 100_000 ? "GOLD"
                 : "BASIC";
@@ -116,6 +118,7 @@ public class MemberController {
         // access 쿠키 삭제
         ResponseCookie cookie = ResponseCookie.from("Authorization", "")
                 .path("/").httpOnly(true).maxAge(0).sameSite("Lax").build();
+
         // refresh 쿠키도 삭제
         ResponseCookie refreshCookie = ResponseCookie.from("Refresh", "")
                 .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").build();
