@@ -7,6 +7,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ounce.market.demo.cart.entity.Cart;
+import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -23,20 +26,27 @@ import java.util.UUID;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final CartRepository cartRepository;
 
     /** todo
-      구글 로그인을 하면 자꾸 로컬로 url이 바뀌는 오류 발견
+      구글 로그인을 하면 자꾸 로컬로 url이 바뀌는 오류 발견 -> 완료
      */
 
     // ⭐️
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // 1. 구글에서 유저 정보 가져오기 (기본 기능 호출)
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         // 2. 구글이 던져준 정보(Attributes) 중에서 이메일 추출
         String email = oAuth2User.getAttribute("email");
-        String name=oAuth2User.getAttribute("name");
+        String name = oAuth2User.getAttribute("name");
+
+
+        System.out.println(">>> 구글이 준 email = " + oAuth2User.getAttribute("email"));
+        System.out.println(">>> 전체 attributes = " + oAuth2User.getAttributes());
+
 
         // 3. 우리 DB에 이 이메일이 있는지 확인하고, 없으면 회원가입(저장) 처리
         Member member = memberRepository.findByEmail(email)
@@ -49,9 +59,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                             .password(password)
                             .name(name)
                             .role(Role.USER)
-                            .point(0) // 초기 포인트 설정
+                            .point(1000) // 초기 포인트 설정
                             .build();
-                    return memberRepository.save(newMember);
+
+                    Member savedMember = memberRepository.save(newMember);  // 먼저 저장 → id 생김
+
+                    Cart cart = Cart.builder()
+                            .member(savedMember)   // id 있는 member 참조
+                            .build();
+                    cartRepository.save(cart);
+
+                    return savedMember;
                 });
 
         // 4. Spring Security가 알아먹을 수 있는 객체로 포장해서 반환
