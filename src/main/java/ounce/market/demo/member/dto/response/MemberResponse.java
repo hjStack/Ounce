@@ -12,17 +12,14 @@ public class MemberResponse {
     private String email;
     private int point; // 💡 화면에 보여줘야 하니까 여기엔 꼭 포함!
     private String name;
-    private String grade;
-
     // Entity -> DTO 변환 편의 메서드
-    public static MemberResponse from(Member member,String grade) {
+    public static MemberResponse from(Member member) {
 
         return new MemberResponse(
                 member.getMemberId(),
                 member.getEmail(),
                 member.getPoint(),
-                member.getName(),
-                member.getGrade()
+                member.getName()
         );
     }
 }
