@@ -54,24 +54,10 @@ public class JWTUtil {
         return getClaims(token).get("email", String.class);
     }
 
-    public String getEmailFromRefresh(String token) {
-        return getClaims(token).getSubject();
-    }
 
     // 4. 토큰에서 권한 꺼내기
     public String getRole(String token){
         return getClaims(token).get("role", String.class);
-    }
-
-    // 5. 남은 만료 시간 계산
-    public long getRemainingTime(String token) {
-        try {
-            Date expiration = getClaims(token).getExpiration();
-            long now = new Date().getTime();
-            return expiration.getTime() - now;
-        } catch (Exception e) {
-            return 0;
-        }
     }
 
 

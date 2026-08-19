@@ -59,8 +59,8 @@ if (signupForm) {
             });
 
             if (response.ok || response.status === 201) {
-                alert("Ounce의 회원이 되었습니다 !");
-                window.location.href = '/login';
+                alert("Ounce 가입을 환영합니다! 축하 포인트 1,000P가 지급되었어요 🎁");
+                window.location.href = '/login?welcome=true';
             }
             else if (response.status === 400 || response.status === 409) {
                 // 우리가 백엔드에서 만든 예쁜 ErrorResponse 낚아채기
