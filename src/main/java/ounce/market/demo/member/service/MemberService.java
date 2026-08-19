@@ -57,7 +57,6 @@ public class MemberService {
         // 회원가입할때 카트 생성
         Cart newCart = Cart.builder().member(savedMember).build();
         cartRepository.save(newCart);
-
     }
 
     // 로그인 로직 추가
