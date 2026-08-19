@@ -50,6 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 2. 토큰이 아예 없거나, 검증(validateToken)에 실패하면 통과 안 시킴!
         if (token == null || !jwtUtil.validateToken(token)) {
+
             filterChain.doFilter(request, response);  // 여기서 401
             return;
         }
@@ -57,6 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // 3. 토큰이 유효하다면, 내부에 숨겨진 이메일과 권한(Role) 꺼내기
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
+
 
         Member temporaryMember = Member.builder()
                 .email(email)

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -13,12 +14,14 @@ import org.springframework.stereotype.Component;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
+    private final RedisTemplate<String,String> redisTemplate;
 
     // 💡 application.yml에 적힌 주소를 자동으로 읽어옵니다.
     @Value("${app.frontend-url}")
@@ -40,11 +43,30 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .path("/")
                 .httpOnly(true)
                 .secure(true)
-                .maxAge(60 * 60 * 24)
+                .maxAge(60 * 30)
                 .sameSite("Lax")
                 .build();
 
-        // 4. 응답 헤더에 쿠키 주입
+        String refreshToken = jwtUtil.createRefreshToken(email);
+
+        redisTemplate.opsForValue().set(
+                "refresh:" + email,      // key
+                refreshToken,            // value
+                14, TimeUnit.DAYS        // 2주 후 자동 삭제 (TTL)
+        );
+
+        ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
+                .path("/api/auth/refresh")   // 갱신 엔드포인트에만 전송
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(60 * 60 * 24 * 14)   // 2주
+                .sameSite("Lax")
+                .build();
+
+        // refresh token 발급
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        // access token 발급
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         // 4. 프론트엔드로 리다이렉트 (이동)
