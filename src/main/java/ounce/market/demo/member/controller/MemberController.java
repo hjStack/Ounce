@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -131,6 +130,32 @@ public class MemberController {
     @GetMapping("/count")
     public ResponseEntity<Long> getMemberCount() {
         return ResponseEntity.ok(memberRepository.count());   // JpaRepository 기본 제공
+    }
+
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMember(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletResponse response) {
+
+        String email = userDetails.member().getEmail();
+        memberService.deleteMember(email);
+
+        // Redis refresh 토큰도 제거
+        redisTemplate.delete("refresh:" + email);
+
+        // Authorization 쿠키 만료
+        ResponseCookie accessCookie = ResponseCookie.from("Authorization", "")
+                .path("/").httpOnly(true).maxAge(0).sameSite("Lax").build();
+
+        // Refresh 쿠키 만료
+        ResponseCookie refreshCookie = ResponseCookie.from("Refresh", "")
+                .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return ResponseEntity.noContent().build();
     }
 
 }
