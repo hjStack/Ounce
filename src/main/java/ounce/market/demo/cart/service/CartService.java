@@ -93,4 +93,12 @@ public class CartService {
             cartProductRepository.save(newItem);
         }
     }
+
+    @Transactional
+    public void deleteCartItem(Long cartItemId){
+
+        CartProduct cartItem = cartProductRepository.findById(cartItemId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장바구니 항목입니다."));
+        cartProductRepository.delete(cartItem);  // ← 찾은 걸 실제로 삭제
+    }
 }

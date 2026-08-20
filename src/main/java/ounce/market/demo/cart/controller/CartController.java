@@ -7,14 +7,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ounce.market.demo.cart.dto.response.CartItemDto;
+import ounce.market.demo.cart.entity.CartProduct;
+import ounce.market.demo.cart.repository.CartProductRepository;
 import ounce.market.demo.cart.service.CartService;
 import ounce.market.demo.member.repository.MemberRepository;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.product.entity.Product;
 
 /*
 todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성 -> 완료
@@ -28,6 +32,7 @@ public class CartController {
 
     private final CartService cartService;
     private final MemberRepository memberRepository;
+    private final CartProductRepository cartProductRepository;
 
     @PostMapping("/items")
     public ResponseEntity<?> addCartItem(
@@ -62,16 +67,12 @@ public class CartController {
         return ResponseEntity.ok(cartItems);
     }
 
-//    // 💡 2. 장바구니 상품 수량 변경 (PATCH /api/carts/{cartId}?quantity=X)
+//    // 💡 2. 장바구니 상품 수량 변경
     @PatchMapping("/{cartId}")
     public ResponseEntity<?> updateQuantity(
             Authentication authentication,
             @PathVariable("cartId") Long cartProductId,
             @RequestParam int quantity) throws AccessDeniedException {
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build();
-        }
 
         String email = authentication.getName();
         Member member = memberRepository.findByEmail(email).orElseThrow();
@@ -80,5 +81,11 @@ public class CartController {
         cartService.updateQuantity(member.getMemberId(), cartProductId, quantity);
 
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{cartItemId}")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Long cartItemId) {
+        cartService.deleteCartItem(cartItemId);
+        return ResponseEntity.noContent().build();
     }
 }
