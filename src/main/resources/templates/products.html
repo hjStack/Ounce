@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head(title='상품')}">
-    <link rel="icon" type="image/png" href="/favicon.png?v=2"></head>
+    <link rel="icon" type="image/png" href="/favicon.png?v=2">
+</head>
 <body class="bg-[#fcfbf9]">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -87,6 +88,7 @@
 
         function renderProducts(products) {
             const html = products.map(p => `
+               <a href="/products-detail/${p.productId}">
                 <div class="group rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors bg-white">
                     <div class="relative aspect-square bg-gray-50 overflow-hidden">
                         <img src="${p.imageUrl || '/img/no-image.png'}" alt="${p.name}"
@@ -105,6 +107,7 @@
                         </div>
                     </div>
                 </div>
+               </a>
             `).join('');
             grid.insertAdjacentHTML('beforeend', html);
         }
@@ -112,6 +115,9 @@
         grid.addEventListener('click', function (e) {
             const btn = e.target.closest('.add-to-cart-btn');
             if (!btn) return;
+
+            e.preventDefault();
+
             const productId = btn.dataset.productId;
             addToCart(productId);
         });
