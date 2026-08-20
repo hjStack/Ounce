@@ -1,4 +1,3 @@
-
 <footer th:fragment="footer" class="w-full bg-foreground-950">
     <!-- Upper Section -->
     <div class="w-full px-4 md:px-8 lg:px-12 py-8 md:py-10 max-w-7xl mx-auto">
@@ -37,9 +36,21 @@
                     매일 새벽, 신선한 감각을 배송합니다.
                 </p>
 
-                <div class="flex items-center gap-3">
-                    <span class="text-accent-500 text-xs">●</span>
-                    <span class="text-white/40 text-xs">매일 밤 10시, 미드나이트 세일 오픈</span>
+                <!-- 안내 문구들을 세로로 정렬하기 위해 flex-col 래퍼 추가 -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-3">
+                        <span class="text-accent-500 text-xs">●</span>
+                        <span class="text-white/40 text-xs">매일 밤 10시, 미드나이트 세일 오픈</span>
+                    </div>
+
+                    <!-- 추가된 1:1 문의 문구 -->
+                    <div class="flex items-center gap-3">
+                        <span class="text-accent-500 text-xs">●</span>
+                        <span class="text-white/40 text-xs">
+                            1:1문의는 365일 <a href="mailto:hye_jun0209@icloud.com" class="hover:text-white transition-colors underline underline-offset-2">
+                            hye_jun0209@icloud.com</a> 으로 문의부탁드립니다
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -58,11 +69,19 @@
     </div>
 
     <!-- Bottom Section -->
-    <div class="border-t border-white/10">
+    <!-- Bottom Section -->
+    <div class="border-t border-white/10 mt-8">
         <div class="w-full px-4 md:px-8 lg:px-12 py-4 max-w-7xl mx-auto">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p class="text-white/30 text-xs">&copy; 2026 Ounce. All rights reserved.</p>
-                <a href="/policy.html" class="text-white/30 hover:text-white/50 text-xs transition-colors">개인정보처리방침</a>
+                <div class="flex items-center gap-2">
+                    <p class="text-white/30 text-xs">&copy; 2026 Ounce. All rights reserved.</p>
+                </div>
+
+                <!-- 이용약관 추가 -->
+                <div class="flex gap-4">
+                    <a href="/terms.html" class="text-white/50 font-medium hover:text-white/70 text-xs transition-colors">이용약관</a>
+                    <a href="/policy.html" class="text-white/50 font-medium hover:text-white/70 text-xs transition-colors">개인정보처리방침</a>
+                </div>
             </div>
         </div>
     </div>
