@@ -30,9 +30,11 @@ public class ProductResponse {
         this.imageUrl = imageUrl;
         this.stock = stock;
         this.status = status;
+
     }
 
     public static ProductResponse from(Product product) {
+
         return new ProductResponse(product.getProductId(), product.getName(), product.getBasePrice()
                 , product.getSalePrice(), product.getDiscountPercent(), product.getDescription(),
                 product.getImageUrl(),product.getStock(),product.getStatus());

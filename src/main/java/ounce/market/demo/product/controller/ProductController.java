@@ -36,6 +36,7 @@ public class ProductController {
                 .map(ProductResponse::from);
     }
 
+    // 상세 페이지
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.getProduct(productId));
