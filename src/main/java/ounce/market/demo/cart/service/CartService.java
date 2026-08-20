@@ -16,6 +16,7 @@ import ounce.market.demo.timeDeal.repository.TimeDealRepository;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,8 +36,16 @@ public class CartService {
     @Transactional
     // 💡 1. 내 장바구니 조회
     public List<CartItemDto> getCartItems(Long memberId) {
+
+        Optional<Cart> cartOpt = cartRepository.findByMember_MemberId(memberId);
+
+        if (cartOpt.isEmpty()) {
+            return Collections.emptyList();  // 장바구니 없으면 빈 목록
+        }
+        Cart cart1 = cartOpt.get();
+
         Cart cart = cartRepository.findByMemberMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
+                .orElseThrow(() ->  new IllegalArgumentException("장바구니가 존재하지 않습니다."));
 
         List<CartProduct> cartProducts = cartProductRepository.findByCartCartId(cart.getCartId());
 
@@ -95,7 +104,7 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteCartItem(Long cartItemId){
+    public void  deleteCartItem(Long cartItemId){
 
         CartProduct cartItem = cartProductRepository.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장바구니 항목입니다."));

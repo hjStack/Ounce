@@ -5,6 +5,8 @@ import lombok.*;
 import ounce.market.demo.common.BaseEntity;
 import ounce.market.demo.common.global.InsufficientPointException;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -34,7 +36,14 @@ public class Member extends BaseEntity {
     private int point;
 
 //    // vip / basic
-//    private String grade;
+    private String grade;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private MemberStatus status = MemberStatus.ACTIVE;  // 기본값 정상
+
+    private LocalDateTime deletedAt;  // 탈퇴 시각 (null이면 정상)
 
     public void deductPoint(int amount) {
         // 1. 비정상적인 마이너스 금액 차감 시도 방어 (해킹/버그 원천 차단)
@@ -49,6 +58,16 @@ public class Member extends BaseEntity {
 
         // 3. 안전하게 포인트 차감
         this.point -= amount;
+    }
+
+    // Member 엔티티
+    public void withdraw() {
+        this.status = MemberStatus.WITHDRAWN;
+        this.deletedAt = LocalDateTime.now();
+        // 개인정보는 파기, 식별 불가능하게
+        this.email = "withdrawn_" + this.memberId + "@ounce.deleted";
+        this.name = "탈퇴회원";
+        this.password = "WITHDRAWN";
     }
 
 }

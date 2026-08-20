@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.entity.MemberStatus;
 import ounce.market.demo.member.entity.Role;
 
 import java.io.IOException;
@@ -58,7 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
         // 3. 토큰이 유효하다면, 내부에 숨겨진 이메일과 권한(Role) 꺼내기
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
-
 
         Member temporaryMember = Member.builder()
                 .email(email)

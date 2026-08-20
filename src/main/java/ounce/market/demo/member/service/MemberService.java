@@ -7,16 +7,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import ounce.market.demo.cart.entity.Cart;
+import ounce.market.demo.cart.repository.CartProductRepository;
 import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.common.Exception.DuplicateEmailException;
+import ounce.market.demo.common.Exception.MemberNotFoundException;
 import ounce.market.demo.common.dto.ErrorMessage;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.dto.request.LoginRequest;
 import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.entity.MemberStatus;
 import ounce.market.demo.member.entity.Role;
 import ounce.market.demo.member.repository.MemberRepository;
+
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ public class MemberService {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final CartRepository cartRepository; // 💡 장바구니 창고 직원 추가
+    private final CartProductRepository cartProductRepository;
 
     // todo 관리자 권한 로직 및 버튼 만들기
     // todo n+1 문제 발생 -> 해결하기
@@ -63,6 +70,14 @@ public class MemberService {
     @Transactional
     public String login(LoginRequest request) {
 
+        // 인증 전에 회원 상태 먼저 확인
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
+
+        if (member.getStatus() == MemberStatus.WITHDRAWN) {
+            throw new IllegalArgumentException("탈퇴한 계정입니다.");
+        }
+
         // 권한 검증
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -70,6 +85,7 @@ public class MemberService {
                         request.getPassword()
                 )
         );
+
 
         // 2. 검증을 무사히 통과하면 JWTUtil을 불러 Access Token을 발급합니다!
         // (원래는 Refresh Token도 여기서 같이 발급해야 합니다)
@@ -86,7 +102,20 @@ public class MemberService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 유저를 찾을 수 없습니다."));
     }
 
-//     member.deductPoint(totalAmount); // 💡 Member 엔티티에 이 메서드를 추가해 주셔야 합니다!
+    @Transactional
+    public void deleteMember(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException(email));
+
+        cartRepository.findByMemberMemberId(member.getMemberId())
+                .ifPresent(cart -> {
+                    cartProductRepository.deleteByCart_CartId(cart.getCartId());
+                    cartRepository.delete(cart);                                  // 부모 나중
+                });
+
+        member.withdraw();
+    }
+
 
 
 }

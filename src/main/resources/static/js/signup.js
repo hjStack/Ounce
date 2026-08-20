@@ -85,3 +85,15 @@ if (signupForm) {
         }
     });
 }
+
+document.querySelectorAll('.password-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const input = btn.parentElement.querySelector('input');
+        const icon = btn.querySelector('i');
+        const isHidden = input.type === 'password';
+
+        input.type = isHidden ? 'text' : 'password';
+        icon.classList.toggle('ri-eye-line', !isHidden);
+        icon.classList.toggle('ri-eye-off-line', isHidden);
+    });
+});

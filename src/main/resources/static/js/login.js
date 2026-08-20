@@ -25,7 +25,13 @@ if (loginForm) {
                 alert("오늘도 맛있는 하루! Ounce와 함께 열어볼까요?");
                 window.location.href = '/';
             } else {
-                alert("아직 Ounce의 문이 열리지 않았어요! 이메일과 비밀번호를 다시 한번 확인해 볼까요?");
+                const message = await response.text();
+
+                if (message.includes('탈퇴')) {
+                    alert("이미 탈퇴한 계정이에요. 새로 가입하시려면 회원가입을 이용해주세요.");
+                } else {
+                    alert("아직 Ounce의 문이 열리지 않았어요! 이메일과 비밀번호를 다시 한번 확인해 볼까요?");
+                }
             }
         } catch (error) {
             console.error("서버 통신 실패:", error);
@@ -65,12 +71,23 @@ window.addEventListener('DOMContentLoaded', function () {
     </div>`;
 });
 
+document.querySelectorAll('.password-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const input = btn.parentElement.querySelector('input');
+        const icon = btn.querySelector('i');
+        const isHidden = input.type === 'password';
+
+        input.type = isHidden ? 'text' : 'password';
+        icon.classList.toggle('ri-eye-line', !isHidden);
+        icon.classList.toggle('ri-eye-off-line', isHidden);
+    });
+});
+
 /*
 todo
- - 비밀번호 일치 하지 않을 시 메인화면으로 리다이렉팅 되는 문제
- - 비밀번호가 틀렸다면 비밀번호를 다시 입력해주세요 띄우기
- - 이메일을 입력하지 않을시 이메일을 입력해주세요 띄우기
- - 이메일이 틀렸다면 검증해서 이메일을 확인해주세요 띄우기
- - 비밀번호가 틀렸다면 비밀번호를 다시 확인해주세요 띄우기
- - 마이페이지에서 회원 탈퇴 버튼 만들기
+ - 비밀번호가 틀렸다면 비밀번호를 다시 입력해주세요 띄우기 -> 완료
+ - 이메일을 입력하지 않을시 이메일을 입력해주세요 띄우기 -> 완료
+ - 이메일이 틀렸다면 검증해서 이메일을 확인해주세요 띄우기 -> 완료
+ - 비밀번호가 틀렸다면 비밀번호를 다시 확인해주세요 띄우기 -> 완료
+ - 마이페이지에서 회원 탈퇴 버튼 만들기  -> 완료
  */
