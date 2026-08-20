@@ -44,6 +44,8 @@ public class Product extends BaseEntity {
         this.description = description;
         this.imageUrl = imageUrl;
         this.status = ProductStatus.PREPARING;
+
+
     }
 
 

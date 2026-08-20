@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='상품 상세')}">
+    <link rel="icon" type="image/png" href="/favicon.png?v=2">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
+
+<style>
+    :root {
+        --bg-50: #f9fafb;
+        --bg-100: #f3f4f6;
+        --bg-200: #e5e7eb;
+        --bg-300: #d1d5db;
+
+        --text-400: #9ca3af;
+        --text-500: #6b7280;
+        --text-600: #4b5563;
+        --text-700: #374151;
+        --text-800: #1f2937;
+        --text-950: #030712;
+
+        --accent-500: #d95d22; /* Ounce 터치오렌지 */
+        --accent-600: #bf4e1a;
+        --deal-500: #ef4444;
+        --deal-600: #dc2626;
+
+        --btn-dark: #2b2d3a;   /* 바로구매 (깔끔한 차콜) */
+        --btn-dark-hover: #1f2130;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    body {
+        background-color: #fcfbf9;
+        color: var(--text-800);
+        line-height: 1.5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { border: none; background: none; cursor: pointer; font: inherit; }
+
+    .container {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 96px 16px 64px;  /* 상단: 고정 navbar 아래로 내림 */
+        width: 100%;
+        flex: 1;
+    }
+
+    /* ── Breadcrumb ─────────────────────── */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-500);
+        margin-bottom: 20px;
+    }
+    .breadcrumb a:hover { color: var(--text-800); }
+    .breadcrumb i { font-size: 14px; color: var(--text-400); }
+
+    /* ── Detail Layout ──────────────────── */
+    .detail {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        align-items: start;
+    }
+    @media (min-width: 768px) {
+        .detail { grid-template-columns: 400px 1fr; gap: 48px; }
+    }
+
+    /* ── Left: Image ────────────────────── */
+    .image-col { position: sticky; top: 96px; }
+    .image-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 400px;   /* 사진 더 작게 */
+        margin: 0 auto;
+        aspect-ratio: 1 / 1;
+        background-color: var(--bg-100);
+        border: 1px solid var(--bg-200);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .image-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .soldout-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.72);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+    }
+    .soldout-overlay span {
+        padding: 10px 22px;
+        border: 2px solid var(--text-800);
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-800);
+        letter-spacing: 0.05em;
+    }
+
+    /* ── Live banners ───────────────────── */
+    .banner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    .banner-view {
+        background: #fdf0e9;
+        color: var(--accent-600);
+        font-weight: 600;
+    }
+    .banner-view .dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--accent-500);
+        animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .banner-recent {
+        background: var(--bg-100);
+        color: var(--text-600);
+    }
+    .banner-recent i { color: var(--text-500); }
+
+    /* ── Tags ───────────────────────────── */
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+    .tag {
+        padding: 5px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 6px;
+        color: white;
+    }
+    .tag-timedeal { background-color: var(--deal-500); }
+    .tag-best     { background-color: var(--text-950); }
+    .tag-exp      { background-color: var(--accent-500); }
+    .tag-unit {
+        background: var(--bg-100);
+        color: var(--text-600);
+        font-weight: 600;
+    }
+
+    .product-name {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-950);
+        letter-spacing: -0.02em;
+        line-height: 1.3;
+    }
+
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .stars { display: flex; gap: 2px; }
+    .stars i { color: #facc15; font-size: 15px; }
+    .rating-num { font-size: 14px; font-weight: 700; color: var(--text-800); }
+    .review-count { font-size: 13px; color: var(--text-500); }
+
+    .divider { height: 1px; background: var(--bg-200); margin: 20px 0; }
+
+    /* ── Prices ─────────────────────────── */
+    .price-block { margin-top: 18px; }
+    .discount-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    .discount-line .pct { color: var(--accent-500); font-weight: 800; }
+    .discount-line .pct.deal { color: var(--deal-500); }
+    .discount-line .was { color: var(--text-400); text-decoration: line-through; }
+    .final-price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-top: 6px;
+    }
+    .final-price { font-size: 32px; font-weight: 800; color: var(--accent-500); }
+    .final-unit { font-size: 14px; color: var(--text-500); }
+
+    /* 재고 */
+    .stock-info { margin-top: 12px; font-size: 13px; font-weight: 600; }
+    .stock-info.low { color: var(--deal-600); }
+    .stock-info i { margin-right: 4px; }
+
+    /* ── Info grid (원산지/배송 등) ─────── */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 24px;
+        margin-top: 20px;
+    }
+    .info-grid .cell .label {
+        font-size: 12px;
+        color: var(--text-400);
+        margin-bottom: 3px;
+    }
+    .info-grid .cell .value {
+        font-size: 13.5px;
+        color: var(--text-700);
+        font-weight: 500;
+    }
+
+    /* ── Quantity ───────────────────────── */
+    .qty-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 24px;
+    }
+    .qty-label { font-size: 14px; font-weight: 600; color: var(--text-700); }
+    .qty-control {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--bg-200);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .qty-control button {
+        width: 40px; height: 40px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-600);
+        transition: background 0.15s;
+    }
+    .qty-control button:hover:not(:disabled) { background: var(--bg-100); }
+    .qty-control button:disabled { color: var(--text-400); cursor: not-allowed; }
+    .qty-control input {
+        width: 48px; height: 40px;
+        text-align: center;
+        border: none;
+        border-left: 1px solid var(--bg-200);
+        border-right: 1px solid var(--bg-200);
+        font-size: 15px; font-weight: 600;
+        color: var(--text-800);
+        -moz-appearance: textfield;
+    }
+    .qty-control input::-webkit-outer-spin-button,
+    .qty-control input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    /* Total */
+    .total-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--bg-200);
+    }
+    .total-label { font-size: 14px; color: var(--text-600); }
+    .total-price { font-size: 24px; font-weight: 800; color: var(--accent-500); }
+
+    /* ── Actions (버튼 깔끔하게) ────────── */
+    .actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn {
+        flex: 1;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 700;
+        border-radius: 10px;
+        transition: all 0.15s;
+    }
+    .btn i { font-size: 20px; }
+    .btn-cart {
+        background: #ffffff;
+        border: 1px solid var(--bg-200);
+        color: var(--text-700);
+    }
+    .btn-cart:hover:not(:disabled) { background: var(--bg-50); border-color: var(--bg-300); }
+    .btn-buy {
+        background: var(--btn-dark);
+        color: #ffffff;
+    }
+    .btn-buy:hover:not(:disabled) { background: var(--btn-dark-hover); }
+    .btn:active:not(:disabled) { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-soldout {
+        width: 100%;
+        background: var(--bg-200);
+        color: var(--text-500);
+        cursor: not-allowed;
+    }
+
+    /* 무료배송 박스 */
+    .delivery-box {
+        margin-top: 20px;
+        padding: 14px 16px;
+        background: var(--bg-50);
+        border: 1px solid var(--bg-200);
+        border-radius: 10px;
+        display: flex;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--text-600);
+    }
+    .delivery-box i { color: var(--accent-500); font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .delivery-box strong { color: var(--text-800); }
+    .delivery-box .sub { color: var(--text-500); margin-top: 2px; }
+
+    /* ── Tabs ───────────────────────────── */
+    .tabs { margin-top: 56px; }
+    .tab-nav {
+        display: flex;
+        border-bottom: 1px solid var(--bg-200);
+    }
+    .tab-btn {
+        flex: 1;
+        padding: 16px 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-500);
+        position: relative;
+        transition: color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-800); }
+    .tab-btn.active { color: var(--text-950); }
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: -1px;
+        height: 2px;
+        background: var(--text-950);
+    }
+    .tab-panel { display: none; padding: 32px 4px; }
+    .tab-panel.active { display: block; }
+
+    .desc-text {
+        font-size: 15px;
+        color: var(--text-700);
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+    .desc-image {
+        margin-top: 24px;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--bg-200);
+    }
+    .desc-image img { width: 100%; display: block; }
+
+    /* 상품정보 표 */
+    .spec-table { width: 100%; border-top: 1px solid var(--text-800); }
+    .spec-table tr { border-bottom: 1px solid var(--bg-200); }
+    .spec-table th {
+        width: 140px;
+        text-align: left;
+        padding: 14px 16px;
+        background: var(--bg-50);
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text-600);
+        vertical-align: top;
+    }
+    .spec-table td {
+        padding: 14px 16px;
+        font-size: 13.5px;
+        color: var(--text-700);
+    }
+
+    /* 리뷰 */
+    .review-summary {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: var(--bg-50);
+        border: 1px solid var(--bg-200);
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+    .review-summary .big { font-size: 40px; font-weight: 800; color: var(--text-950); line-height: 1; }
+    .review-empty {
+        padding: 60px 0;
+        text-align: center;
+        color: var(--text-400);
+        font-size: 14px;
+    }
+    .review-empty i { font-size: 32px; display: block; margin-bottom: 10px; }
+
+    /* Loading / Error */
+    .state-box { padding: 100px 0; text-align: center; }
+    .state-box > i { font-size: 40px; color: var(--text-400); margin-bottom: 12px; display: block; }
+    .state-box p { font-size: 15px; color: var(--text-500); }
+    .state-box .retry {
+        margin-top: 16px; padding: 10px 24px;
+        background: var(--accent-500); color: white;
+        border-radius: 8px; font-size: 14px; font-weight: 600;
+    }
+
+    /* 리뷰 작성 버튼 / 헤더 */
+    .review-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .review-head-title { font-size: 15px; font-weight: 700; color: var(--text-800); }
+    .btn-review-write {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px;
+        border: 1px solid var(--accent-500);
+        color: var(--accent-500);
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.15s;
+    }
+    .btn-review-write:hover { background: #fff5f2; }
+    .btn-review-write i { font-size: 15px; }
+
+    /* 리뷰 모달 */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 16px;
+    }
+    .modal {
+        width: 100%;
+        max-width: 440px;
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--bg-200);
+    }
+    .modal-head h3 { font-size: 16px; font-weight: 700; color: var(--text-950); }
+    .modal-head button { color: var(--text-500); font-size: 22px; display: flex; }
+    .modal-head button:hover { color: var(--text-800); }
+    .modal-body { padding: 20px; }
+    .modal-body .field-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-700);
+        margin-bottom: 8px;
+    }
+    .star-input { display: flex; gap: 4px; margin-bottom: 20px; }
+    .star-input i {
+        font-size: 30px;
+        color: var(--bg-300);
+        cursor: pointer;
+        transition: color 0.1s;
+    }
+    .star-input i.on { color: #facc15; }
+    .modal-body textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px 14px;
+        border: 1px solid var(--bg-200);
+        border-radius: 8px;
+        font-size: 14px;
+        color: var(--text-800);
+        resize: vertical;
+        line-height: 1.6;
+    }
+    .modal-body textarea:focus { outline: none; border-color: var(--accent-500); }
+    .modal-foot {
+        display: flex;
+        gap: 8px;
+        padding: 0 20px 20px;
+    }
+    .modal-foot button {
+        flex: 1;
+        height: 46px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        transition: all 0.15s;
+    }
+    .btn-modal-cancel {
+        background: #fff;
+        border: 1px solid var(--bg-200);
+        color: var(--text-600);
+    }
+    .btn-modal-cancel:hover { background: var(--bg-50); }
+    .btn-modal-submit {
+        background: var(--accent-500);
+        color: #fff;
+    }
+    .btn-modal-submit:hover { background: var(--accent-600); }
+
+    .hidden { display: none !important; }
+</style>
+
+<main class="container">
+    <!-- 로딩 -->
+    <div id="loading" class="state-box">
+        <i class="ri-loader-4-line"></i>
+        <p>상품 정보를 불러오는 중...</p>
+    </div>
+
+    <!-- 에러 -->
+    <div id="error" class="state-box hidden">
+        <i class="ri-error-warning-line"></i>
+        <p id="error-msg">상품을 불러오지 못했습니다.</p>
+        <button class="retry" onclick="location.reload()">다시 시도</button>
+    </div>
+
+    <!-- 본문 -->
+    <div id="detail-root" class="hidden">
+        <nav class="breadcrumb">
+            <a href="/products">상품</a>
+            <i class="ri-arrow-right-s-line"></i>
+            <span id="bc-name"></span>
+        </nav>
+
+        <div class="detail">
+            <!-- 이미지 -->
+            <div class="image-col">
+                <div class="image-wrap">
+                    <img id="p-image" src="" alt="" onerror="this.src='/img/no-image.png'"/>
+                    <div class="soldout-overlay hidden" id="p-soldout"><span>SOLD OUT</span></div>
+                </div>
+            </div>
+
+            <!-- 정보 -->
+            <div class="info-col">
+                <!-- 실시간 배너 (데이터 있을 때만) -->
+                <div class="banner banner-view hidden" id="p-viewers">
+                    <span class="dot"></span>
+                    <span id="p-viewers-text"></span>
+                </div>
+                <div class="banner banner-recent hidden" id="p-recent">
+                    <i class="ri-shopping-bag-line"></i>
+                    <span id="p-recent-text"></span>
+                </div>
+
+                <!-- 태그 -->
+                <div class="tags" id="p-tags"></div>
+
+                <h1 class="product-name" id="p-name"></h1>
+
+                <!-- 별점 (데이터 있을 때만) -->
+                <div class="rating hidden" id="p-rating">
+                    <div class="stars" id="p-stars"></div>
+                    <span class="rating-num" id="p-rating-num"></span>
+                    <span class="review-count" id="p-review-count"></span>
+                </div>
+
+                <!-- 가격 -->
+                <div class="price-block">
+                    <div class="discount-line hidden" id="p-discount-1">
+                        <span class="pct" id="p-discount-pct"></span>
+                        <span class="was" id="p-base-price"></span>
+                    </div>
+                    <div class="discount-line hidden" id="p-discount-2">
+                        <span class="pct deal" id="p-exp-pct"></span>
+                        <span class="was" id="p-mid-price"></span>
+                    </div>
+                    <div class="final-price-row">
+                        <span class="final-price" id="p-final-price"></span>
+                        <span class="final-unit hidden" id="p-final-unit"></span>
+                    </div>
+                </div>
+
+                <p class="stock-info hidden" id="p-stock"></p>
+
+                <!-- 정보 그리드 (필드 있을 때만) -->
+                <div class="info-grid" id="p-info-grid">
+                    <div class="cell hidden" id="cell-origin">
+                        <div class="label">원산지</div><div class="value" id="v-origin"></div>
+                    </div>
+                    <div class="cell">
+                        <div class="label">배송</div>
+                        <div class="value">새벽배송 (오전 7시 전 도착) / 일반배송 (1~2일)</div>
+                    </div>
+                    <div class="cell hidden" id="cell-storage">
+                        <div class="label">보관방법</div><div class="value" id="v-storage"></div>
+                    </div>
+                    <div class="cell hidden" id="cell-shelf">
+                        <div class="label">유통기한</div><div class="value" id="v-shelf"></div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- 수량 -->
+                <div class="qty-row">
+                    <span class="qty-label">수량</span>
+                    <div class="qty-control">
+                        <button id="qty-minus" aria-label="수량 감소"><i class="ri-subtract-line"></i></button>
+                        <input type="number" id="qty-input" value="1" min="1" readonly/>
+                        <button id="qty-plus" aria-label="수량 증가"><i class="ri-add-line"></i></button>
+                    </div>
+                </div>
+
+                <!-- 합계 -->
+                <div class="total-row">
+                    <span class="total-label">총 상품금액</span>
+                    <span class="total-price" id="p-total"></span>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="actions" id="p-actions">
+                    <button class="btn btn-cart" id="btn-cart">
+                        <i class="ri-shopping-cart-2-line"></i> 장바구니
+                    </button>
+                    <button class="btn btn-buy" id="btn-buy">
+                        <i class="ri-flashlight-line"></i> 바로 구매
+                    </button>
+                </div>
+
+                <!-- 무료배송 안내 -->
+                <div class="delivery-box">
+                    <i class="ri-truck-line"></i>
+                    <div>
+                        <strong>무료배송</strong>
+                        <div class="sub">새벽배송: 오늘 밤 12시까지 주문 시 내일 아침 7시 전 도착</div>
+                        <div class="sub">일반배송: 1~2일 소요</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── 탭 ── -->
+        <div class="tabs">
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="desc">상품설명</button>
+                <button class="tab-btn" data-tab="info">상품정보</button>
+                <button class="tab-btn" data-tab="review">리뷰 <span id="tab-review-count"></span></button>
+            </div>
+
+            <!-- 상품설명 -->
+            <div class="tab-panel active" id="panel-desc">
+                <p class="desc-text" id="p-desc"></p>
+                <div class="desc-image hidden" id="p-desc-image">
+                    <img id="p-desc-img" src="" alt="상품 상세 이미지"/>
+                </div>
+            </div>
+
+            <!-- 상품정보 -->
+            <div class="tab-panel" id="panel-info">
+                <table class="spec-table">
+                    <tbody id="spec-body"></tbody>
+                </table>
+            </div>
+
+            <!-- 리뷰 -->
+            <div class="tab-panel" id="panel-review">
+                <div class="review-head">
+                    <span class="review-head-title">상품 리뷰</span>
+                    <button class="btn-review-write" id="btn-open-review">
+                        <i class="ri-pencil-line"></i> 리뷰 작성
+                    </button>
+                </div>
+                <div class="review-summary hidden" id="review-summary">
+                    <div class="big" id="review-big"></div>
+                    <div>
+                        <div class="stars" id="review-stars"></div>
+                        <div class="review-count" id="review-count-text"></div>
+                    </div>
+                </div>
+                <div class="review-empty" id="review-empty">
+                    <i class="ri-chat-3-line"></i>
+                    아직 등록된 리뷰가 없습니다.
+                </div>
+                <div id="review-list"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 리뷰 작성 모달 -->
+<div class="modal-overlay hidden" id="review-modal">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>리뷰 작성</h3>
+            <button id="review-close" aria-label="닫기"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="field-label">별점</div>
+            <div class="star-input" id="star-input">
+                <i data-v="1" class="ri-star-fill"></i>
+                <i data-v="2" class="ri-star-fill"></i>
+                <i data-v="3" class="ri-star-fill"></i>
+                <i data-v="4" class="ri-star-fill"></i>
+                <i data-v="5" class="ri-star-fill"></i>
+            </div>
+            <div class="field-label">내용</div>
+            <textarea id="review-text" placeholder="상품은 어떠셨나요? 다른 고객에게 도움이 되는 후기를 남겨주세요."></textarea>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-modal-cancel" id="review-cancel">취소</button>
+            <button class="btn-modal-submit" id="review-submit">등록</button>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // ── URL에서 productId 추출 (/products-detail/{id}) ──
+        const productId = window.location.pathname.split('/').filter(Boolean).pop();
+
+        const $loading = document.getElementById('loading');
+        const $error   = document.getElementById('error');
+        const $root    = document.getElementById('detail-root');
+
+        let product = null;
+        let quantity = 1;
+        let isLoggedIn = false;
+        let purchasable = false;
+
+        // 로그인 여부 미리 확인
+        fetch('/api/members/me', { credentials: 'include' })
+            .then(res => { isLoggedIn = res.ok; })
+            .catch(() => { isLoggedIn = false; });
+
+        const LOW_STOCK = 10;
+
+        // 최종 표시가: salePrice가 유효하면 그걸, 아니면 정가
+        function getPrice(p) {
+            return (p.salePrice && p.salePrice > 0) ? p.salePrice : p.basePrice;
+        }
+        function isDiscounted(p) {
+            return p.discountPercent > 0 && p.salePrice > 0 && p.salePrice < p.basePrice;
+        }
+        function won(n) { return Number(n).toLocaleString() + '원'; }
+
+        function starHtml(rating) {
+            let s = '';
+            for (let i = 0; i < 5; i++) {
+                s += `<i class="${i < Math.round(rating) ? 'ri-star-fill' : 'ri-star-line'}"></i>`;
+            }
+            return s;
+        }
+
+        // ── 상품 조회 ──
+        async function loadProduct() {
+            try {
+                const res = await fetch(`/api/products/${productId}`, { credentials: 'include' });
+                if (!res.ok) throw new Error('NOT_FOUND');
+                product = await res.json();
+                render(product);
+            } catch (err) {
+                console.error('상품 로딩 오류:', err);
+                $loading.classList.add('hidden');
+                if (err.message === 'NOT_FOUND') {
+                    document.getElementById('error-msg').textContent = '존재하지 않는 상품입니다.';
+                }
+                $error.classList.remove('hidden');
+            }
+        }
+
+        function render(p) {
+            const isSoldOut  = p.status === 'SOLD_OUT' || p.stock <= 0;
+            const isTimeDeal = p.status === 'TIME_DEAL';
+            purchasable = !isSoldOut;
+
+            document.getElementById('bc-name').textContent = p.name;
+            document.getElementById('p-image').src = p.imageUrl || '/img/no-image.png';
+            document.getElementById('p-image').alt = p.name;
+            document.getElementById('p-name').textContent = p.name;
+
+            // ── 실시간 배너 (백엔드가 내려줄 때만) ──
+            if (p.viewingCount) {
+                document.getElementById('p-viewers-text').textContent =
+                    `지금 ${p.viewingCount}명이 이 상품을 보고 있어요`;
+                document.getElementById('p-viewers').classList.remove('hidden');
+            }
+            if (p.lastPurchase) {
+                document.getElementById('p-recent-text').textContent = p.lastPurchase;
+                document.getElementById('p-recent').classList.remove('hidden');
+            }
+
+            // ── 태그 ──
+            const tags = [];
+            if (isTimeDeal)               tags.push('<span class="tag tag-timedeal">타임딜</span>');
+            if (p.isBest)                 tags.push('<span class="tag tag-best">베스트</span>');
+            if (p.expirationDiscountText) tags.push(`<span class="tag tag-exp">${p.expirationDiscountText}</span>`);
+            if (p.unit)                   tags.push(`<span class="tag tag-unit">${p.unit}</span>`);
+            document.getElementById('p-tags').innerHTML = tags.join('');
+
+            if (isSoldOut) document.getElementById('p-soldout').classList.remove('hidden');
+
+            // ── 별점 (rating 있을 때만) ──
+            if (p.rating != null) {
+                document.getElementById('p-stars').innerHTML = starHtml(p.rating);
+                document.getElementById('p-rating-num').textContent = Number(p.rating).toFixed(1);
+                document.getElementById('p-review-count').textContent =
+                    `(${(p.reviewCount ?? 0).toLocaleString()}개 리뷰)`;
+                document.getElementById('p-rating').classList.remove('hidden');
+            }
+
+            // ── 가격 ──
+            // 1차 할인 (DTO의 discountPercent / basePrice / salePrice)
+            if (isDiscounted(p)) {
+                document.getElementById('p-discount-pct').textContent = p.discountPercent + '%';
+                document.getElementById('p-base-price').textContent = won(p.basePrice);
+                document.getElementById('p-discount-1').classList.remove('hidden');
+            }
+            // 2차: 유통기한 임박 추가할인 (백엔드가 관련 필드를 줄 때만)
+            //   expirationDiscountPercent + priceBeforeExpiration 형태를 가정
+            if (p.expirationDiscountPercent && p.priceBeforeExpiration) {
+                document.getElementById('p-exp-pct').textContent =
+                    `유통기한 임박 ${p.expirationDiscountPercent}% 추가할인`;
+                document.getElementById('p-mid-price').textContent = won(p.priceBeforeExpiration);
+                document.getElementById('p-discount-2').classList.remove('hidden');
+            }
+            // 최종가
+            document.getElementById('p-final-price').textContent = won(getPrice(p));
+            if (p.unit) {
+                document.getElementById('p-final-unit').textContent = '/' + p.unit;
+                document.getElementById('p-final-unit').classList.remove('hidden');
+            }
+
+            // ── 재고 ──
+            const $stock = document.getElementById('p-stock');
+            if (isSoldOut) {
+                $stock.textContent = '일시 품절된 상품입니다.';
+                $stock.classList.add('low'); $stock.classList.remove('hidden');
+            } else if (p.stock <= LOW_STOCK) {
+                $stock.innerHTML = `<i class="ri-fire-line"></i>품절임박 · ${p.stock}개 남음`;
+                $stock.classList.add('low'); $stock.classList.remove('hidden');
+            }
+
+            // ── 정보 그리드 (필드 있을 때만) ──
+            fillCell('cell-origin',  'v-origin',  p.origin);
+            fillCell('cell-storage', 'v-storage', p.storage);
+            fillCell('cell-shelf',   'v-shelf',   p.shelfLife);
+
+            // ── 탭 채우기 ──
+            fillTabs(p);
+
+            renderActions(isSoldOut);
+            updateTotal();
+
+            $loading.classList.add('hidden');
+            $root.classList.remove('hidden');
+        }
+
+        function fillCell(cellId, valId, value) {
+            if (value) {
+                document.getElementById(valId).textContent = value;
+                document.getElementById(cellId).classList.remove('hidden');
+            }
+        }
+
+        // ── 탭 내용 ──
+        function fillTabs(p) {
+            // 상품설명
+            document.getElementById('p-desc').textContent = p.description || '상세 설명이 준비 중입니다.';
+            if (p.detailImageUrl) {
+                document.getElementById('p-desc-img').src = p.detailImageUrl;
+                document.getElementById('p-desc-image').classList.remove('hidden');
+            }
+
+            // 상품정보 표 (있는 값만 행 추가)
+            const rows = [
+                ['상품명', p.name],
+                ['판매가', won(getPrice(p))],
+                ['중량', p.unit],
+                ['원산지', p.origin],
+                ['보관방법', p.storage],
+                ['유통기한', p.shelfLife],
+                ['배송', '새벽배송 (오전 7시 전 도착) / 일반배송 (1~2일)']
+            ].filter(([, v]) => v);
+            document.getElementById('spec-body').innerHTML =
+                rows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+
+            // 리뷰
+            if (p.reviewCount != null) {
+                document.getElementById('tab-review-count').textContent = `(${p.reviewCount})`;
+            }
+            if (p.rating != null && p.reviewCount > 0) {
+                document.getElementById('review-big').textContent = Number(p.rating).toFixed(1);
+                document.getElementById('review-stars').innerHTML = starHtml(p.rating);
+                document.getElementById('review-count-text').textContent = `${p.reviewCount.toLocaleString()}개 리뷰`;
+                document.getElementById('review-summary').classList.remove('hidden');
+                document.getElementById('review-empty').classList.add('hidden');
+                // TODO: 실제 리뷰 목록은 /api/products/{id}/reviews 붙이면 여기서 렌더
+            }
+        }
+
+        // ── 탭 전환 ──
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.classList.toggle('active', panel.id === 'panel-' + tab);
+                });
+            });
+        });
+
+        // ── 버튼 상태 ──
+        function renderActions(isSoldOut) {
+            const $actions = document.getElementById('p-actions');
+            if (isSoldOut) {
+                $actions.innerHTML = '<button class="btn btn-soldout" disabled>품절</button>';
+                return;
+            }
+            document.getElementById('btn-cart').addEventListener('click', async () => {
+                const ok = await addToCart();
+                if (ok) alert('장바구니에 담았습니다.');
+            });
+            document.getElementById('btn-buy').addEventListener('click', async () => {
+                const ok = await addToCart();
+                if (ok) window.location.href = '/cart';
+            });
+        }
+
+        // ── 수량 ──
+        function updateTotal() {
+            document.getElementById('p-total').textContent = won(getPrice(product) * quantity);
+        }
+        function setQty(n) {
+            const max = product ? Math.max(1, product.stock) : n;
+            quantity = Math.min(Math.max(1, n), max);
+            document.getElementById('qty-input').value = quantity;
+            document.getElementById('qty-minus').disabled = quantity <= 1;
+            document.getElementById('qty-plus').disabled = product && quantity >= product.stock;
+            if (product) updateTotal();
+        }
+        document.getElementById('qty-minus').addEventListener('click', () => setQty(quantity - 1));
+        document.getElementById('qty-plus').addEventListener('click', () => setQty(quantity + 1));
+
+        // ── 장바구니 / 바로구매 ──
+        function requireLogin() {
+            if (confirm('로그인이 필요합니다.\n로그인 페이지로 이동할까요?')) {
+                window.location.href = '/login';
+            }
+        }
+        async function addToCart() {
+            if (!purchasable) { alert('품절된 상품입니다.'); return false; }
+            if (!isLoggedIn) { requireLogin(); return false; }
+            try {
+                const res = await fetch('/api/carts/items', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    credentials: 'include',
+                    body: `productId=${productId}&quantity=${quantity}`
+                });
+                if (res.status === 401) { requireLogin(); return false; }
+                if (!res.ok) { alert('담기에 실패했습니다.'); return false; }
+                return true;
+            } catch (err) {
+                console.error('담기 오류:', err);
+                alert('오류가 발생했습니다.');
+                return false;
+            }
+        }
+
+        // ── 리뷰 작성 모달 ──
+        const $reviewModal = document.getElementById('review-modal');
+        const $starInput   = document.getElementById('star-input');
+        const $reviewText  = document.getElementById('review-text');
+        let selectedRating = 5;
+
+        function paintStars(v) {
+            $starInput.querySelectorAll('i').forEach(star => {
+                star.classList.toggle('on', Number(star.dataset.v) <= v);
+            });
+        }
+        paintStars(selectedRating);
+
+        // 별점 hover / 클릭
+        $starInput.querySelectorAll('i').forEach(star => {
+            star.addEventListener('mouseenter', () => paintStars(Number(star.dataset.v)));
+            star.addEventListener('click', () => {
+                selectedRating = Number(star.dataset.v);
+                paintStars(selectedRating);
+            });
+        });
+        $starInput.addEventListener('mouseleave', () => paintStars(selectedRating));
+
+        function openReviewModal() {
+            if (!isLoggedIn) { requireLogin(); return; }
+            selectedRating = 5;
+            paintStars(5);
+            $reviewText.value = '';
+            $reviewModal.classList.remove('hidden');
+        }
+        function closeReviewModal() { $reviewModal.classList.add('hidden'); }
+
+        document.getElementById('btn-open-review').addEventListener('click', openReviewModal);
+        document.getElementById('review-close').addEventListener('click', closeReviewModal);
+        document.getElementById('review-cancel').addEventListener('click', closeReviewModal);
+        // 오버레이 바깥 클릭 시 닫기
+        $reviewModal.addEventListener('click', (e) => {
+            if (e.target === $reviewModal) closeReviewModal();
+        });
+
+        // 제출 → /api/products/{id}/reviews (백엔드 구현 필요)
+        document.getElementById('review-submit').addEventListener('click', async () => {
+            const content = $reviewText.value.trim();
+            if (content.length < 5) { alert('리뷰 내용을 5자 이상 입력해주세요.'); return; }
+
+            try {
+                const res = await fetch(`/api/products/${productId}/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ rating: selectedRating, content })
+                });
+                if (res.status === 401) { requireLogin(); return; }
+                if (!res.ok) { alert('리뷰 등록에 실패했습니다.'); return; }
+                alert('리뷰가 등록되었습니다.');
+                closeReviewModal();
+                location.reload(); // 등록된 리뷰 반영
+            } catch (err) {
+                console.error('리뷰 등록 오류:', err);
+                alert('오류가 발생했습니다.');
+            }
+        });
+
+        // ── init ──
+        loadProduct().then(() => setQty(1));
+    });
+</script>
+
+</body>
+</html>
