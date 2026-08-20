@@ -110,12 +110,10 @@ public class MemberService {
         cartRepository.findByMemberMemberId(member.getMemberId())
                 .ifPresent(cart -> {
                     cartProductRepository.deleteByCart_CartId(cart.getCartId());
-                    cartRepository.delete(cart);                                  // 부모 나중
+                    cartRepository.delete(cart);
                 });
 
         member.withdraw();
     }
-
-
 
 }

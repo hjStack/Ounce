@@ -13,7 +13,7 @@
 
 <script th:if="${message}" th:inline="none">
     document.addEventListener('DOMContentLoaded', function () {
-        var toast = document.getElementById('app-toast');
+        let toast = document.getElementById('app-toast');
         if (toast) {
             setTimeout(function () {
                 toast.style.transition = 'opacity 0.3s';

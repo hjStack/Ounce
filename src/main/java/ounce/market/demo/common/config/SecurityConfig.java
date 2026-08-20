@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
                         .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/policy.html").permitAll()
+                        .requestMatchers("/terms.html").permitAll()
                         .anyRequest().authenticated()
                 )
 
