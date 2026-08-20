@@ -27,6 +27,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
+    @Value("${app.cookie-secure}")
+    private boolean cookieSecure;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
@@ -42,7 +45,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                 .path("/")
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .maxAge(60 * 30)
                 .sameSite("Lax")
                 .build();
@@ -58,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
                 .path("/api/auth/refresh")   // 갱신 엔드포인트에만 전송
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .maxAge(60 * 60 * 24 * 14)   // 2주
                 .sameSite("Lax")
                 .build();
