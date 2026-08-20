@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/head :: head(title='계정')}"></head>
+<head th:replace="~{fragments/head :: head(title='계정')}">
+
+</head>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
@@ -91,9 +93,15 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="mt-6 flex justify-start">
+                    <button type="button" id="withdraw-btn"
+                            class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-red-400 transition-colors">
+                        <i class="ri-logout-box-r-line"></i> 회원 탈퇴
+                    </button>
+                </div>
             </div>
 
-            <!-- Right: Recent orders -->
             <div class="flex-1">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-bold text-gray-900">최근 주문</h2>
@@ -106,6 +114,46 @@
             </div>
         </div>
     </div>
+
+
+    <!-- 회원 탈퇴 확인 모달 -->
+    <div id="withdraw-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4">
+        <div class="w-full max-w-sm bg-white rounded-2xl p-7 shadow-2xl">
+            <!-- 아이콘 -->
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-red-50 mb-4">
+                <i class="ri-error-warning-line text-2xl text-red-500"></i>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-900 mb-2">정말 탈퇴하시겠어요?</h3>
+
+            <p class="text-sm text-gray-500 leading-relaxed mb-5">
+                탈퇴 시 주문 내역, 포인트, 쿠폰, 장바구니 등 모든 정보가 삭제되며
+                <span class="font-medium text-gray-700">복구할 수 없습니다.</span>
+            </p>
+
+            <div class="mb-5">
+                <p class="text-sm text-gray-600 mb-2">
+                    계속하시려면 <span class="font-bold text-red-500">ounce를 탈퇴합니다.</span>를 입력해주세요.
+                </p>
+                <input type="text" id="withdraw-confirm-input" placeholder="ounce를 탈퇴합니다." autocomplete="off"
+                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900
+                      placeholder-gray-300 focus:border-red-400 focus:ring-4 focus:ring-red-50
+                      focus:outline-none transition"/>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="button" id="withdraw-cancel"
+                        class="flex-1 py-2.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                    취소
+                </button>
+                <button type="button" id="withdraw-confirm" disabled
+                        class="flex-1 py-2.5 text-sm font-medium text-white bg-red-200 rounded-lg cursor-not-allowed transition">
+                    탈퇴하기
+                </button>
+            </div>
+        </div>
+    </div>
+
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
@@ -137,6 +185,58 @@
                 if (avatar) avatar.textContent = namePart.charAt(0).toUpperCase();
             })
             .catch(err => console.error('유저 정보 조회 실패:', err));
+    });
+
+    // ── 회원 탈퇴 ──
+
+    const modal = document.getElementById('withdraw-modal');
+    const confirmInput = document.getElementById('withdraw-confirm-input');
+    const confirmBtn = document.getElementById('withdraw-confirm');
+    const CONFIRM_TEXT = 'ounce를 탈퇴합니다.';
+
+    const openWithdrawModal = () => modal.classList.replace('hidden', 'flex');
+    const closeWithdrawModal = () => {
+        modal.classList.replace('flex', 'hidden');
+        confirmInput.value = '';
+        updateBtnState();
+    };
+
+    // 입력값이 정확히 일치할 때만 버튼 활성화
+    const updateBtnState = () => {
+        const match = confirmInput.value.trim() === CONFIRM_TEXT;
+        confirmBtn.disabled = !match;
+        confirmBtn.className = match
+            ? 'flex-1 py-2.5 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition'
+            : 'flex-1 py-2.5 text-sm font-medium text-white bg-red-200 rounded-lg cursor-not-allowed transition';
+    };
+
+    document.getElementById('withdraw-btn').addEventListener('click', openWithdrawModal);
+    document.getElementById('withdraw-cancel').addEventListener('click', closeWithdrawModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeWithdrawModal(); });
+    confirmInput.addEventListener('input', updateBtnState);
+
+    confirmBtn.addEventListener('click', function () {
+        if (confirmInput.value.trim() !== CONFIRM_TEXT) return;
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '처리 중...';
+
+        fetch('/api/members/me', { method: 'DELETE', credentials: 'include' })
+            .then(res => {
+                if (res.ok) {
+                    location.href = '/?withdrawn=true';
+                } else {
+                    alert('탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = '탈퇴하기';
+                }
+            })
+            .catch(err => {
+                console.error('회원 탈퇴 실패:', err);
+                alert('네트워크 오류가 발생했습니다.');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '탈퇴하기';
+            });
     });
 </script>
 

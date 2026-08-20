@@ -20,4 +20,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Optional<Cart> findByMemberMemberId(Long memberMemberId);
 
     boolean existsByMember(Member member);
+
+    Optional<Cart> findByMember_MemberId(Long memberId);
 }
