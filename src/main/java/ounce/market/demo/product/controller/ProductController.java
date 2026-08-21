@@ -32,6 +32,7 @@ public class ProductController {
                 ProductStatus.TIME_DEAL,
                 ProductStatus.SOLD_OUT
         );
+
         return productRepository.findByStatusIn(visible, pageable)
                 .map(ProductResponse::from);
     }

@@ -5,6 +5,11 @@
 </head>
 <body>
 
+<!--// todo 완료 -->
+<!--상세페이지에서 10개 이상 담아지는 버그 수정하기
+-->
+
+
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
@@ -849,6 +854,7 @@
                 document.getElementById('p-final-unit').classList.remove('hidden');
             }
 
+            // todo 재고가 몇개 남았는지 백엔드 구현 후 프론트에서 보여주기
             // ── 재고 ──
             const $stock = document.getElementById('p-stock');
             if (isSoldOut) {
@@ -950,13 +956,19 @@
             document.getElementById('p-total').textContent = won(getPrice(product) * quantity);
         }
         function setQty(n) {
-            const max = product ? Math.max(1, product.stock) : n;
+
+            const LOW_STOCK = 10;
+            const MAX_CART_QTY = 10; // 한 번에 담을 수 있는 최대 수량
+
+            const stockMax = product ? Math.max(1, product.stock) : MAX_CART_QTY;
+            const max = Math.min(MAX_CART_QTY, stockMax);
             quantity = Math.min(Math.max(1, n), max);
             document.getElementById('qty-input').value = quantity;
             document.getElementById('qty-minus').disabled = quantity <= 1;
-            document.getElementById('qty-plus').disabled = product && quantity >= product.stock;
+            document.getElementById('qty-plus').disabled = product && quantity >= max;
             if (product) updateTotal();
         }
+
         document.getElementById('qty-minus').addEventListener('click', () => setQty(quantity - 1));
         document.getElementById('qty-plus').addEventListener('click', () => setQty(quantity + 1));
 
@@ -966,9 +978,13 @@
                 window.location.href = '/login';
             }
         }
+
         async function addToCart() {
             if (!purchasable) { alert('품절된 상품입니다.'); return false; }
             if (!isLoggedIn) { requireLogin(); return false; }
+
+            if (quantity > 10) { alert('한 번에 최대 10개까지 담을 수 있습니다.'); return false; }
+
             try {
                 const res = await fetch('/api/carts/items', {
                     method: 'POST',
@@ -977,7 +993,9 @@
                     body: `productId=${productId}&quantity=${quantity}`
                 });
                 if (res.status === 401) { requireLogin(); return false; }
-                if (!res.ok) { alert('담기에 실패했습니다.'); return false; }
+                if (!res.ok) {
+                    alert('상품 1개당 최대 10개까지 담을 수 있습니다.');
+                    return false; }
                 return true;
             } catch (err) {
                 console.error('담기 오류:', err);
@@ -1026,7 +1044,7 @@
             if (e.target === $reviewModal) closeReviewModal();
         });
 
-        // 제출 → /api/products/{id}/reviews (백엔드 구현 필요)
+        // 제출 → /api/products/{id}/reviews (백엔드 구현 필요) todo
         document.getElementById('review-submit').addEventListener('click', async () => {
             const content = $reviewText.value.trim();
             if (content.length < 5) { alert('리뷰 내용을 5자 이상 입력해주세요.'); return; }

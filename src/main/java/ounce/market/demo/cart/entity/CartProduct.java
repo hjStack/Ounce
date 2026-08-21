@@ -1,14 +1,13 @@
 package ounce.market.demo.cart.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ounce.market.demo.product.entity.Product;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartProduct {
 
@@ -21,17 +20,10 @@ public class CartProduct {
     private Cart cart;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Product product;
+    private  Product product;
 
     @Column(nullable = false)
     private int quantity;
-
-    @Builder
-    public CartProduct(Cart cart, Product product, int quantity) {
-        this.cart = cart;
-        this.product = product;
-        this.quantity = quantity;
-    }
 
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
@@ -40,4 +32,5 @@ public class CartProduct {
     public void addQuantity(int amount) {
         this.quantity += amount;
     }
+
 }
