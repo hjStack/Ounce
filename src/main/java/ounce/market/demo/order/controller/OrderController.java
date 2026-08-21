@@ -22,7 +22,7 @@ public class OrderController {
     public ResponseEntity<Long> createOrder(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody OrderCreateRequest request
-            // TODO: 로그인 회원 id를 여기서 받아야 함 (아래 설명)
+            // TODO: 로그인 회원 id를 여기서 받아야 함 -> 완료
     ) {
         Long memberId = userDetails.member().getMemberId();
         Long orderId = orderService.createOrderFromCart(memberId, request);
