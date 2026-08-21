@@ -36,7 +36,6 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType;
 
-
     @Builder
     public Delivery(DeliveryType deliveryType) {
         this.deliveryType = deliveryType;
