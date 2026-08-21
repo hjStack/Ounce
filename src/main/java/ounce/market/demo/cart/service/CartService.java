@@ -32,6 +32,14 @@ public class CartService {
     private final ProductRepository productRepository;
     private final TimeDealRepository timeDealRepository;   // 👈 주입 추가
 
+    private static final int MAX_PER_ORDER = 10;
+
+    private void validateQuantityLimit(int resultingQuantity) {
+        if (resultingQuantity > MAX_PER_ORDER) {
+            throw new IllegalArgumentException(
+                    "상품 1개당 최대 " + MAX_PER_ORDER + "개까지 담을 수 있습니다.");
+        }
+    }
 
     @Transactional
     // 💡 1. 내 장바구니 조회
@@ -80,6 +88,10 @@ public class CartService {
     @Transactional
     public void addCartItem(Long memberId, Long productId, int quantity) {
 
+        if (quantity > MAX_PER_ORDER) {
+            throw new IllegalArgumentException("최대 10개까지 구매 가능합니다.");
+        }
+
         Cart cart = cartRepository.findByMemberMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
 
@@ -88,12 +100,16 @@ public class CartService {
 
         Optional<CartProduct> existing = cartProductRepository.findByCartCartIdAndProductProductId(cart.getCartId(), productId);
 
+        int currentQty = existing.map(CartProduct::getQuantity).orElse(0);
+        validateQuantityLimit(currentQty + quantity);
+
         if (existing.isPresent()){
             existing.get().addQuantity(quantity);
         }
 
         else {
             // 없으면 → 새로 만들어 저장
+
             CartProduct newItem = CartProduct.builder()
                     .cart(cart)
                     .product(product)

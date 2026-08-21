@@ -19,3 +19,12 @@ management:
   health:
     elasticsearch:
       enabled: false
+
+
+  jpa:
+    # 사용할 데이터베이스의 방언(Dialect) 설정
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      # 엔티티 변경 시 테이블 스키마 자동 수정 전략
+      # 개발 단계: update 또는 create, 운영 단계: none 또는 validate 권장
+      ddl-auto: validate
