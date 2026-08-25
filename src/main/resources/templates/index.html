@@ -1,119 +1,118 @@
-
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/head :: head(title='Ounce')}"></head>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-
-<link rel="icon" type="image/png" href="/favicon.png?v=2">
-<body class="bg-[#fcfbf9]">
+<head th:replace="~{fragments/head :: head(title='Ounce — 1인분 밀키트')}"></head>
+<body class="bg-background-cream">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
 <main class="pt-20 md:pt-24">
-    <div class="flex items-center justify-center text-center px-6 py-10 md:py-16">
-        <div>
-            <img src="/favicon.png" alt="Ounce" class="w-16 h-16 mx-auto mb-4"/>
-            <h1 class="text-5xl md:text-6xl mb-3 text-gray-950" style="font-family: 'Pacifico', cursive; tracking-normal;">Ounce</h1>
-            <p class="text-gray-500 text-sm md:text-base">당신의 아침을 디자인합니다.</p>
-        </div>
-    </div>
 
-    <section class="w-full px-6 md:px-8 lg:px-12 pb-16 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+    <!-- ══ Hero ══════════════════════════════════════════════════
+         이전에는 가운데 정렬 Ounce 워드마크 블록과 이 에디토리얼 히어로가
+         브랜드 소개를 두 번 반복했다. 내비바에 이미 워드마크가 있으니 하나로 합쳤다. -->
+    <section class="w-full px-6 md:px-8 lg:px-12 pt-8 pb-14 md:pt-12 md:pb-20 max-w-7xl mx-auto
+                    flex flex-col md:flex-row items-center gap-12 lg:gap-20">
         <div class="w-full md:w-1/2 flex flex-col items-start text-left z-10">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-8 h-[1px] bg-[#d95d22]"></div>
-                <span class="text-[#d95d22] text-xs font-bold tracking-[0.2em]">2026</span>
+                <div class="w-8 h-px bg-black"></div>
+                <span class="text-black text-xs font-bold tracking-[0.2em]">1인분 밀키트</span>
             </div>
 
-            <h2 class="text-4xl md:text-5xl font-black text-gray-900 leading-[1.2] mb-6 tracking-tight">
-                <span class="block pb-2">새벽에</span>
-                <span class="block pb-2">열리는</span>
-                <span class="block pb-2">감각</span>
-            </h2>
+            <h3 class="text-4xl md:text-5xl lg:text-[3.4rem] font-black text-foreground-950 leading-[1.15] mb-6 tracking-tight">
+                혼자 먹는 한 끼,<br/>
+                <span class="text-black">딱 1인분으로</span>
+            </h3>
 
-            <p class="text-gray-600 text-base md:text-lg mb-8 leading-relaxed">
-                매일 밤 10시, 한정된 수량의 밀키트가<br class="hidden md:block">
-                특별한 가격에 펼쳐집니다.<br class="hidden md:block">
-                새벽 7시, 당신의 문 앞에 도착합니다.
+            <p class="text-foreground-600 text-base md:text-lg mb-8 leading-relaxed">
+                2-3인분 말고 딱 1인분.<br class="hidden md:block"/>
+                손질과 계량이 끝난 상태로 도착합니다.<br class="hidden md:block"/>
+                냄비 하나, 10분이면 완성됩니다.
             </p>
 
-            <div class="flex flex-wrap items-center gap-3 mb-14">
-                <a href="/products" class="px-6 py-3.5 bg-[#3b4055] text-white text-sm font-semibold rounded hover:bg-gray-800 transition-colors flex items-center gap-2">
-                    상품 보기
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <div class="flex flex-wrap items-center gap-3 mb-12">
+                <a href="/products"
+                   class="px-6 py-3.5 bg-ink-500 text-white text-sm font-semibold rounded-lg hover:bg-ink-600
+                          transition-colors flex items-center gap-2 shadow-sm">
+                    밀키트 둘러보기
+                    <i class="ri-arrow-right-line text-base"></i>
                 </a>
-                <a href="/timedeal" class="px-6 py-3.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
+                <a href="/timedeal"
+                   class="px-6 py-3.5 bg-white border border-background-200 text-foreground-700 text-sm font-semibold
+                          rounded-lg hover:bg-background-100 transition-colors flex items-center gap-2 shadow-sm">
+                    <i class="ri-moon-line text-accent-500 text-base"></i>
                     미드나이트 세일
                 </a>
             </div>
 
             <div class="flex items-center gap-8 md:gap-10">
-                <div class="text-center md:text-left">
-                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">
-                        <span id="member-count">10만</span><span class="text-lg font-sans">+</span>
+                <div>
+                    <p class="text-2xl font-bold text-foreground-950 mb-1">
+                        <span id="menu-count">–</span><span class="text-base font-medium">종</span>
                     </p>
-                    <p class="text-[11px] text-gray-400 font-sans">Ounce 멤버</p>
+                    <p class="text-[11px] text-foreground-400">밀키트 메뉴</p>
                 </div>
                 <div class="w-[1px] h-10 bg-gray-200"></div>
                 <div class="text-center md:text-left">
                     <p class="text-2xl font-serif font-bold text-gray-900 mb-1">0</p>
                     <p class="text-[11px] text-gray-400 font-sans">협력 농장</p>
                 </div>
-                <div class="w-[1px] h-10 bg-gray-200"></div>
-                <div class="text-center md:text-left">
-                    <p class="text-2xl font-serif font-bold text-gray-900 mb-1">7시</p>
-                    <p class="text-[11px] text-gray-400 font-sans">새벽 배송</p>
+                <div class="w-px h-10 bg-background-200"></div>
+                <div>
+                    <p class="text-2xl font-bold text-foreground-950 mb-1">새벽 7시</p>
+                    <p class="text-[11px] text-foreground-400">문 앞 도착</p>
+                </div>
+                <!-- 멤버 수는 0명일 때 "0+" 로 보이는 게 더 나빠서 값이 있을 때만 노출 -->
+                <div id="member-stat" class="hidden items-center gap-8 md:gap-10">
+                    <div class="w-px h-10 bg-background-200"></div>
+                    <div>
+                        <p class="text-2xl font-bold text-foreground-950 mb-1">
+                            <span id="member-count">–</span><span class="text-base font-medium">+</span>
+                        </p>
+                        <p class="text-[11px] text-foreground-400">Ounce 멤버</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="w-full md:w-1/2 flex flex-col gap-4">
-
-            <!-- 미드나이트 세일 -->
-            <div class="bg-[#fdfaf5] p-5 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                <div class="w-11 h-11 bg-[#d95d22] rounded-full flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
+            <div class="bg-primary-50 p-5 rounded-xl shadow-sm border border-primary-100 flex items-start gap-4
+                        hover:shadow-md transition-shadow">
+                <div class="w-11 h-11 bg-accent-500 rounded-full flex items-center justify-center shrink-0">
+                    <i class="ri-moon-line text-white text-xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-gray-900 mb-0.5">미드나이트 세일</h4>
-                    <p class="text-xs text-[#d95d22] font-medium mb-1.5">매일 22:00 - 23:00</p>
-                    <p class="text-xs text-gray-500 leading-relaxed">
+                    <h3 class="text-sm font-bold text-foreground-950 mb-0.5">미드나이트 세일</h3>
+                    <p class="text-xs text-accent-500 font-medium mb-1.5">매일 22:00 - 23:00</p>
+                    <p class="text-xs text-foreground-500 leading-relaxed">
                         한 시간만 열리는 특별한 가격의 밀키트. 선착순 한정 수량.
                     </p>
                 </div>
             </div>
 
-            <!-- 새벽 배송 -->
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                <div class="w-11 h-11 bg-gray-900 rounded-full flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
-                    </svg>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-background-200 flex items-start gap-4
+                        hover:shadow-md transition-shadow">
+                <div class="w-11 h-11 bg-secondary-600 rounded-full flex items-center justify-center shrink-0">
+                    <i class="ri-truck-line text-white text-xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-gray-900 mb-0.5">새벽 배송</h4>
-                    <p class="text-xs text-gray-400 font-medium mb-1.5">내일 아침 7시 도착</p>
-                    <p class="text-xs text-gray-500 leading-relaxed">
+                    <h3 class="text-sm font-bold text-foreground-950 mb-0.5">새벽 배송</h3>
+                    <p class="text-xs text-secondary-600 font-medium mb-1.5">내일 아침 7시 도착</p>
+                    <p class="text-xs text-foreground-500 leading-relaxed">
                         자는 사이 문 앞까지. 가장 신선한 상태로 하루를 시작하세요.
                     </p>
                 </div>
             </div>
 
-            <!-- 1인분 소분 -->
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                <div class="w-11 h-11 bg-gray-900 rounded-full flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4v16"></path>
-                    </svg>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-background-200 flex items-start gap-4
+                        hover:shadow-md transition-shadow">
+                <div class="w-11 h-11 bg-ink-500 rounded-full flex items-center justify-center shrink-0">
+                    <i class="ri-knife-line text-white text-xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-gray-900 mb-0.5">1인분 소분</h4>
-                    <p class="text-xs text-gray-400 font-medium mb-1.5">남기지 않는 정량 포장</p>
-                    <p class="text-xs text-gray-500 leading-relaxed">
+                    <h3 class="text-sm font-bold text-foreground-950 mb-0.5">1인분 소분</h3>
+                    <p class="text-xs text-foreground-400 font-medium mb-1.5">남기지 않는 정량 포장</p>
+                    <p class="text-xs text-foreground-500 leading-relaxed">
                         혼자여도 딱 필요한 만큼만. 버리는 음식 없이 알뜰하게.
                     </p>
                 </div>
@@ -121,183 +120,206 @@
         </div>
     </section>
 
-    <section class="w-full px-4 md:px-8 lg:px-12 pb-24 max-w-7xl mx-auto">
-        <div class="bg-gray-900 border-b border-gray-800 overflow-hidden rounded-t-xl">
-            <div class="px-4 md:px-8 lg:px-12 py-3 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-3 shrink-0">
-                    <span class="w-2 h-2 bg-[#d95d22] rounded-full animate-pulse"></span>
-                    <span id="total-viewers" class="text-sm text-[#d95d22] font-medium">
-                        지금 --명이 미드나이트 세일을 보고 있어요
-                    </span>
-                </div>
-                <div id="recent-purchases" class="hidden md:flex items-center gap-4 overflow-hidden">
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-gray-900 border-b border-gray-800">
-            <div class="px-4 md:px-8 lg:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-[#d95d22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="text-sm text-gray-300">매일 22:00 ~ 23:00</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-[#d95d22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                        <span class="text-sm text-gray-300">선착순 한정 수량</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-[#d95d22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
-                        <span class="text-sm text-gray-300">내일 아침 7시 배송</span>
-                    </div>
-                </div>
-                <div class="text-sm text-gray-400">
-                    총 <span class="text-[#d95d22] font-semibold" th:text="${timeDealProducts != null ? #lists.size(timeDealProducts) : 12}">12</span>개 상품 참여중
+    <!-- ══ 미드나이트 슬림 배너 ═══════════════════════════════════
+         이 자리에 있던 큰 검은 박스는 컨트롤러가 timeDealProducts 를 채우지 않아
+         항상 "진행 중인 타임딜 상품이 없습니다" 만 띄우는 빈 화면이었다.
+         타임딜은 /timedeal 페이지가 담당하고 홈에는 한 줄 안내만 남긴다. -->
+    <section class="w-full px-4 md:px-8 lg:px-12 pb-14 md:pb-20 max-w-7xl mx-auto">
+        <a href="/timedeal"
+           class="group flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl
+                  bg-foreground-950 px-6 py-5 md:px-8 shadow-lg hover:bg-foreground-900 transition-colors">
+            <div class="flex items-center gap-4">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-500">
+                    <i class="ri-moon-line text-white text-lg"></i>
+                </span>
+                <div>
+                    <p class="text-sm font-bold text-white">미드나이트 세일 — 매일 밤 10시부터 한 시간</p>
+                    <p class="text-xs text-white/50 mt-0.5">선착순 한정 수량 · 내일 아침 7시 배송</p>
                 </div>
             </div>
-        </div>
-
-        <div class="bg-gray-900 px-4 md:px-8 lg:px-12 py-8 rounded-b-xl shadow-xl mb-12">
-            <div class="flex items-center gap-2 mb-6">
-                <span class="text-sm text-gray-400 mr-2">정렬:</span>
-                <button class="px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer whitespace-nowrap bg-[#d95d22] text-white">
-                    인기순
-                </button>
-                <button class="px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer whitespace-nowrap bg-white/5 text-gray-400 hover:bg-white/10">
-                    할인율순
-                </button>
-                <button class="px-4 py-2 rounded-sm text-sm font-medium transition-all cursor-pointer whitespace-nowrap bg-white/5 text-gray-400 hover:bg-white/10">
-                    낮은 가격순
-                </button>
+            <div class="flex items-center gap-4 shrink-0">
+                <div class="flex items-center gap-1.5 text-white/70">
+                    <i class="ri-time-line text-accent-500 text-sm"></i>
+                    <span class="text-xs">자정까지</span>
+                    <span id="mid-countdown" class="text-sm font-semibold tabular-nums text-white">--:--:--</span>
+                </div>
+                <span class="flex items-center gap-1 text-xs font-semibold text-accent-500 whitespace-nowrap">
+                    보러 가기 <i class="ri-arrow-right-line transition-transform group-hover:translate-x-0.5"></i>
+                </span>
             </div>
+        </a>
+    </section>
 
-            <div th:if="${timeDealProducts == null or #lists.isEmpty(timeDealProducts)}" class="py-16 text-center text-gray-500 text-sm">
-                진행 중인 타임딜 상품이 없습니다.
-            </div>
-
-            <div th:unless="${timeDealProducts == null or #lists.isEmpty(timeDealProducts)}" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
-                <th:block th:each="product : ${timeDealProducts}">
-                    <div th:replace="~{fragments/time-deal-card :: timeDealCard(${product})}"></div>
-                </th:block>
-            </div>
-        </div>
-
-        <div class="px-4 md:px-8 lg:px-12 py-12 bg-[#0a0a0a] rounded-2xl shadow-lg border border-gray-800 text-center">
-            <div class="max-w-2xl mx-auto">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">
-                    놓치지 마세요
+    <!-- ══ 상품 그리드 ════════════════════════════════════════════ -->
+    <section class="w-full px-4 md:px-8 lg:px-12 pb-16 md:pb-24 max-w-7xl mx-auto">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-px bg-accent-500"></div>
+                    <span class="text-accent-500 text-xs font-bold tracking-[0.2em]">Meal Kits</span>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight">
+                    지금 주문 가능한 밀키트
                 </h2>
-                <p class="text-sm text-gray-400 mb-6">
-                    매일 밤 10시, 신선한 식품을 초특가에 만나볼 수 있는 기회입니다.<br />
+                <p class="text-sm text-foreground-500 mt-1.5">
+                    손질·계량 끝난 1인분. 오늘 주문하면 내일 새벽 7시 도착.
+                </p>
+            </div>
+            <a href="/products"
+               class="inline-flex items-center gap-1.5 self-start sm:self-auto text-sm font-semibold
+                      text-foreground-700 hover:text-accent-500 transition-colors whitespace-nowrap">
+                전체 보기 <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+
+        <div id="home-product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5"></div>
+
+        <!-- 로딩/실패 상태. 상품이 안 뜰 때 조용히 빈 화면이 되지 않도록. -->
+        <div id="home-grid-status" class="py-16 text-center text-sm text-foreground-400">
+            밀키트를 불러오는 중...
+        </div>
+    </section>
+
+    <!-- ══ 카테고리 ═══════════════════════════════════════════════
+         이 자리에 있던 dailyDeals 프래그먼트는 categories 모델 속성이 없어서
+         제목만 있는 회색 빈 섹션으로 렌더됐다. 실제 상품 이미지로 채운다. -->
+    <section class="w-full bg-background-100 py-16 md:py-24">
+        <div class="w-full px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-10">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-px bg-accent-500"></div>
+                        <span class="text-accent-500 text-xs font-bold tracking-[0.2em]">Categories</span>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight">
+                        오늘은 뭐 먹지?
+                    </h2>
+                </div>
+                <p class="text-foreground-500 text-sm max-w-xs">
+                    찌개부터 파스타까지, 먹고 싶은 걸로 골라보세요
+                </p>
+            </div>
+
+            <div id="category-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4"></div>
+        </div>
+    </section>
+
+    <!-- ══ 가입 CTA ═══════════════════════════════════════════════ -->
+    <section class="w-full px-4 md:px-8 lg:px-12 py-16 md:py-20 max-w-7xl mx-auto">
+        <div class="rounded-2xl bg-foreground-950 px-6 py-12 md:px-12 text-center shadow-lg">
+            <div class="max-w-xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">놓치지 마세요</h2>
+                <p class="text-sm text-white/50 mb-7 leading-relaxed">
+                    매일 밤 10시, 한 시간만 열리는 미드나이트 세일.<br/>
                     회원가입하고 알림을 받아보세요.
                 </p>
 
-                <a sec:authorize="isAnonymous()" href="/signup" class="inline-flex items-center gap-2 px-8 py-3 bg-[#d95d22] text-white text-sm font-medium rounded hover:bg-[#bf4e1a] transition-colors whitespace-nowrap">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                <a sec:authorize="isAnonymous()" href="/signup"
+                   class="inline-flex items-center gap-2 px-8 py-3.5 bg-accent-500 text-white text-sm font-semibold
+                          rounded-lg hover:bg-accent-600 transition-colors">
+                    <i class="ri-notification-3-line text-base"></i>
                     미드나이트 알림 받기
                 </a>
 
-                <a sec:authorize="isAuthenticated()" href="#" onclick="alert('이미 Ounce 멤버십 알림이 활성화되어 있습니다!'); return false;" class="inline-flex items-center gap-2 px-8 py-3 bg-[#3b4055] text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors whitespace-nowrap">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    알림 수신 중
+                <a sec:authorize="isAuthenticated()" href="/timedeal"
+                   class="inline-flex items-center gap-2 px-8 py-3.5 bg-white/10 text-white text-sm font-semibold
+                          rounded-lg hover:bg-white/20 transition-colors ring-1 ring-white/15">
+                    <i class="ri-check-line text-base text-accent-500"></i>
+                    알림 수신 중 — 세일 보러 가기
                 </a>
-
             </div>
         </div>
     </section>
-
-    <section class="w-full px-4 md:px-8 lg:px-12 pb-16 max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-        </div>
-    </section>
-
-    <section class="w-full px-4 md:px-8 lg:px-12 pb-16 max-w-7xl mx-auto">
-    </section>
-
-    <div th:replace="~{fragments/daily-deals :: dailyDeals(${categories})}"></div>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script src="/js/index.js"></script>
+<script src="/js/product-card.js"></script>
+<script th:inline="none">
+    document.addEventListener('DOMContentLoaded', function () {
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- 1. 자정 카운트다운 스크립트 ---
-        function updateMidnightTimer() {
-            const now = new Date();
-            const midnight = new Date();
-            midnight.setHours(24, 0, 0, 0);
+        /* ── 자정 카운트다운 ───────────────────────────────── */
+        const countdownEl = document.getElementById('mid-countdown');
+        if (countdownEl) {
+            const pad = n => String(n).padStart(2, '0');
+            const tick = () => {
+                const now = new Date();
+                const midnight = new Date(now);
+                midnight.setHours(24, 0, 0, 0);
+                const total = Math.max(0, Math.floor((midnight - now) / 1000));
+                countdownEl.textContent =
+                    `${pad(Math.floor(total / 3600))}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}`;
+            };
+            tick();
+            setInterval(tick, 1000);
+        }
 
-            const diff = midnight - now;
+        /* ── 상품 그리드 + 카테고리 ─────────────────────────── */
+        const HOME_LIMIT = 8;
+        const grid = document.getElementById('home-product-grid');
+        const status = document.getElementById('home-grid-status');
+        const categoryGrid = document.getElementById('category-grid');
+        const menuCountEl = document.getElementById('menu-count');
 
-            if (diff > 0) {
-                const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-                const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
-                const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+        Ounce.mountCartHandlers(grid);
 
-                if(document.getElementById('td-hours')) document.getElementById('td-hours').textContent = h;
-                if(document.getElementById('td-minutes')) document.getElementById('td-minutes').textContent = m;
-                if(document.getElementById('td-seconds')) document.getElementById('td-seconds').textContent = s;
+        Ounce.fetchCatalog().then(products => {
+            if (!products.length) {
+                status.textContent = '준비된 밀키트가 없습니다.';
+                return;
             }
-        }
-        setInterval(updateMidnightTimer, 1000);
-        updateMidnightTimer();
 
+            if (menuCountEl) menuCountEl.textContent = products.length;
 
-        // --- 2. 실시간 뷰어 모의 스크립트 (React useEffect 대체) ---
-        const viewerEl = document.getElementById('total-viewers');
-        if (viewerEl) {
-            const updateViewers = () => {
-                const count = Math.floor(Math.random() * 400) + 200;
-                viewerEl.textContent = `지금 ${count.toLocaleString()}명이 미드나이트 세일을 보고 있어요`;
-            };
-            updateViewers();
-            setInterval(updateViewers, 5000);
-        }
+            // 품절 상품은 홈 그리드에서 뒤로 밀고, 최근 등록순(productId 내림차순)으로 노출
+            const featured = products
+                .slice()
+                .sort((a, b) => {
+                    const aOut = a.status === 'SOLD_OUT' || a.stock <= 0;
+                    const bOut = b.status === 'SOLD_OUT' || b.stock <= 0;
+                    if (aOut !== bOut) return aOut ? 1 : -1;
+                    return b.productId - a.productId;
+                })
+                .slice(0, HOME_LIMIT);
 
-        // --- 3. 실시간 구매 틱커 모의 스크립트 (React useEffect 대체) ---
-        const tickerContainer = document.getElementById('recent-purchases');
-        if (tickerContainer) {
-            const cities = ['서울', '부산', '인천', '대구', '광주', '대전', '수원', '울산', '창원', '성남'];
-            const products = ['한돈 삼겹살', '제주 감귤', '국산 브로콜리', '생연어', '유기농 당근', '방울토마토', '아스파라거스', '애호박'];
-            let purchases = [];
+            Ounce.render(grid, featured);
+            status.classList.add('hidden');
 
-            const addPurchase = () => {
-                const city = cities[Math.floor(Math.random() * cities.length)];
-                const product = products[Math.floor(Math.random() * products.length)];
-                const text = `${city}에서 ${product} 구매 완료`;
+            // 카테고리 카드: 각 카테고리의 첫 상품 이미지를 대표 이미지로 사용
+            categoryGrid.innerHTML = Ounce.CATEGORIES.map(cat => {
+                const members = products.filter(p => Ounce.inCategory(p, cat.key));
+                if (!members.length) return '';
+                const cover = members[0].imageUrl || Ounce.PLACEHOLDER;
+                return `
+                    <a href="/products?cat=${cat.key}"
+                       class="group relative overflow-hidden rounded-xl aspect-[4/5] md:aspect-square bg-background-200 shadow-sm hover:shadow-lg transition-shadow">
+                        <img src="${cover}" alt="${cat.label}" loading="lazy"
+                             class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             onerror="this.onerror=null;this.src=Ounce.PLACEHOLDER"/>
+                        <div class="absolute inset-0 bg-gradient-to-t from-foreground-950/85 via-foreground-950/20 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <i class="${cat.icon} text-accent-400 text-lg mb-1 block"></i>
+                            <h3 class="text-white text-sm md:text-base font-bold leading-snug">${cat.label}</h3>
+                            <p class="text-white/60 text-xs mt-0.5">${members.length}종</p>
+                        </div>
+                    </a>`;
+            }).join('');
+        }).catch(() => {
+            status.textContent = '밀키트를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';
+        });
 
-                purchases.unshift(text);
-                if (purchases.length > 3) purchases.pop();
-
-                tickerContainer.innerHTML = purchases.map(p =>
-                    `<span class="text-sm text-gray-500 whitespace-nowrap animate-pulse">${p}</span>`
-                ).join('');
-            };
-
-            const randomShow = () => {
-                const delay = 2000 + Math.random() * 5000;
-                setTimeout(() => {
-                    addPurchase();
-                    randomShow();
-                }, delay);
-            };
-
-            randomShow();
-        }
+        /* ── 멤버 수 (있을 때만 노출) ───────────────────────── */
+        fetch('/api/members/count')
+            .then(res => res.ok ? res.json() : null)
+            .then(count => {
+                if (!count || count <= 0) return;
+                document.getElementById('member-count').textContent = count.toLocaleString();
+                const stat = document.getElementById('member-stat');
+                stat.classList.remove('hidden');
+                stat.classList.add('flex');
+            })
+            .catch(() => { /* 실패하면 멤버 통계는 계속 숨김 */ });
     });
-
-    async function loadMemberCount() {
-        try {
-            const res = await fetch('/api/members/count');
-            if (!res.ok) return;
-            const count = await res.json();
-            const el = document.getElementById('member-count');
-            if (el) el.textContent = count.toLocaleString();   // 1,234 형식
-        } catch (e) { /* 실패하면 기본값(10만) 유지 */ }
-    }
-    loadMemberCount();
 </script>
 
 </body>

@@ -1,38 +1,56 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head(title='상품')}">
-    <link rel="icon" type="image/png" href="/favicon.png?v=2">
-</head>
-<body class="bg-[#fcfbf9]">
+<head th:replace="~{fragments/head :: head(title='밀키트 — Ounce')}"></head>
+<body class="bg-background-cream">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
 
-<main class="pt-20 md:pt-24 min-h-screen pb-20">
-    <div class="w-full px-4 md:px-8 lg:px-12 py-6 max-w-7xl mx-auto">
+<main class="pt-20 md:pt-24 pb-20">
+    <div class="w-full px-4 md:px-8 lg:px-12 py-6 md:py-8 max-w-7xl mx-auto">
 
-        <!-- Header -->
-        <div class="mb-8">
+        <!-- ── Header ─────────────────────────────────────── -->
+        <div class="mb-7">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-px bg-[#d95d22]"></div>
-                <span class="text-[#d95d22] text-xs font-bold tracking-[0.2em]">Products</span>
+                <div class="w-8 h-px bg-accent-500"></div>
+                <span class="text-accent-500 text-xs font-bold tracking-[0.2em]">Meal Kits</span>
             </div>
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">든든한 한끼</h1>
-            <p class="text-sm text-gray-500 mt-1">자취생 맞춤 1인분 밀키트, 내일 새벽 문 앞 도착</p>
+            <h1 id="page-title" class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight">
+                든든한 한 끼
+            </h1>
+            <p id="page-subtitle" class="text-sm text-foreground-500 mt-1.5">
+                자취생 맞춤 1인분 밀키트, 내일 새벽 문 앞 도착
+            </p>
         </div>
 
-        <!-- Product Grid -->
-        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
-            <!-- JS 렌더링 -->
+        <!-- ── 카테고리 칩 ─────────────────────────────────── -->
+        <div id="category-chips" class="flex flex-wrap items-center gap-2 mb-4"></div>
+
+        <!-- ── 정렬 + 개수 ─────────────────────────────────── -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-6 border-b border-background-200">
+            <p id="result-count" class="text-sm text-foreground-500"></p>
+            <div class="flex items-center gap-1.5">
+                <label for="sort-select" class="text-xs text-foreground-400">정렬</label>
+                <select id="sort-select"
+                        class="rounded-lg border border-background-200 bg-white px-3 py-2 text-sm
+                               text-foreground-700 focus:border-accent-500 focus:outline-none cursor-pointer">
+                    <option value="new">신상품순</option>
+                    <option value="price-asc">낮은 가격순</option>
+                    <option value="price-desc">높은 가격순</option>
+                    <option value="name">이름순</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Loading / Empty -->
-        <div id="grid-status" class="py-16 text-center text-sm text-gray-400">상품을 불러오는 중...</div>
+        <!-- ── Grid ───────────────────────────────────────── -->
+        <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5"></div>
 
-        <!-- 더보기 -->
-        <div class="mt-8 flex justify-center">
+        <div id="grid-status" class="py-20 text-center text-sm text-foreground-400">밀키트를 불러오는 중...</div>
+
+        <div class="mt-10 flex justify-center">
             <button id="load-more-btn"
-                    class="hidden px-8 py-3 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                    class="hidden px-8 py-3 bg-white border border-background-200 text-foreground-700 text-sm
+                           font-semibold rounded-lg hover:bg-background-100 transition-colors shadow-sm">
                 더보기
             </button>
         </div>
@@ -41,135 +59,167 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script>
+<script src="/js/product-card.js"></script>
+<script th:inline="none">
     document.addEventListener('DOMContentLoaded', function () {
-        let currentPage = 0;
-        const PAGE_SIZE = 20;
-        let isLast = false;
-        let isLoading = false;
+        const PAGE_SIZE = 10;
 
         const grid = document.getElementById('product-grid');
-        const statusEl = document.getElementById('grid-status');
+        const status = document.getElementById('grid-status');
         const loadMoreBtn = document.getElementById('load-more-btn');
+        const chipWrap = document.getElementById('category-chips');
+        const sortSelect = document.getElementById('sort-select');
+        const countEl = document.getElementById('result-count');
+        const titleEl = document.getElementById('page-title');
+        const subtitleEl = document.getElementById('page-subtitle');
 
-        async function loadProducts() {
-            if (isLoading || isLast) return;
-            isLoading = true;
+        const params = new URLSearchParams(window.location.search);
+        // 내비바 검색이 /products?keyword=... 로 보내는데 이 페이지가 지금까지 무시하고 있었음
+        let keyword = (params.get('keyword') || '').trim();
+        let category = params.get('cat') || 'all';
+        let sort = params.get('sort') || 'new';
+        if (sortSelect.querySelector(`option[value="${sort}"]`)) sortSelect.value = sort;
 
-            try {
-                const res = await fetch(`/api/products?page=${currentPage}&size=${PAGE_SIZE}`, {
-                    credentials: 'include'
-                });
-                if (!res.ok) throw new Error('상품 로드 실패');
+        let catalog = [];
+        let filtered = [];
+        let shown = 0;
 
-                const data = await res.json();  // Spring Page 객체
-                const products = data.content;
+        Ounce.mountCartHandlers(grid);
 
-                if (currentPage === 0 && products.length === 0) {
-                    statusEl.textContent = '등록된 상품이 없습니다.';
-                    return;
-                }
-
-                renderProducts(products);
-
-                isLast = data.last;      // Spring Page의 마지막 페이지 여부
-                currentPage++;
-
-                statusEl.classList.add('hidden');
-                loadMoreBtn.classList.toggle('hidden', isLast);
-            } catch (err) {
-                console.error('상품 로딩 오류:', err);
-                statusEl.textContent = '상품을 불러오지 못했습니다.';
-                statusEl.classList.remove('hidden');
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        function renderProducts(products) {
-            const html = products.map(p => `
-               <a href="/products-detail/${p.productId}">
-                <div class="group rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors bg-white">
-                    <div class="relative aspect-square bg-gray-50 overflow-hidden">
-                        <img src="${p.imageUrl || '/img/no-image.png'}" alt="${p.name}"
-                             class="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                             onerror="this.src='/img/no-image.png'"/>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="text-sm font-medium text-gray-900 line-clamp-1">${p.name}</h3>
-                        <p class="text-xs text-gray-500 mt-1 line-clamp-1">${p.description || ''}</p>
-                        <div class="flex items-center justify-between mt-2">
-                            <p class="text-sm font-bold text-gray-900">${p.basePrice.toLocaleString()}원</p>
-                            <button data-product-id="${p.productId}" aria-label="장바구니 담기"
-        class="add-to-cart-btn w-9 h-9 flex items-center justify-center rounded-full bg-[#d95d22] text-white shadow-sm hover:bg-[#bf4e1a] hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-150">
-    <i class="ri-shopping-cart-2-line text-sm"></i>
-</button>
-                        </div>
-                    </div>
-                </div>
-               </a>
-            `).join('');
-            grid.insertAdjacentHTML('beforeend', html);
-        }
-
-        grid.addEventListener('click', function (e) {
-            const btn = e.target.closest('.add-to-cart-btn');
-            if (!btn) return;
-
-            e.preventDefault();
-
-            const productId = btn.dataset.productId;
-            addToCart(productId);
-        });
-
-        let isLoggedIn = false;
-
-// 로그인 여부 미리 확인
-        fetch('/api/members/me', { credentials: 'include' })
-            .then(res => { isLoggedIn = res.ok; })
-            .catch(() => { isLoggedIn = false; });
-
-        // 장바구니 담기
-        window.addToCart = async function (productId) {
-            if (!isLoggedIn) {
-                if (confirm('로그인이 필요합니다.\n로그인 페이지로 이동할까요?')) {
-                    window.location.href = '/login';
-                }
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/carts/items', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    credentials: 'include',
-                    body: `productId=${productId}&quantity=1`
-                });
-
-
-                if (res.status === 401) {
-                    // 세션이 만료된 경우 대비 (fallback)
-                    if (confirm('로그인이 필요합니다.\n로그인 페이지로 이동할까요?')) {
-                        window.location.href = '/login';
-                    }
-                    return;
-                }
-                if (res.ok) {
-                    alert('장바구니에 담았습니다.');
-                } else {
-                    alert('담기에 실패했습니다.');
-                }
-            } catch (err) {
-                console.error('담기 오류:', err);
-                alert('오류가 발생했습니다.');
-            }
+        /* ── 필터 / 정렬 ─────────────────────────────────── */
+        const SORTERS = {
+            'new':        (a, b) => b.productId - a.productId,
+            'price-asc':  (a, b) => a.basePrice - b.basePrice,
+            'price-desc': (a, b) => b.basePrice - a.basePrice,
+            'name':       (a, b) => Ounce.splitName(a.name).title
+                                        .localeCompare(Ounce.splitName(b.name).title, 'ko')
         };
 
-        loadMoreBtn.addEventListener('click', loadProducts);
-        loadProducts();  // 첫 로드
+        function matchesKeyword(product) {
+            if (!keyword) return true;
+            const haystack = (product.name + ' ' + (product.description || '')).toLowerCase();
+            return haystack.includes(keyword.toLowerCase());
+        }
+
+        function isSoldOut(product) {
+            return product.status === 'SOLD_OUT' || product.stock <= 0;
+        }
+
+        function applyFilters() {
+            filtered = catalog
+                .filter(p => Ounce.inCategory(p, category) && matchesKeyword(p))
+                .sort((a, b) => {
+                    // 품절은 항상 뒤로
+                    if (isSoldOut(a) !== isSoldOut(b)) return isSoldOut(a) ? 1 : -1;
+                    return SORTERS[sort](a, b);
+                });
+            shown = 0;
+            grid.innerHTML = '';
+            renderMore();
+            renderCount();
+        }
+
+        function renderMore() {
+            const next = filtered.slice(shown, shown + PAGE_SIZE);
+            grid.insertAdjacentHTML('beforeend', next.map(Ounce.cardHTML).join(''));
+            shown += next.length;
+            loadMoreBtn.classList.toggle('hidden', shown >= filtered.length);
+
+            if (!filtered.length) {
+                status.classList.remove('hidden');
+                status.innerHTML = keyword
+                    ? `<p class="text-foreground-600">'<span class="font-semibold">${escapeText(keyword)}</span>' 검색 결과가 없습니다.</p>
+                       <a href="/products" class="inline-block mt-3 text-sm font-semibold text-accent-500 hover:underline">전체 밀키트 보기</a>`
+                    : '해당 카테고리에 상품이 없습니다.';
+            } else {
+                status.classList.add('hidden');
+            }
+        }
+
+        function renderCount() {
+            const total = filtered.length;
+            countEl.textContent = keyword
+                ? `'${keyword}' 검색 결과 ${total}종`
+                : `총 ${total}종`;
+        }
+
+        function escapeText(value) {
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        /* ── 카테고리 칩 ─────────────────────────────────── */
+        function renderChips() {
+            const items = [{ key: 'all', label: '전체', icon: 'ri-grid-line' }].concat(Ounce.CATEGORIES);
+            chipWrap.innerHTML = items.map(cat => {
+                const count = cat.key === 'all'
+                    ? catalog.filter(matchesKeyword).length
+                    : catalog.filter(p => Ounce.inCategory(p, cat.key) && matchesKeyword(p)).length;
+                const active = cat.key === category;
+                const base = 'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium ' +
+                             'transition-colors cursor-pointer whitespace-nowrap border';
+                const style = active
+                    ? 'bg-accent-500 text-white border-accent-500 shadow-sm'
+                    : 'bg-white text-foreground-600 border-background-200 hover:border-accent-500 hover:text-accent-500';
+                return `<button type="button" data-cat="${cat.key}" class="${base} ${style}">
+                            <i class="${cat.icon}"></i>${cat.label}
+                            <span class="${active ? 'text-white/70' : 'text-foreground-400'} text-xs">${count}</span>
+                        </button>`;
+            }).join('');
+        }
+
+        chipWrap.addEventListener('click', e => {
+            const btn = e.target.closest('[data-cat]');
+            if (!btn) return;
+            category = btn.dataset.cat;
+            syncUrl();
+            renderChips();
+            applyFilters();
+        });
+
+        sortSelect.addEventListener('change', () => {
+            sort = sortSelect.value;
+            syncUrl();
+            applyFilters();
+        });
+
+        loadMoreBtn.addEventListener('click', renderMore);
+
+        /** 뒤로가기·공유가 되도록 현재 필터를 주소에 반영 (새로고침 없이) */
+        function syncUrl() {
+            const next = new URLSearchParams();
+            if (category !== 'all') next.set('cat', category);
+            if (keyword) next.set('keyword', keyword);
+            if (sort !== 'new') next.set('sort', sort);
+            const qs = next.toString();
+            history.replaceState(null, '', qs ? `/products?${qs}` : '/products');
+        }
+
+        function renderHeader() {
+            if (keyword) {
+                titleEl.textContent = `'${keyword}' 검색 결과`;
+                subtitleEl.textContent = '이름과 설명에서 찾았습니다';
+                return;
+            }
+            const cat = Ounce.CATEGORIES.find(c => c.key === category);
+            if (cat) {
+                titleEl.textContent = cat.label;
+                subtitleEl.textContent = '손질·계량 끝난 1인분, 내일 새벽 7시 도착';
+            }
+        }
+
+        /* ── 시작 ────────────────────────────────────────── */
+        Ounce.fetchCatalog().then(products => {
+            catalog = products;
+            renderHeader();
+            renderChips();
+            applyFilters();
+        }).catch(() => {
+            status.textContent = '밀키트를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';
+        });
     });
 </script>
 
 </body>
 </html>
-
