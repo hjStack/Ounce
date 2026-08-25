@@ -1,5 +1,6 @@
 package ounce.market.demo.common.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,6 +14,7 @@ import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 public class AuthRestController {

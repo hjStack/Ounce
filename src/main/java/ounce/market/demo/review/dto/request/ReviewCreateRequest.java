@@ -7,4 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 public record ReviewCreateRequest(
         @Min(1) @Max(5) int rating,
         @NotBlank String content
-) {}
+) {
+    public int getRating() {
+        return rating;
+    }
+
+    public String getContent(){
+        return content;
+    }
+}

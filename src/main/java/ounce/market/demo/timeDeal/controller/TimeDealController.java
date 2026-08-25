@@ -1,5 +1,6 @@
 package ounce.market.demo.timeDeal.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import ounce.market.demo.timeDeal.service.TimeDealService;
 
 import java.util.List;
 
+@Tag(name = "06. 미드나이트", description = "미드나이트 조회 및 구매 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/timedeal")

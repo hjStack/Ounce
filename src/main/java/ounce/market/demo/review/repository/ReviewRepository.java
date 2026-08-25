@@ -4,10 +4,14 @@ import ounce.market.demo.review.entity.Review;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    boolean existsByProduct_ProductIdAndMember_MemberId(Long productId, Long memberId);
+    @Query("select r from Review r join fetch r.member where r.product.productId = :productId")
+    List<Review> findByProductIdWithMember(@Param("productId") Long productId);
 
-    List<Review> findByProduct_ProductId(Long productId);
-    List<Review> findByMember_MemberId(Long memberId);
+    @Query("select r from Review r join fetch r.member where r.member.memberId = :memberId")
+    List<Review> findByMemberIdWithMember(@Param("memberId") Long memberId);
 }

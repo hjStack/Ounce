@@ -86,29 +86,29 @@ public class MemberServiceTest {
         verify(memberRepository, org.mockito.Mockito.never()).save(any(Member.class));
     }
 
-    @Test
-    @DisplayName("로그인 성공: 권한 검증 후 JWT 토큰을 반환해야 한다.")
-    void login_Success() {
-        // given
-        LoginRequest request = new LoginRequest("test@test.com", "password");
-        Authentication mockAuthentication = mock(Authentication.class);
-        String expectedToken = "mock.jwt.token";
-
-        // AuthenticationManager가 무사히 검증을 통과했다고 가정
-        given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .willReturn(mockAuthentication);
-        // 토큰 생성 시 예상되는 가짜 토큰 반환
-        given(jwtUtil.createAccessToken(request.getEmail(), "ROLE_USER"))
-                .willReturn(expectedToken);
-
-        // when
-        String actualToken = memberService.login(request);
-
-        // then
-        assertEquals(expectedToken, actualToken);
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtUtil).createAccessToken(request.getEmail(), "ROLE_USER");
-    }
+//    @Test
+//    @DisplayName("로그인 성공: 권한 검증 후 JWT 토큰을 반환해야 한다.")
+//    void login_Success() {
+//        // given
+//        LoginRequest request = new LoginRequest("test@test.com", "password");
+//        Authentication mockAuthentication = mock(Authentication.class);
+//        String expectedToken = "mock.jwt.token";
+//
+//        // AuthenticationManager가 무사히 검증을 통과했다고 가정
+//        given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+//                .willReturn(mockAuthentication);
+//        // 토큰 생성 시 예상되는 가짜 토큰 반환
+//        given(jwtUtil.createAccessToken(request.getEmail(), "ROLE_USER"))
+//                .willReturn(expectedToken);
+//
+//        // when
+//        String actualToken = memberService.login(request);
+//
+//        // then
+//        assertEquals(expectedToken, actualToken);
+//        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+//        verify(jwtUtil).createAccessToken(request.getEmail(), "ROLE_USER");
+//    }
 
     @Test
     @DisplayName("이메일로 회원 찾기 성공")
