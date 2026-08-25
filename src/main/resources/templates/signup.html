@@ -8,14 +8,17 @@
 
         <!-- 로고 -->
         <div class="text-center mb-8">
-            <a href="/" class="font-heading text-4xl text-primary-600">Ounce</a>
+            <!-- 내비바 워드마크와 같은 색으로 통일 (이 페이지엔 내비바가 없어 여기가 워드마크 역할) -->
+            <a href="/" class="font-heading text-4xl text-foreground-950">Ounce</a>
             <p class="text-sm text-foreground-500 mt-2">한 사람을 위한 완벽한 한 끼</p>
         </div>
 
 
-        <div class="flex items-center gap-2.5 px-4 py-3 mb-6 rounded-lg bg-[#fdf0e8] border border-[#f5d5c3]">
-            <i class="ri-gift-line text-lg text-[#d95d22]"></i>
-            <span class="text-sm font-medium text-[#d95d22]">지금 가입하면 축하 포인트 1,000P를 드려요 🎁</span>
+        <!-- 가입 혜택 안내. 테라코타(deal)는 미드나이트 세일 전용이라 여기엔 쓰지 않는다 —
+             세일이 아닌 곳에 세일 색을 쓰면 실제 세일이 눈에 안 들어온다. -->
+        <div class="flex items-center gap-2.5 px-4 py-3 mb-6 rounded-lg bg-primary-50 border border-primary-100">
+            <i class="ri-gift-line text-lg text-primary-600"></i>
+            <span class="text-sm font-medium text-primary-700">지금 가입하면 축하 포인트 1,000P를 드려요 🎁</span>
         </div>
 
         <!-- 카드 -->
@@ -37,7 +40,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-foreground-700 mb-1.5">이메일</label>
-                    <input type="email" id="email" placeholder="@를 포함해서 이메일을 입력해주세요" required
+                    <input type="email" id="email" placeholder="이메일 (예: example@ounce.com)을 입력하세요" required
                            class="w-full px-4 py-3 rounded-lg border border-background-200 bg-background-50 text-foreground-900
                                   placeholder-foreground-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-100
                                   focus:outline-none transition-colors"/>
@@ -75,7 +78,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full py-3.5 mt-2 bg-foreground-950 hover:bg-foreground-800 text-white font-medium
+                        class="w-full py-3.5 mt-2 bg-ink-500 hover:bg-ink-600 text-white font-medium
                                rounded-lg transition-colors">
                     회원가입
                 </button>
