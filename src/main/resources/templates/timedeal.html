@@ -62,7 +62,7 @@
                 <span class="text-2xl font-light text-white/20">:</span>
                 <div class="flex flex-col items-center">
                     <div class="w-16 h-16 flex items-center justify-center bg-white/5 border border-white/10 rounded-sm">
-                        <span id="timer-seconds" class="text-2xl font-semibold text-accent-400">00</span>
+                        <span id="timer-seconds" class="text-2xl font-semibold text-deal-400">00</span>
                     </div>
                     <span class="text-xs text-white/40 mt-2">초</span>
                 </div>
@@ -74,7 +74,7 @@
     <div class="px-4 md:px-8 lg:px-12 py-8">
         <div class="flex items-center gap-2 mb-6" id="sort-buttons">
             <span class="text-sm text-white/40 mr-2">정렬:</span>
-            <button data-sort="popular" class="sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-accent-500 text-white cursor-pointer">인기순</button>
+            <button data-sort="popular" class="sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-deal-500 text-white cursor-pointer">인기순</button>
             <button data-sort="discount" class="sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-white/5 text-white/50 hover:bg-white/10 cursor-pointer">할인율순</button>
             <button data-sort="price" class="sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-white/5 text-white/50 hover:bg-white/10 cursor-pointer">낮은 가격순</button>
         </div>
@@ -150,7 +150,7 @@
 
 
             const cardHTML = `
-      <div class="bg-foreground-900/40 rounded-lg overflow-hidden border border-white/5 relative cursor-pointer hover:border-accent-400/30 transition-all">
+      <div class="bg-foreground-900/40 rounded-lg overflow-hidden border border-white/5 relative cursor-pointer hover:border-deal-400/30 transition-all">
         <div class="relative w-full aspect-square bg-foreground-800 overflow-hidden">
           <img src="${imageUrl}" class="absolute inset-0 w-full h-full object-cover" alt="${product.name}">
           ${isSoldOut ? `<div class="absolute inset-0 bg-foreground-950/70 flex items-center justify-center"><span class="px-5 py-2.5 bg-foreground-800 font-bold rounded-md">품절</span></div>` : ''}
@@ -158,7 +158,7 @@
         <div class="p-4">
           <h3 class="text-sm font-medium line-clamp-2">${product.name}</h3>
           <div class="mt-2 flex gap-2 items-end">
-            <span class="text-xl font-bold text-accent-400">${discountPrice.toLocaleString()}원</span>
+            <span class="text-xl font-bold text-deal-400">${discountPrice.toLocaleString()}원</span>
             <span class="text-sm text-white/40 line-through">${originalPrice.toLocaleString()}원</span>
           </div>
 
@@ -168,11 +168,11 @@
               <span class="text-white/40">${currentSold}/${totalStock}</span>
             </div>
             <div class="w-full h-2 bg-white/10 rounded-full">
-              <div class="h-full bg-accent-500 rounded-full transition-all" style="width: ${progress}%"></div>
+              <div class="h-full bg-deal-500 rounded-full transition-all" style="width: ${progress}%"></div>
             </div>
           </div>
 
-          <button class="w-full mt-3 py-2.5 rounded-md text-sm font-semibold ${isSoldOut ? 'bg-white/5 text-white/30 cursor-not-allowed' : 'bg-accent-500 hover:bg-accent-400'}" ${isSoldOut ? 'disabled' : ''} onclick="addToCart(${product.productId})">
+          <button class="w-full mt-3 py-2.5 rounded-md text-sm font-semibold ${isSoldOut ? 'bg-white/5 text-white/30 cursor-not-allowed' : 'bg-deal-500 hover:bg-deal-400'}" ${isSoldOut ? 'disabled' : ''} onclick="addToCart(${product.productId})">
             ${isSoldOut ? '품절' : '장바구니에 담기'}
           </button>
         </div>
@@ -188,7 +188,7 @@
             document.querySelectorAll('.sort-btn').forEach(btn => {
                 btn.className = 'sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-white/5 text-white/50 hover:bg-white/10 cursor-pointer';
             });
-            e.target.className = 'sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-accent-500 text-white cursor-pointer';
+            e.target.className = 'sort-btn px-4 py-2 rounded-sm text-sm font-medium bg-deal-500 text-white cursor-pointer';
             currentSort = e.target.dataset.sort;
 
             console.log(realProducts);

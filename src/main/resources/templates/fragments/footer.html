@@ -1,121 +1,119 @@
 <footer th:fragment="footer" class="w-full bg-foreground-950">
+    <!-- 텍스트 투명도는 4단계만 쓴다: 제목 /80 · 값 /70 · 라벨 /50 · 각주 /55.
+         (이전엔 /40~/80 이 7단계로 섞여서 위계가 안 읽혔다) -->
+
     <!-- Upper Section -->
     <div class="w-full px-4 md:px-8 lg:px-12 py-8 md:py-10 max-w-7xl mx-auto">
 
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between gap-4 mb-10">
             <h3 class="text-white text-2xl md:text-3xl font-semibold font-heading italic">Ounce</h3>
-
-            <div class="flex items-center gap-4">
-
-                <!-- AddToAny 공유 버튼 (인스타 로고 왼쪽 배치) -->
-                <div class="a2a_kit a2a_kit_size_32 a2a_default_style flex items-center">
-                    <a class="a2a_dd" href="https://www.addtoany.com/share"></a>
-                    <a class="a2a_button_kakaotalk"></a>
-                    <a class="a2a_button_sms"></a>
-                    <a class="a2a_button_copy_link"></a>
-                </div>
-
-                <!-- 인스타그램 로고 및 텍스트 -->
-                <a href="https://www.instagram.com/ounce__shop" target="_blank" rel="noopener noreferrer"
-                   class="inline-flex items-center justify-center w-11 h-11 rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors">
-                    <i class="ri-instagram-line text-xl"></i>
-                </a>
-
-                <div>
-                    <p class="text-white/70 text-sm font-medium">@ounce__shop</p>
-                    <p class="text-white/40 text-xs">매일의 큐레이션을 만나보세요</p>
-                </div>
-            </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row lg:justify-between gap-6 lg:gap-16">
+        <div class="grid gap-10 lg:grid-cols-3 lg:gap-12">
             <!-- Left: Brand description -->
-            <div class="lg:max-w-sm">
-                <p class="text-white/50 text-sm leading-relaxed mb-4">
+            <div>
+                <p class="text-white/70 text-sm leading-relaxed mb-4">
                     혼자 먹는 한 끼, 딱 1인분으로.<br/>
                     손질과 계량 없이, 냄비 하나로 완성되는 집밥.
                 </p>
 
-                <!-- 안내 문구들을 세로로 정렬하기 위해 flex-col 래퍼 추가 -->
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-3">
-                        <span class="text-accent-500 text-xs">●</span>
-                        <span class="text-white/40 text-xs">매일 밤 10시, 미드나이트 세일 오픈</span>
-                    </div>
-
-                    <!-- 추가된 1:1 문의 문구 -->
-                    <div class="flex items-center gap-3">
-                        <span class="text-accent-500 text-xs">●</span>
-                        <span class="text-white/40 text-xs">
-                            1:1문의는 365일 <a href="mailto:hye_jun0209@icloud.com" class="hover:text-white transition-colors underline underline-offset-2">
-                            hye_jun0209@icloud.com</a> 으로 문의부탁드립니다
-                        </span>
-                    </div>
-
-<!--                   // 창업하면 주석 해제 후후 -->
-<!--                    <div class="flex items-center gap-3">-->
-<!--                        <span class="text-accent-500 text-xs">●</span>-->
-<!--                        <span class="text-white/40 text-xs">-->
-<!--                            대량 주문시 hye_jun0209@icloud.com</a> 으로 문의부탁드립니다-->
-<!--                        </span>-->
-<!--                    </div>-->
-                </div>
+                <!--                   // 창업하면 주석 해제 후후 -->
+                <!--                <p class="mt-4 text-white/50 text-xs">-->
+                <!--                    대량 주문시 hye_jun0209@icloud.com 으로 문의부탁드립니다-->
+                <!--                </p>-->
             </div>
 
-            <!-- Right: Navigation Grid
-                 ${footerLinks} 를 th:each 로 돌리고 있었지만 이 속성을 채우는 컨트롤러가 없어서
-                 모든 페이지에서 링크 영역이 빈 채로 렌더됐다. 실제 경로로 고정. -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="grid gap-10 sm:grid-cols-2 lg:col-span-2 lg:gap-12">
                 <div>
-                    <h4 class="text-white/80 font-medium text-xs uppercase tracking-wider mb-4">밀키트</h4>
-                    <ul class="flex flex-col gap-2">
-                        <li><a href="/products" class="text-white/40 hover:text-white/70 text-sm transition-colors">전체 밀키트</a></li>
-                        <li><a href="/products?cat=stew" class="text-white/40 hover:text-white/70 text-sm transition-colors">찌개·국물</a></li>
-                        <li><a href="/products?cat=noodle" class="text-white/40 hover:text-white/70 text-sm transition-colors">면·파스타</a></li>
-                        <li><a href="/products?cat=meat" class="text-white/40 hover:text-white/70 text-sm transition-colors">고기·구이</a></li>
-                        <li><a href="/products?cat=nabe" class="text-white/40 hover:text-white/70 text-sm transition-colors">나베·샤브</a></li>
-                    </ul>
+                    <h4 class="text-white/80 font-medium text-xs uppercase tracking-wider mb-4">주문·배송</h4>
+                    <!-- 항목마다 달려 있던 11px 각주 3개를 dl 밑 한 줄로 합쳤다.
+                         라벨-값을 한 행에 붙여 4행으로 끝난다. -->
+                    <dl class="flex flex-col gap-2.5">
+                        <div class="flex items-baseline gap-3">
+                            <dt class="text-white/50 text-xs w-14 shrink-0">주문 마감</dt>
+                            <dd class="text-white/70 text-sm">매일 밤 23:00</dd>
+                        </div>
+                        <div class="flex items-baseline gap-3">
+                            <!-- "다음 날 새벽 7시" 만 적혀 있어 전국 약속으로 읽혔다. 권역 조건 필수. -->
+                            <dt class="text-white/50 text-xs w-14 shrink-0">도착</dt>
+                            <dd class="text-white/70 text-sm">다음 날 새벽 7시 · 수도권</dd>
+                        </div>
+                        <div class="flex items-baseline gap-3">
+                            <dt class="text-white/50 text-xs w-14 shrink-0">포장</dt>
+                            <dd class="text-white/70 text-sm">1인분 정량 소분</dd>
+                        </div>
+                        <div class="flex items-baseline gap-3">
+                            <dt class="text-white/50 text-xs w-14 shrink-0">보관</dt>
+                            <dd class="text-white/70 text-sm">냉장 / 냉동 상품별 표기</dd>
+                        </div>
+                    </dl>
+                    <p class="mt-3 text-white/55 text-xs leading-relaxed break-keep">
+                        지역에 따라 배송 방식과 도착 시간이 다를 수 있으며,
+                        주문 마감 전까지 변경·취소가 가능합니다.
+                    </p>
                 </div>
+
                 <div>
-                    <h4 class="text-white/80 font-medium text-xs uppercase tracking-wider mb-4">미드나이트</h4>
-                    <ul class="flex flex-col gap-2">
-                        <li><a href="/timedeal" class="text-white/40 hover:text-white/70 text-sm transition-colors">미드나이트 세일</a></li>
-                        <li><a href="/products?cat=etc" class="text-white/40 hover:text-white/70 text-sm transition-colors">분식·해물</a></li>
-                    </ul>
+                    <h4 class="text-white/80 font-medium text-xs uppercase tracking-wider mb-4">고객 문의</h4>
+                    <a href="mailto:hye_jun0209@icloud.com"
+                       class="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm transition-colors">
+                        <i class="ri-mail-line text-white/50"></i>
+                        hye_jun0209@icloud.com
+                    </a>
+                    <p class="mt-3 text-white/55 text-xs leading-relaxed break-keep">
+                        1:1 문의는 365일 접수하며, 영업일 기준 1일 내 답변드립니다.
+                    </p>
+                    <!-- 유선/실시간 응대 시간은 확정 후 채운다. 임의로 적으면 지키지 못하는 약속이 된다.
+                    <p class="mt-1 text-white/55 text-xs">실시간 응대 OO:OO ~ OO:OO (주말·공휴일 휴무)</p>
+                    -->
+
+<!--                    &lt;!&ndash; 인스타그램 로고 및 텍스트: 세로 정렬, 1:1 문의 문단과 mt-3로 간격 &ndash;&gt;-->
+<!--                    <a href="https://www.instagram.com/ounce__shop" target="_blank" rel="noopener noreferrer"-->
+<!--                       aria-label="Ounce 인스타그램"-->
+<!--                       class="mt-3 flex items-center gap-3">-->
+<!--                        <span class="inline-flex items-center justify-center w-11 h-11 shrink-0 rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors">-->
+<!--                            <i class="ri-instagram-line text-xl"></i>-->
+<!--                        </span>-->
+
+<!--                        <div class="hidden sm:block">-->
+<!--                            <p class="text-white/50 text-xs">밀키트를 만나보세요</p>-->
+<!--                        </div>-->
+<!--                    </a>-->
                 </div>
-                <div>
-                    <h4 class="text-white/80 font-medium text-xs uppercase tracking-wider mb-4">내 정보</h4>
-                    <ul class="flex flex-col gap-2">
-                        <li><a href="/account" class="text-white/40 hover:text-white/70 text-sm transition-colors">내 계정</a></li>
-                        <li><a href="/orders" class="text-white/40 hover:text-white/70 text-sm transition-colors">주문 내역</a></li>
-                        <li><a href="/cart" class="text-white/40 hover:text-white/70 text-sm transition-colors">장바구니</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white/80 font-medium text-xs uppercase tracking-wider mb-4">고객 안내</h4>
-                    <ul class="flex flex-col gap-2">
-                        <li><a href="/terms.html" class="text-white/40 hover:text-white/70 text-sm transition-colors">이용약관</a></li>
-                        <li><a href="/policy.html" class="text-white/40 hover:text-white/70 text-sm transition-colors">개인정보처리방침</a></li>
-                        <li><a href="mailto:hye_jun0209@icloud.com" class="text-white/40 hover:text-white/70 text-sm transition-colors">1:1 문의</a></li>
-                    </ul>
-                </div>
+
+
             </div>
         </div>
+
+        <!-- 사업자 등록 후 아래 블록 주석 해제 (전자상거래법상 필수 표기).
+             없는 번호를 임의로 채워둘 수는 없어서 자리만 남겨둠.
+             나중에 다시 조사하지 않도록 필수 항목을 전부 나열해 뒀다. -->
+        <!--
+        <div class="mt-10 pt-6 border-t border-white/10 text-white/55 text-xs leading-relaxed">
+            <p>상호 Ounce · 대표자 OOO · 개인정보관리책임자 OOO</p>
+            <p>사업자등록번호 000-00-00000
+               <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=0000000000" target="_blank"
+                  rel="noopener noreferrer" class="underline hover:text-white/80">사업자정보 확인</a>
+               · 통신판매업신고 제0000-서울OO-0000호
+            </p>
+            <p>주소 OOOOO · 대표전화 00-0000-0000 · 호스팅 제공자 OOO</p>
+        </div>
+        -->
     </div>
 
     <!-- Bottom Section -->
-    <!-- Bottom Section -->
-    <div class="border-t border-white/10 mt-8">
+    <div class="border-t border-white/10">
         <div class="w-full px-4 md:px-8 lg:px-12 py-4 max-w-7xl mx-auto">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <p class="text-white/30 text-xs">&copy; 2026 Ounce. All rights reserved.</p>
-                </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <!-- 기존 text-white/30 은 이 배경에서 WCAG AA(4.5:1) 미달이라 /55 로 올렸다. -->
+                <p class="text-white/55 text-xs">
+                    &copy; 2026 Ounce. All rights reserved.
+                </p>
 
-                <!-- 이용약관 추가 -->
-                <div class="flex gap-4">
-                    <a href="/terms.html" class="text-white/50 font-medium hover:text-white/70 text-xs transition-colors">이용약관</a>
-                    <a href="/policy.html" class="text-white/50 font-medium hover:text-white/70 text-xs transition-colors">개인정보처리방침</a>
+                <!-- 개인정보처리방침은 다른 약관과 시각적으로 구분해 표기해야 한다. -->
+                <div class="flex gap-4 shrink-0">
+                    <a href="/terms.html" class="text-white/55 hover:text-white text-xs transition-colors">이용약관</a>
+                    <a href="/policy.html" class="text-white font-semibold hover:text-white/80 text-xs transition-colors">개인정보처리방침</a>
                 </div>
             </div>
         </div>
