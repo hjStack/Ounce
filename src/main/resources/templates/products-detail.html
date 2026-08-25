@@ -867,6 +867,7 @@
 
             // ── 탭 채우기 ──
             fillTabs(p);
+            loadReviews(productId);   // ← 이 줄 추가
 
             renderActions(isSoldOut);
             updateTotal();
@@ -903,18 +904,105 @@
             ].filter(([, v]) => v);
             document.getElementById('spec-body').innerHTML =
                 rows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+        }
 
-            // 리뷰
-            if (p.reviewCount != null) {
-                document.getElementById('tab-review-count').textContent = `(${p.reviewCount})`;
+        async function loadReviews(productId) {
+            try {
+                const res = await fetch(`/api/products/${productId}/reviews`, { credentials: 'include' });
+                console.log('리뷰 응답 상태:', res.status);   // ← 추가
+                if (!res.ok) throw new Error('REVIEW_FETCH_FAILED');
+                const reviews = await res.json();
+                console.log('리뷰 데이터:', reviews);   // ← 추가
+                renderReviews(reviews);
+            } catch (err) {
+                console.error('리뷰 로딩 오류:', err);
+                document.getElementById('review-list').innerHTML = '';
+                document.getElementById('review-summary').classList.add('hidden');
+                document.getElementById('review-empty').classList.remove('hidden');
             }
-            if (p.rating != null && p.reviewCount > 0) {
-                document.getElementById('review-big').textContent = Number(p.rating).toFixed(1);
-                document.getElementById('review-stars').innerHTML = starHtml(p.rating);
-                document.getElementById('review-count-text').textContent = `${p.reviewCount.toLocaleString()}개 리뷰`;
-                document.getElementById('review-summary').classList.remove('hidden');
-                document.getElementById('review-empty').classList.add('hidden');
-                // TODO: 실제 리뷰 목록은 /api/products/{id}/reviews 붙이면 여기서 렌더
+        }
+
+        function renderReviews(reviews) {
+            const $list = document.getElementById('review-list');
+            const $summary = document.getElementById('review-summary');
+            const $empty = document.getElementById('review-empty');
+            const $tabCount = document.getElementById('tab-review-count');
+
+            if (!reviews || reviews.length === 0) {
+                $list.innerHTML = '';
+                $summary.classList.add('hidden');
+                $empty.classList.remove('hidden');
+                $tabCount.textContent = '';
+                return;
+            }
+
+            // 평균 별점 계산
+            const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+            document.getElementById('review-big').textContent = avg.toFixed(1);
+            document.getElementById('review-stars').innerHTML = starHtml(avg);
+            document.getElementById('review-count-text').textContent = `${reviews.length.toLocaleString()}개 리뷰`;
+            $tabCount.textContent = `(${reviews.length})`;
+            $summary.classList.remove('hidden');
+            $empty.classList.add('hidden');
+
+            // 최신순 정렬 (createdAt 내림차순)
+            const sorted = [...reviews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            $list.innerHTML = sorted.map(r => reviewItemHtml(r)).join('');
+
+            // 삭제 버튼 이벤트 바인딩
+            $list.querySelectorAll('.btn-review-delete').forEach(btn => {
+                btn.addEventListener('click', () => handleDeleteReview(btn.dataset.reviewId));
+            });
+        }
+
+        function reviewItemHtml(r) {
+            const date = new Date(r.createdAt);
+            const dateStr = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+
+            return `
+        <div class="review-item" data-review-id="${r.reviewId}" style="padding: 20px 0; border-bottom: 1px solid var(--bg-200);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="stars">${starHtml(r.rating)}</div>
+                    <span style="font-size:13px; color:var(--text-700); font-weight:600;">${escapeHtml(r.writerName || '익명')}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:12px; color:var(--text-400);">${dateStr}</span>
+                    <button class="btn-review-delete" data-review-id="${r.reviewId}"
+                            style="font-size:12px; color:var(--text-400); text-decoration:underline;">
+                        삭제
+                    </button>
+                </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-700); line-height:1.6; white-space:pre-line;">${escapeHtml(r.content)}</p>
+        </div>
+    `;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str ?? '';
+            return div.innerHTML;
+        }
+
+        async function handleDeleteReview(reviewId) {
+            if (!confirm('리뷰를 삭제하시겠습니까?')) return;
+
+            try {
+                const res = await fetch(`/api/reviews/${reviewId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (res.status === 401) { requireLogin(); return; }
+                if (res.status === 403) { alert('본인이 작성한 리뷰만 삭제할 수 있습니다.'); return; }
+                if (!res.ok) { alert('리뷰 삭제에 실패했습니다.'); return; }
+
+                loadReviews(productId); // 삭제 후 목록만 다시 불러오기
+            } catch (err) {
+                console.error('리뷰 삭제 오류:', err);
+                alert('오류가 발생했습니다.');
             }
         }
 
@@ -1055,7 +1143,7 @@
                 if (!res.ok) { alert('리뷰 등록에 실패했습니다.'); return; }
                 alert('리뷰가 등록되었습니다.');
                 closeReviewModal();
-                location.reload(); // 등록된 리뷰 반영
+                loadReviews(productId); // 리뷰 목록만 다시 불러오기 (전체 새로고침 불필요)
             } catch (err) {
                 console.error('리뷰 등록 오류:', err);
                 alert('오류가 발생했습니다.');

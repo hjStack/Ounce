@@ -29,7 +29,6 @@ todo 7/30 cart n+1 해결하기
  */
 
 @Tag(name = "03. 장바구니", description = "장바구니 조회, 회원가입시 장바구니 생성, 장바구니 삭제")
-@Slf4j
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
