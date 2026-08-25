@@ -1,6 +1,7 @@
 package ounce.market.demo.search.controller;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import ounce.market.demo.search.dto.*;
 import ounce.market.demo.search.dto.response.ProductSearchResponse;
 import ounce.market.demo.search.repository.ProductSearcher;
 
+@Tag(name = "05. 상품 검색",description = "상품 검색 API")
 @RestController
 @RequestMapping("/api/products/search")
 @RequiredArgsConstructor

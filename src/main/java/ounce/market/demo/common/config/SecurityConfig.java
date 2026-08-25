@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/refresh").permitAll()
                         .requestMatchers("/policy.html").permitAll()
                         .requestMatchers("/terms.html").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
                         .anyRequest().authenticated()
                 )
 

@@ -41,5 +41,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<String> handleAll(Exception e) {
+//        e.printStackTrace(); // 서버 콘솔에도 강제로 출력
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .body(e.getClass().getName() + ": " + e.getMessage());
+//    }
+
 
 }

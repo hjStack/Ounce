@@ -14,9 +14,6 @@ import ounce.market.demo.product.entity.Product;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"product_id", "member_id"}) // 한 상품당 리뷰 1개
-})
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
