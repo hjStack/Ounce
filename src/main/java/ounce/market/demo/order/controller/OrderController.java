@@ -15,6 +15,7 @@ import java.util.List;
 
 @Tag(name = "02. 주문", description = "주문 생성 및 조회")
 @Slf4j
+
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
