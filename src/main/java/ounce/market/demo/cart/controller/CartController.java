@@ -1,7 +1,9 @@
 package ounce.market.demo.cart.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,8 @@ todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성 -> 완료
 todo 7/30 cart n+1 해결하기
  */
 
+@Tag(name = "03. 장바구니", description = "장바구니 조회, 회원가입시 장바구니 생성, 장바구니 삭제")
+@Slf4j
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor

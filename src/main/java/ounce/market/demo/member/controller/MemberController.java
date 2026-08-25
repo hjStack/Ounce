@@ -1,5 +1,6 @@
 package ounce.market.demo.member.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import ounce.market.demo.order.repository.OrderRepository;
 
 import java.util.concurrent.TimeUnit;
 
+@Tag(name = "01. 회원", description = "회원가입, 로그인, 로그아웃")
 @Slf4j
 @RestController
 @RequestMapping("/api/members")
