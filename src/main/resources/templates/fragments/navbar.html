@@ -5,6 +5,30 @@
 <body>
 
 <nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-cream/90 backdrop-blur-md border-b border-background-200/70">
+
+    <!-- 구독 CTA 색을 Tailwind 토큰이 아니라 hex 로 박은 이유:
+         timedeal.html 은 자체 tailwind.config 에서 primary 를 흰색으로 덮는다.
+         거기서 bg-primary-500 text-white 를 쓰면 흰 배경에 흰 글씨가 되어 버튼이 사라진다.
+         내비바는 12개 템플릿이 공유하므로 페이지가 토큰을 어떻게 재정의하든 견뎌야 한다.
+         값은 head.html 의 GREEN 500/600 과 같다.
+         style 을 nav 안에 둔 이유: 템플릿들이 `:: navbar` 로 이 <nav> 엘리먼트만
+         가져가므로, 밖에 두면 아예 렌더되지 않는다. -->
+    <style>
+        .nav-subscribe-cta { background-color: #2f7a5f; color: #ffffff; }
+        .nav-subscribe-cta:hover { background-color: #276650; }
+
+        /* pill 을 숨겨야 하는 페이지가 두 군데인데 숨기는 대상이 다르다.
+           페이지가 body 에 표식을 달고, 어느 pill 을 지울지는 여기서 정한다.
+           JS 로 숨기면 로드 직후 한 번 번쩍이므로 CSS 로 처리. */
+
+        /* 홈(index): 초록 구독 배너가 이미 '구독 시작' 을 하고 있어서 pill 은 중복.
+           단 로그인 상태의 '내 구독' 은 성격이 다른 액션(이번 주 메뉴 바꾸기)이라 남긴다. */
+        body.is-home .nav-subscribe-cta--guest { display: none; }
+
+        /* 내 구독 페이지: 지금 보고 있는 페이지를 가리키는 pill 이라 군더더기. */
+        body.is-subscription .nav-subscribe-cta--member { display: none; }
+    </style>
+
     <div class="w-full px-4 md:px-8 lg:px-12">
         <!-- 높이는 h-20/h-24 유지: 모든 페이지가 pt-20 md:pt-24 로 이걸 상쇄하고 있음 -->
         <div class="flex items-center justify-between h-20 md:h-24">
@@ -30,6 +54,22 @@
 
             <div class="flex items-center gap-3 md:gap-4">
 
+                <!-- 구독 진입. 왼쪽 카테고리 줄에 끼우지 않은 이유: 구독은 둘러보는
+                     카테고리가 아니라 가입 액션이다. 탐색 링크 사이에 텍스트로 섞으면
+                     가장 중요한 버튼이 가장 안 보이는 링크가 된다.
+                     로그인 여부에 따라 목적지가 다르다 — 아직 구독 안 한 사람은 소개(/subscribe),
+                     구독자는 이번 주 메뉴를 바꾸러(/subscription) 간다. -->
+<!--                <a href="/subscribe" sec:authorize="!isAuthenticated()"-->
+<!--                   class="nav-subscribe-cta hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap shadow-sm">-->
+<!--                    <i class="ri-calendar-check-line text-base"></i>구독 시작-->
+<!--                </a>-->
+                <!-- 로그인 상태에서만. 비로그인용 '구독 시작' pill 은 홈의 초록 배너가
+                     대신하고 있어서 위처럼 접어두었다. -->
+<!--                <a href="/subscription" sec:authorize="isAuthenticated()"-->
+<!--                   class="nav-subscribe-cta nav-subscribe-cta&#45;&#45;member hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap shadow-sm">-->
+<!--                    <i class="ri-calendar-check-line text-base"></i>내 구독-->
+<!--                </a>-->
+
                 <!-- 로그인 상태에서만 -->
                 <div class="relative" id="user-menu-wrap" sec:authorize="isAuthenticated()">
                     <button
@@ -42,6 +82,10 @@
                         <i class="ri-arrow-down-s-line text-sm text-foreground-400 group-hover:text-foreground-600 transition-transform duration-200 group-hover:translate-y-0.5"></i>
                     </button>
                     <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border border-background-200 rounded-xl shadow-lg overflow-hidden z-50 py-1">
+                        <!-- 구독이 재방문의 주된 이유(이번 주 메뉴 바꾸기)라 맨 위에 둔다 -->
+                        <a href="/subscription" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
+                            <i class="ri-calendar-check-line text-foreground-400 text-base"></i> 내 구독
+                        </a>
                         <a href="/account" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-user-line text-foreground-400 text-base"></i> 내 계정
                         </a>
@@ -77,6 +121,23 @@
 
     <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200 shadow-lg">
         <div class="px-4 py-5">
+
+            <!-- 구독. 데스크탑 pill 은 sm 미만에서 숨기므로 모바일 진입은 여기가 유일하다.
+                 '둘러보기' 그리드에 섞으면 카테고리 하나로 보여서 위에 따로 세웠다. -->
+            <a href="/subscribe" sec:authorize="!isAuthenticated()"
+               class="flex items-center justify-between gap-3 px-4 py-3.5 mb-5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
+                <span class="flex items-center gap-2.5 text-sm font-semibold">
+                    <i class="ri-calendar-check-line text-lg"></i> 구독 시작
+                </span>
+                <span class="text-[11px] text-white/70">한 주 저녁 미리 정하기</span>
+            </a>
+            <a href="/subscription" sec:authorize="isAuthenticated()"
+               class="flex items-center justify-between gap-3 px-4 py-3.5 mb-5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
+                <span class="flex items-center gap-2.5 text-sm font-semibold">
+                    <i class="ri-calendar-check-line text-lg"></i> 내 구독
+                </span>
+                <span class="text-[11px] text-white/70">이번 주 메뉴 바꾸기</span>
+            </a>
 
             <!-- 네비게이션 섹션 (데스크탑 카테고리와 동일한 구성) -->
             <p class="px-1 mb-2 text-[11px] font-semibold text-foreground-400 tracking-wider uppercase">둘러보기</p>
