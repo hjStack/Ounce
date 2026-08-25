@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/head :: head(title='Ounce — 1인분 밀키트')}"></head>
-<body class="bg-background-cream">
+<head th:replace="~{fragments/head :: head(title='Ounce - 1인분 밀키트')}"></head>
+<!-- is-home: 내비바의 구독 pill 을 숨기는 표식.
+     홈은 아래 초록 구독 배너가 진입로라 pill 까지 두면 같은 CTA 가 두 번 나온다.
+     (다른 페이지에는 배너가 없으므로 거기서는 pill 이 유일한 구독 진입로다) -->
+<body class="bg-background-cream is-home">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
@@ -39,20 +42,21 @@
                 냄비 하나, 10분이면 완성됩니다.
             </p>
 
-            <div class="flex flex-wrap items-center gap-3 mb-12">
-                <a href="/products"
-                   class="px-6 py-3.5 bg-ink-500 text-white text-sm font-semibold rounded-lg hover:bg-ink-600
-                          transition-colors flex items-center gap-2 shadow-sm">
-                    밀키트 둘러보기
-                    <i class="ri-arrow-right-line text-base"></i>
-                </a>
-                <a href="/timedeal"
-                   class="px-6 py-3.5 bg-white border border-background-200 text-foreground-700 text-sm font-semibold
-                          rounded-lg hover:bg-background-100 transition-colors flex items-center gap-2 shadow-sm">
-                    <i class="ri-moon-line text-deal-500 text-base"></i>
-                    미드나이트 세일
-                </a>
-            </div>
+<!--            <div class="flex flex-wrap items-center gap-3 mb-12">-->
+<!--                <a href="/subscribe"-->
+<!--                   class="px-6 py-3.5 bg-ink-500 text-white text-sm font-semibold rounded-lg hover:bg-ink-600-->
+<!--                          transition-colors flex items-center gap-2 shadow-sm">-->
+<!--                    <i class="ri-calendar-check-line text-base"></i>-->
+<!--                    구독 시작하기-->
+<!--                    <i class="ri-arrow-right-line text-base"></i>-->
+<!--                </a>-->
+<!--                <a href="/timedeal"-->
+<!--                   class="px-6 py-3.5 bg-white border border-background-200 text-foreground-700 text-sm font-semibold-->
+<!--                          rounded-lg hover:bg-background-100 transition-colors flex items-center gap-2 shadow-sm">-->
+<!--                    <i class="ri-moon-line text-deal-500 text-base"></i>-->
+<!--                    미드나이트 세일-->
+<!--                </a>-->
+<!--            </div>-->
 
             <!-- 숫자를 키우고 라벨은 작게: 모바일에서 값이 먼저 읽히게.
                  통계 4개가 30px 글씨라 좁은 화면(360px 이하)에서는 한 줄에 안 들어가므로
@@ -126,6 +130,35 @@
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- ══ 구독 배너 ═════════════════════════════════════════════
+         홈의 구독 진입로. 아래 미드나이트 배너와 같은 폭·같은 골격을 쓰되
+         색만 초록(구독)/검정(세일)으로 갈라서 두 배너가 한 세트로 읽히게 했다.
+         구독이 본류이므로 순서상 미드나이트보다 위에 둔다.
+         색은 Tailwind 토큰 대신 head.html 의 GREEN 500/600 을 그대로 쓴 클래스다. -->
+    <section class="w-full px-4 md:px-8 lg:px-12 pb-4 max-w-7xl mx-auto">
+        <a href="/subscribe"
+           class="group flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl
+                  bg-primary-500 px-6 py-5 md:px-8 shadow-lg hover:bg-primary-600 transition-colors">
+            <div class="flex items-center gap-4">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+                    <i class="ri-calendar-check-line text-white text-lg"></i>
+                </span>
+                <div>
+                    <p class="text-sm font-bold text-white">구독 시작하기 — 한 주 저녁을 미리 정해두세요</p>
+                    <p class="text-xs text-white/70 mt-0.5">일주일에 4~7끼 · 많이 받을수록 한 끼가 싸지고, 메뉴는 매주 직접 변경</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 shrink-0">
+                <span class="hidden md:inline text-xs text-white/70">정식 오픈 준비 중 · 사전 예약</span>
+                <span class="flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-xs font-bold
+                             text-primary-700 whitespace-nowrap">
+                    구독 시작하기
+                    <i class="ri-arrow-right-line transition-transform group-hover:translate-x-0.5"></i>
+                </span>
+            </div>
+        </a>
     </section>
 
     <!-- ══ 미드나이트 슬림 배너 ═══════════════════════════════════
