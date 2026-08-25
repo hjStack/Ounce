@@ -4,18 +4,28 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
-<nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-50/95 backdrop-blu -md border-b border-background-200/50">
+<nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-cream/90 backdrop-blur-md border-b border-background-200/70">
     <div class="w-full px-4 md:px-8 lg:px-12">
+        <!-- 높이는 h-20/h-24 유지: 모든 페이지가 pt-20 md:pt-24 로 이걸 상쇄하고 있음 -->
         <div class="flex items-center justify-between h-20 md:h-24">
-            <a href="/" class="flex items-center gap-2">
+            <a href="/" class="flex items-center gap-2 shrink-0">
                 <span class="text-xl md:text-2xl font-semibold font-heading text-foreground-950 tracking-tight">Ounce</span>
             </a>
 
-            <div class="hidden md:flex items-center gap-8">
-                <a href="/" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">Ounce</a>
-                <a href="/timedeal" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">미드나이트</a>
-                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide">상품</a>
-                <a href="/products" class="text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap tracking-wide ready-btn">베스트</a>
+            <!-- 카테고리 내비 (기존 '상품'/'베스트' 두 링크가 같은 /products 로 가던 걸 정리) -->
+            <div class="hidden md:flex items-center gap-7">
+                <a href="/products" data-nav="/products"
+                   class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">전체 밀키트</a>
+                <a href="/products?cat=stew" data-nav="/products"
+                   class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">찌개·국물</a>
+                <a href="/products?cat=noodle" data-nav="/products"
+                   class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">면·파스타</a>
+                <a href="/products?cat=meat" data-nav="/products"
+                   class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">고기·구이</a>
+                <a href="/timedeal" data-nav="/timedeal"
+                   class="nav-link flex items-center gap-1.5 text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">
+                    <i class="ri-moon-line text-accent-500"></i>미드나이트
+                </a>
             </div>
 
             <div class="flex items-center gap-3 md:gap-4">
@@ -68,20 +78,26 @@
     <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200 shadow-lg">
         <div class="px-4 py-5">
 
-            <!-- 네비게이션 섹션 -->
+            <!-- 네비게이션 섹션 (데스크탑 카테고리와 동일한 구성) -->
             <p class="px-1 mb-2 text-[11px] font-semibold text-foreground-400 tracking-wider uppercase">둘러보기</p>
             <div class="grid grid-cols-2 gap-2 mb-5">
-                <a href="/" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
-                    <i class="ri-home-4-line text-primary-500 text-lg"></i> Ounce
+                <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-grid-line text-primary-500 text-lg"></i> 전체 밀키트
                 </a>
                 <a href="/timedeal" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-moon-line text-primary-500 text-lg"></i> 미드나이트
                 </a>
-                <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
-                    <i class="ri-leaf-line text-primary-500 text-lg"></i> 상품
+                <a href="/products?cat=stew" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-fire-line text-primary-500 text-lg"></i> 찌개·국물
                 </a>
-                <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
-                    <i class="ri-star-line text-primary-500 text-lg"></i> 베스트
+                <a href="/products?cat=noodle" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-bowl-line text-primary-500 text-lg"></i> 면·파스타
+                </a>
+                <a href="/products?cat=meat" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-restaurant-line text-primary-500 text-lg"></i> 고기·구이
+                </a>
+                <a href="/products?cat=nabe" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-drop-line text-primary-500 text-lg"></i> 나베·샤브
                 </a>
             </div>
 
@@ -112,6 +128,18 @@
 
 
         document.addEventListener('DOMContentLoaded', function () {
+            // 현재 페이지 내비 하이라이트.
+            // Thymeleaf 3.1 부터 #httpServletRequest 가 없어서 서버에서 못 하니 경로로 판단.
+            document.querySelectorAll('.nav-link[data-nav]').forEach(link => {
+                const isCurrent = window.location.pathname === link.dataset.nav
+                    && link.getAttribute('href') === (window.location.pathname + window.location.search);
+                if (isCurrent) {
+                    link.classList.remove('text-foreground-600');
+                    link.classList.add('text-foreground-950', 'font-semibold');
+                    link.setAttribute('aria-current', 'page');
+                }
+            });
+
             // 모바일 메뉴 토글
             const mobileBtn = document.getElementById('mobile-menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');

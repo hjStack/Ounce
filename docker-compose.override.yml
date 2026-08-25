@@ -1,0 +1,76 @@
+# 로컬 개발 전용 오버라이드.
+# docker-compose.yml(블루/그린 배포 토폴로지)은 그대로 두고, 이 파일만 로컬용으로 덮어씁니다.
+# `docker compose` 는 이 파일을 자동으로 병합하므로 -f 옵션이 필요 없습니다.
+#
+# 중요: Spring 설정은 application-local.yml 을 고치지 말고 여기 환경변수로 덮습니다.
+#       OS 환경변수가 yml 보다 우선순위가 높기 때문이고,
+#       yml 을 컨테이너 호스트명(redis/elasticsearch)으로 바꾸면
+#       IntelliJ 에서 직접 실행할 때(localhost) 깨집니다.
+
+services:
+  # ── 애플리케이션 ─────────────────────────────────────────────
+  app-blue:
+    # Docker Hub 이미지(hyejun02/ounce-api:latest) 대신 로컬 소스로 빌드.
+    # 안 그러면 내가 방금 고친 코드가 컨테이너에 안 들어갑니다.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ounce-api:local
+    # 로컬 접속 포트는 8081 (app.frontend-url 이 http://localhost:8081/ 이라 OAuth 리다이렉트도 여기로 옴)
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+
+      # Redis: docker-compose.yml 의 SPRING_REDIS_HOST 는 Boot 2 이름이라 Boot 4 에서 무시됨.
+      #        → 컨테이너 안에서 localhost:6379 를 찾다가 실패했음. 올바른 키로 교체.
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+      # 검색 엔진: 기본은 jpa (ES 없이 가볍게 뜸).
+      # ES 로 띄우려면  SEARCH_ENGINE=elasticsearch docker compose --profile search up
+      SEARCH_ENGINE: ${SEARCH_ENGINE:-jpa}
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+
+      APP_FRONTEND_URL: http://localhost:8081/
+
+      # 로그: local 프로필이 show_sql + format_sql + use_sql_comments 를 모두 켜둬서
+      #       SQL 이 부팅 로그를 덮어버립니다. 우리 패키지만 DEBUG 로 보고 나머지는 INFO.
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_OUNCE_MARKET_DEMO: DEBUG
+      LOGGING_LEVEL_ORG_HIBERNATE_SQL: ${SQL_LOG:-WARN}
+
+    depends_on:
+      ounce-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+    # 크래시 루프가 나면 로그가 같은 스택트레이스로 도배돼서 읽을 수가 없습니다.
+    # 로컬에서는 죽으면 죽은 채로 두고 원인을 봅니다.
+    restart: "no"
+
+  # ── 기본 기동에서 빼는 서비스들 (profile 로 게이트) ────────────
+  # 로컬에서 블루/그린 2대 + nginx 는 필요 없고, ES 는 힙 1GB 를 먹습니다.
+
+  app-green:
+    profiles: ["bluegreen"]
+
+  nginx:
+    profiles: ["bluegreen"]
+    depends_on:
+      - app-blue
+
+  elasticsearch:
+    profiles: ["search"]
+
+  kibana:
+    profiles: ["search"]
+
+  # ── 인프라 ───────────────────────────────────────────────────
+  redis:
+    # 호스트 6379 는 이미 brew 로 띄운 redis-server 가 쓰고 있어서 충돌합니다.
+    # 앱은 컨테이너 네트워크(redis:6379)로 붙으니 호스트 포트는 6380 으로만 옮김.
+    # 로컬에서 확인할 때: redis-cli -p 6380
+    ports:
+      - "6380:6379"

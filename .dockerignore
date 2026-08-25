@@ -1,0 +1,22 @@
+# 빌드 컨텍스트를 최소화 (Dockerfile 은 target/*-SNAPSHOT.jar 만 필요)
+.git
+.github
+.idea
+*.iml
+.DS_Store
+.env
+loadtest
+nginx
+src
+docs
+*.md
+*.log
+
+# target 은 jar 만 남기고 나머지 빌드 산출물 제외
+target/classes
+target/test-classes
+target/generated-sources
+target/generated-test-sources
+target/maven-status
+target/surefire-reports
+target/site
