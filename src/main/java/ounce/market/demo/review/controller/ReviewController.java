@@ -1,13 +1,54 @@
 package ounce.market.demo.review.controller;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "08. 리뷰", description = "리뷰 작성/조회/수정/삭제")
-@Slf4j
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ounce.market.demo.review.dto.request.ReviewCreateRequest;
+import ounce.market.demo.review.dto.response.ReviewResponse;
+import ounce.market.demo.review.service.ReviewService;
+
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/review")
+@RequiredArgsConstructor
 public class ReviewController {
+
+    private final ReviewService reviewService;
+
+    @PostMapping("/api/products/{productId}/reviews")
+    public ResponseEntity<Long> createReview(
+            @RequestParam Long memberId,
+            @PathVariable Long productId,
+            @Valid @RequestBody ReviewCreateRequest request
+    ) {
+        Long reviewId = reviewService.createReview(memberId, productId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
+    }
+
+    @GetMapping("/api/products/{productId}/reviews")
+    public ResponseEntity<List<ReviewResponse>> getReviewsByProduct(
+            @PathVariable Long productId
+    ) {
+        return ResponseEntity.ok(reviewService.getReviewsByProduct(productId));
+    }
+
+//    @Operation(summary = "내 리뷰 목록 조회")
+//    @GetMapping("/api/members/me/reviews")
+//    public ResponseEntity<List<ReviewResponse>> getMyReviews(
+//            @PathVariable Long memberId,
+//    ) {
+//        return ResponseEntity.ok(reviewService.getMyReviews(memberId));
+//    }
+
+    @DeleteMapping("/api/reviews/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @RequestParam Long memberId,
+            @PathVariable Long reviewId
+    ) {
+        reviewService.deleteReview(memberId, reviewId);
+        return ResponseEntity.noContent().build();
+    }
 }

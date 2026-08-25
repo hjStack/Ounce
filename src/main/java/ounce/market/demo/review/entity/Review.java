@@ -1,11 +1,13 @@
 package ounce.market.demo.review.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.product.entity.Product;
 
@@ -13,11 +15,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"productId", "memberId"})
+        @UniqueConstraint(columnNames = {"productId", "memberId"}) // 한 상품당 리뷰 1개
 })
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review {
 
     @Id
@@ -32,6 +34,7 @@ public class Review {
     @JoinColumn(name = "memberId", nullable = false)
     private Member member;
 
+    @Column(nullable = false)
     private int rating;
 
     @Column(length = 1000)
@@ -45,9 +48,22 @@ public class Review {
 
     @Builder
     public Review(Product product, Member member, int rating, String content) {
+        validateRating(rating);
         this.product = product;
         this.member = member;
         this.rating = rating;
         this.content = content;
+    }
+
+    public void update(int rating, String content) {
+        validateRating(rating);
+        this.rating = rating;
+        this.content = content;
+    }
+
+    private void validateRating(int rating) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("평점은 1~5 사이여야 합니다.");
+        }
     }
 }
