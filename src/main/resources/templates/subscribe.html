@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='구독 — Ounce')}"></head>
+<body class="bg-background-cream">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
+
+<style>
+    /* range 인풋은 Tailwind 로 thumb/track 을 못 만진다(CDN 에 forms 플러그인 없음).
+       끼니 수 선택이 이 페이지의 핵심 인터랙션이라 여기만 직접 그린다.
+       색은 head.html 의 primary-500(#2f7a5f) 과 background-300(#d9d6d0) 을 그대로 쓴다. */
+    .meal-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 26px;
+        background: transparent;
+        cursor: pointer;
+    }
+    .meal-range::-webkit-slider-runnable-track {
+        height: 6px;
+        border-radius: 999px;
+        background: #d9d6d0;
+    }
+    .meal-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        margin-top: -8px;             /* (thumb 22px - track 6px) / 2 */
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #2f7a5f;
+        border: 3px solid #ffffff;
+        box-shadow: 0 1px 4px rgba(12, 10, 9, .28);
+        transition: transform .12s ease;
+    }
+    .meal-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+    .meal-range::-moz-range-track {
+        height: 6px;
+        border-radius: 999px;
+        background: #d9d6d0;
+    }
+    .meal-range::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border: 3px solid #ffffff;
+        border-radius: 999px;
+        background: #2f7a5f;
+        box-shadow: 0 1px 4px rgba(12, 10, 9, .28);
+    }
+    .meal-range:focus-visible { outline: none; }
+    .meal-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(47, 122, 95, .30); }
+    .meal-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(47, 122, 95, .30); }
+
+    /* FAQ 아코디언 — details 기본 삼각형을 지우고 오른쪽 +/- 로 대체 */
+    .faq > summary { list-style: none; cursor: pointer; }
+    .faq > summary::-webkit-details-marker { display: none; }
+    .faq[open] .faq-icon { transform: rotate(45deg); }
+</style>
+
+<main class="pt-20 md:pt-24">
+
+    <!-- ══ Hero ══════════════════════════════════════════════════
+         왼쪽은 "왜 구독인가", 오른쪽은 바로 만져보는 끼니 수 선택기.
+         index.html 히어로와 같은 2단 구성·같은 타이포 스케일을 쓴다.
+         구독은 세일이 아니므로 강조색은 전부 primary(초록). deal(주황)은
+         미드나이트 전용이라 이 페이지에 등장하지 않는다. -->
+    <section class="w-full px-6 md:px-8 lg:px-12 pt-8 pb-14 md:pt-12 md:pb-20 max-w-7xl mx-auto
+                    flex flex-col md:flex-row items-start gap-12 lg:gap-20">
+
+        <div class="w-full md:w-1/2 flex flex-col items-start text-left">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-8 h-px bg-primary-500"></div>
+                <span class="text-primary-500 text-xs font-bold tracking-[0.12em]">정기 구독</span>
+            </div>
+
+            <h1 class="text-[2.15rem] md:text-5xl lg:text-[3.5rem] font-bold text-foreground-950
+                       leading-[1.24] tracking-[-0.035em] mb-6">
+                <span class="block">한 주 저녁을</span>
+                <span class="block mt-2 md:mt-3">미리 정해두세요</span>
+            </h1>
+
+            <p class="text-foreground-600 text-base md:text-lg mb-8 leading-relaxed">
+                매일 저녁 "뭐 먹지"를 없애는 게 목적입니다.<br class="hidden md:block"/>
+                일주일에 몇 끼를 받을지 정하고,<br class="hidden md:block"/>
+                그 주에 올 밀키트는 매주 직접 고르면 됩니다.
+            </p>
+
+            <!-- 구독의 값을 세 줄로. 기존 페이지들이 쓰는 초록 점 + 라벨 패턴을 유지 -->
+            <ul class="flex flex-col gap-3.5 mb-10">
+                <li class="flex items-start gap-3">
+                    <i class="ri-restaurant-2-line text-primary-500 text-lg mt-0.5"></i>
+                    <span class="text-sm text-foreground-700 leading-relaxed">
+                        <b class="font-semibold text-foreground-950">끓인 음식의 질</b> — 데운 국물이 아니라
+                        지금 막 끓인 국물. 냄비에 붓는 시점에 조리가 완성됩니다.
+                    </span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="ri-calendar-check-line text-primary-500 text-lg mt-0.5"></i>
+                    <span class="text-sm text-foreground-700 leading-relaxed">
+                        <b class="font-semibold text-foreground-950">한 주치 끼니 계획</b> — 개별 상품이 아니라
+                        한 주의 저녁 계획을 대신 세워둡니다.
+                    </span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="ri-shopping-basket-line text-primary-500 text-lg mt-0.5"></i>
+                    <span class="text-sm text-foreground-700 leading-relaxed">
+                        <b class="font-semibold text-foreground-950">결정 비용 제거</b> — 장보기, 재료 남김,
+                        소비기한 관리가 사라집니다.
+                    </span>
+                </li>
+            </ul>
+
+            <!-- 아직 검증되지 않은 가설이라는 걸 숨기지 않는다. 사전 예약을 받는 이유이기도 함 -->
+            <p class="text-xs text-foreground-400 leading-relaxed">
+                Ounce 구독은 정식 오픈 준비 중입니다. 지금은 사전 예약만 받고 있어요.
+            </p>
+        </div>
+
+        <!-- ── 끼니 수 선택기 ─────────────────────────────────── -->
+        <div class="w-full md:w-1/2 md:sticky md:top-28">
+            <div class="rounded-2xl border border-background-200 bg-white p-6 md:p-7 shadow-sm">
+
+                <div class="flex items-baseline justify-between mb-1">
+                    <h2 class="text-base font-semibold text-foreground-950">일주일에 몇 끼?</h2>
+                    <p class="text-sm">
+                        <span id="meal-count" class="text-2xl font-bold tracking-tight text-primary-600">5</span>
+                        <span class="text-sm font-semibold text-foreground-600">끼</span>
+                    </p>
+                </div>
+                <p class="text-xs text-foreground-400 mb-5">나중에 언제든 바꿀 수 있습니다.</p>
+
+                <label for="meal-range" class="sr-only">일주일에 받을 끼니 수</label>
+                <input id="meal-range" type="range" min="4" max="7" step="1" value="5"
+                       class="meal-range"
+                       aria-describedby="storage-badge"/>
+
+                <!-- 눈금 칸 수 = 슬라이더 값 개수(4·5·6·7). 값을 늘리거나 줄이면
+                     grid-cols-N 도 같이 맞춰야 눈금이 thumb 과 어긋나지 않는다. -->
+                <div class="grid grid-cols-4 mt-1 mb-6">
+                    <span class="meal-tick text-center text-xs text-foreground-400" data-meals="4">4</span>
+                    <span class="meal-tick text-center text-xs text-foreground-400" data-meals="5">5</span>
+                    <span class="meal-tick text-center text-xs text-foreground-400" data-meals="6">6</span>
+                    <span class="meal-tick text-center text-xs text-foreground-400" data-meals="7">7</span>
+                </div>
+
+                <!-- 보관 방식은 끼니 수에 따라 냉장↔냉동으로 뒤집힌다.
+                     소비기한에서 나오는 결과라 사용자가 슬라이더를 끄는 순간 바로 보여야 한다. -->
+                <div id="storage-badge"
+                     class="flex items-center gap-2.5 rounded-xl bg-primary-50 border border-primary-100
+                            px-4 py-3 mb-2.5" aria-live="polite">
+                    <i id="storage-icon" class="ri-temp-cold-line text-primary-600 text-lg"></i>
+                    <span class="text-sm font-semibold text-primary-700" id="storage-label">냉장</span>
+                    <span class="text-foreground-300">·</span>
+                    <span class="text-sm text-foreground-600" id="storage-note">수령 후 5일 내 조리</span>
+                </div>
+                <p id="storage-detail" class="text-xs text-foreground-500 leading-relaxed mb-6"></p>
+
+                <!-- 가격 블록. 지금은 접어두고, 단가 확정 후 hidden 만 떼면 된다.
+                     OuncePlan 에 price/perMeal 이 채워지면 subscribe.js 가 여기를 채운다. -->
+                <div id="plan-price" class="hidden mb-6">
+                    <div class="flex items-baseline justify-between">
+                        <!-- 주 단위로 표기한다. 같은 가격이어도 월 합계로 묶으면
+                             체감 금액이 4배 넘게 커 보여서 전환이 죽는다. -->
+                        <span class="text-sm text-foreground-600">주 결제 금액</span>
+                        <span id="plan-price-total" class="text-xl font-bold text-foreground-950"></span>
+                    </div>
+                    <div class="flex items-baseline justify-between mt-1">
+                        <span class="text-xs text-foreground-400">끼당</span>
+                        <span id="plan-price-per-meal" class="text-xs font-medium text-foreground-500"></span>
+                    </div>
+                </div>
+
+                <!-- 가격을 안 보여주는 대신 왜 안 보여주는지는 말해준다 -->
+                <div class="flex items-start gap-2 rounded-xl bg-background-100/70 px-4 py-3 mb-5">
+                    <i class="ri-information-line text-foreground-400 text-base mt-0.5"></i>
+                    <p class="text-xs text-foreground-500 leading-relaxed">
+                        구독 금액은 정식 오픈 시 공개합니다. 사전 예약해두시면 오픈 시점에
+                        가격과 첫 주 구성을 가장 먼저 안내드립니다.
+                    </p>
+                </div>
+
+                <a href="#reserve"
+                   class="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-ink-500 text-white
+                          text-sm font-semibold rounded-lg hover:bg-ink-600 transition-colors shadow-sm">
+                    출시 알림 신청
+                    <i class="ri-arrow-right-line text-base"></i>
+                </a>
+
+                <p class="mt-3 text-center text-[11px] text-foreground-400">
+                    결제 정보는 받지 않습니다. 오픈 안내만 보내드려요.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ 이번 주 구성 미리보기 ═════════════════════════════════
+         "매주 변경 가능"은 말로 설명하는 것보다 슬롯을 바꿔 보여주는 게 빠르다.
+         카드는 /api/products 실제 상품으로 채우고, 셔플 버튼으로 교체 동작을 흉내낸다.
+         가입 후 실제 교체 화면은 /subscription 이다. -->
+    <section class="w-full bg-white border-y border-background-200">
+        <div class="w-full px-4 md:px-8 lg:px-12 py-14 md:py-20 max-w-7xl mx-auto">
+
+            <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-px bg-accent-500"></div>
+                        <span class="text-accent-500 text-xs font-bold tracking-[0.12em]">This Week</span>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight">
+                        이번 주엔 이렇게 옵니다
+                    </h2>
+                    <p class="text-sm text-foreground-500 mt-1.5">
+                        <span id="preview-count">5</span>끼 구성 예시입니다. 실제로는 매주 직접 고르게 됩니다.
+                    </p>
+                </div>
+
+                <button id="shuffle-btn" type="button"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-white border border-background-200
+                               text-foreground-700 text-sm font-semibold rounded-lg hover:bg-background-100
+                               transition-colors shadow-sm">
+                    <i class="ri-refresh-line text-base"></i>
+                    다른 구성 보기
+                </button>
+            </div>
+
+            <div id="preview-grid"
+                 class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5"></div>
+
+            <p id="preview-status" class="hidden py-16 text-center text-sm text-foreground-400"></p>
+        </div>
+    </section>
+
+    <!-- ══ 어떻게 동작하나 ══════════════════════════════════════ -->
+    <section class="w-full px-4 md:px-8 lg:px-12 py-14 md:py-20 max-w-7xl mx-auto">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-8 h-px bg-accent-500"></div>
+            <span class="text-accent-500 text-xs font-bold tracking-[0.12em]">How It Works</span>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight mb-10">
+            매주 이렇게 돌아갑니다
+        </h2>
+
+        <ol class="grid gap-5 md:grid-cols-3">
+            <li class="rounded-2xl border border-background-200 bg-white p-6">
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary-500
+                             text-white text-sm font-bold mb-4">1</span>
+                <h3 class="text-base font-semibold text-foreground-950 mb-2">끼니 수를 정합니다</h3>
+                <p class="text-sm text-foreground-600 leading-relaxed">
+                    일주일에 4끼부터 7끼까지. 바쁜 주엔 줄이고, 집에 있는 주엔 늘리면 됩니다.
+                    많이 받을수록 한 끼당 가격이 내려갑니다.
+                </p>
+            </li>
+            <li class="rounded-2xl border border-background-200 bg-white p-6">
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary-500
+                             text-white text-sm font-bold mb-4">2</span>
+                <h3 class="text-base font-semibold text-foreground-950 mb-2">그 주 메뉴를 고릅니다</h3>
+                <p class="text-sm text-foreground-600 leading-relaxed">
+                    슬롯마다 원하는 밀키트를 넣습니다. 지난주에 김치찌개를 먹었으면 다른 걸로 바꾸면 돼요.
+                    변경 마감 전까지는 몇 번이든 손볼 수 있습니다.
+                </p>
+            </li>
+            <li class="rounded-2xl border border-background-200 bg-white p-6">
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-primary-500
+                             text-white text-sm font-bold mb-4">3</span>
+                <h3 class="text-base font-semibold text-foreground-950 mb-2">한 번에 도착합니다</h3>
+                <p class="text-sm text-foreground-600 leading-relaxed">
+                    주 1회 묶음 배송. 새벽에 문 앞으로 오고, 냄비 하나로 10분이면 완성됩니다.
+                </p>
+            </li>
+        </ol>
+    </section>
+
+    <!-- ══ 사전 예약 ════════════════════════════════════════════ -->
+    <section id="reserve" class="w-full bg-primary-900">
+        <div class="w-full px-6 md:px-8 lg:px-12 py-14 md:py-20 max-w-3xl mx-auto text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight mb-3">
+                오픈하면 가장 먼저 알려드릴게요
+            </h2>
+            <p class="text-sm md:text-base text-white/70 leading-relaxed mb-8">
+                사전 예약자에게는 첫 주 체험 구성을 따로 준비하고 있습니다.<br class="hidden md:block"/>
+                이메일만 남겨주시면 되고, 결제 정보는 받지 않습니다.
+            </p>
+
+            <form id="reserve-form" class="flex flex-col sm:flex-row items-stretch gap-2.5 max-w-xl mx-auto"
+                  novalidate>
+                <label for="reserve-email" class="sr-only">이메일</label>
+                <input id="reserve-email" name="email" type="email" autocomplete="email" required
+                       placeholder="이메일 주소"
+                       class="flex-1 rounded-lg bg-white px-4 py-3.5 text-sm text-foreground-950
+                              placeholder-foreground-400 border border-transparent
+                              focus:outline-none focus:border-primary-300"/>
+                <button type="submit"
+                        class="shrink-0 px-7 py-3.5 bg-white text-primary-800 text-sm font-bold rounded-lg
+                               hover:bg-primary-50 transition-colors disabled:opacity-60">
+                    사전 예약
+                </button>
+            </form>
+
+            <p id="reserve-msg" class="hidden mt-4 text-sm text-white/80" role="status"></p>
+
+            <p class="mt-6 text-xs text-white/50">
+                남겨주신 이메일은 출시 안내 용도로만 씁니다. 언제든 수신을 중단할 수 있습니다.
+            </p>
+        </div>
+    </section>
+
+    <!-- ══ FAQ ══════════════════════════════════════════════════ -->
+    <section class="w-full px-4 md:px-8 lg:px-12 py-14 md:py-20 max-w-3xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight mb-8">
+            자주 묻는 것들
+        </h2>
+
+        <div class="divide-y divide-background-200 border-y border-background-200">
+            <details class="faq py-5">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-[15px] font-semibold text-foreground-950">메뉴는 언제까지 바꿀 수 있나요?</span>
+                    <i class="faq-icon ri-add-line text-foreground-400 text-lg transition-transform shrink-0"></i>
+                </summary>
+                <p class="mt-3 text-sm text-foreground-600 leading-relaxed">
+                    제조 일정이 허용하는 가장 늦은 시점까지 열어둘 계획입니다. 기존 정기배송은 배송일보다
+                    한참 앞서 주문이 마감돼서 그 주의 상황에 맞춰 바꾸기가 어려웠는데, Ounce는 그 반대로
+                    가려고 합니다. 정확한 마감 시점은 위탁 제조사와 협의해 확정한 뒤 안내드립니다.
+                </p>
+            </details>
+
+            <details class="faq py-5">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-[15px] font-semibold text-foreground-950">끼니 수도 매주 바꿀 수 있나요?</span>
+                    <i class="faq-icon ri-add-line text-foreground-400 text-lg transition-transform shrink-0"></i>
+                </summary>
+                <p class="mt-3 text-sm text-foreground-600 leading-relaxed">
+                    네. 이번 주에 약속이 잡혔다면 끼니 수를 줄이고, 다음 주에 다시 늘리면 됩니다.
+                    끼니 수를 바꾸면 보관 방식(냉장·냉동)도 같이 바뀌는데, 화면에서 미리 알려드립니다.
+                </p>
+            </details>
+
+            <details class="faq py-5">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-[15px] font-semibold text-foreground-950">왜 6끼 이상은 냉동인가요?</span>
+                    <i class="faq-icon ri-add-line text-foreground-400 text-lg transition-transform shrink-0"></i>
+                </summary>
+                <p class="mt-3 text-sm text-foreground-600 leading-relaxed">
+                    주 1회 묶음 배송이라 끼니 수가 많아지면 마지막 끼니를 먹는 날이 그만큼 뒤로 밀립니다.
+                    냉장으로 보내면 소비기한을 넘기게 되고, 배송을 주 2회로 쪼개면 배송비가 두 배가 됩니다.
+                    그래서 많은 끼니는 냉동으로 구성합니다. 완조리를 얼린 게 아니라 조리 전 재료를
+                    급속 동결한 것이라, 끓이는 시점에 조리가 완성되는 건 냉장과 같습니다.
+                </p>
+            </details>
+
+            <details class="faq py-5">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-[15px] font-semibold text-foreground-950">구독 안 하고 하나씩 살 수 있나요?</span>
+                    <i class="faq-icon ri-add-line text-foreground-400 text-lg transition-transform shrink-0"></i>
+                </summary>
+                <p class="mt-3 text-sm text-foreground-600 leading-relaxed">
+                    가능합니다. 단건 주문은 배송비 3,000원이 붙습니다(금액에 상관없이 정액).
+                    아이스박스 하나가 몇 끼를 담든 똑같이 들어가기 때문에, 적게 주문할수록
+                    한 끼의 포장·배송비가 커집니다. 그래서 단건은 최소 수량을 두고,
+                    구독은 4끼부터 시작합니다. 3끼 이하가 필요하시면 단건으로 주문해 주세요 —
+                    <a href="/products" class="text-primary-600 font-medium hover:text-primary-700 underline
+                              underline-offset-2">밀키트 둘러보기</a>에서 개별 상품을 볼 수 있습니다.
+                </p>
+            </details>
+
+            <details class="faq py-5">
+                <summary class="flex items-center justify-between gap-4">
+                    <span class="text-[15px] font-semibold text-foreground-950">지금 결제되나요?</span>
+                    <i class="faq-icon ri-add-line text-foreground-400 text-lg transition-transform shrink-0"></i>
+                </summary>
+                <p class="mt-3 text-sm text-foreground-600 leading-relaxed">
+                    아니요. 아직 사전 예약 단계라 결제나 카드 정보를 받지 않습니다.
+                    이메일을 남겨두시면 정식 오픈 시 가격과 첫 주 구성을 안내드립니다.
+                </p>
+            </details>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="/js/product-card.js"></script>
+<script src="/js/subscription-plan.js"></script>
+<script src="/js/subscribe.js"></script>
+</body>
+</html>
