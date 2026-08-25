@@ -1,5 +1,6 @@
 package ounce.market.demo.product.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import ounce.market.demo.product.service.ProductService;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 
+@Tag(name = "04. 상품", description = "상품 전체 조회 및 단건 조회")
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor

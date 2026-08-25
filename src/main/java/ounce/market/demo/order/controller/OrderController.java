@@ -1,5 +1,7 @@
 package ounce.market.demo.order.controller;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +13,8 @@ import ounce.market.demo.order.service.OrderService;
 
 import java.util.List;
 
+@Tag(name = "02. 주문", description = "주문 생성 및 조회")
+@Slf4j
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
