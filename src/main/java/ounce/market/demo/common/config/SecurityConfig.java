@@ -56,6 +56,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/products/search").permitAll()
                         .requestMatchers("/dev/**").permitAll()
                         .requestMatchers("/timedeal").permitAll()   // 미드나이트 페이지 자체도 열기
+                        // 반면 /subscription(내 구독)은 여기 안 적어서 anyRequest 로 로그인이 걸린다.
+                        .requestMatchers("/subscribe").permitAll()
                         .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
