@@ -1039,7 +1039,7 @@
             if (e.target === $reviewModal) closeReviewModal();
         });
 
-        // 제출 → /api/products/{id}/reviews (백엔드 구현 필요) todo
+        // 제출 → /api/products/{id}/reviews (백엔드 구현 필요)
         document.getElementById('review-submit').addEventListener('click', async () => {
             const content = $reviewText.value.trim();
             if (content.length < 5) { alert('리뷰 내용을 5자 이상 입력해주세요.'); return; }
