@@ -5,12 +5,31 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  jpa:
+    # 사용할 데이터베이스의 방언(Dialect) 설정
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      # ⚠️ 원래 이 블록이 management: 아래에 들여쓰기 되어 있어서 그동안 무시됐고,
+      #    application.yml 의 ddl-auto: update 가 그대로 운영에 적용되고 있었습니다.
+      #    지금은 위치만 바로잡고 동작은 기존과 동일하게 update 로 둡니다.
+      #    운영 안정화 후 validate 로 바꾸세요. (블루/그린 배포 중 신버전이
+      #    구버전이 쓰고 있는 스키마를 startup 에 변경하는 위험이 사라집니다)
+      ddl-auto: validate
+
+  # 무중단 배포 핵심: SIGTERM 을 받으면 즉시 죽지 않고
+  # 처리 중이던 요청을 끝낸 뒤 종료합니다. 이게 없으면 구버전 컨테이너를
+  # stop 하는 순간 진행 중이던 요청이 그대로 끊겨 502 가 됩니다.
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
 app:
   frontend-url: "https://ouncefresh.com/"
   cookie-secure: true
 
 server:
   forward-headers-strategy: framework
+  # graceful: 새 요청은 안 받고, 진행 중인 요청만 마무리하고 종료
+  shutdown: graceful
 
 search:
   engine: jpa
@@ -19,12 +38,3 @@ management:
   health:
     elasticsearch:
       enabled: false
-
-
-  jpa:
-    # 사용할 데이터베이스의 방언(Dialect) 설정
-    database-platform: org.hibernate.dialect.MySQLDialect
-    hibernate:
-      # 엔티티 변경 시 테이블 스키마 자동 수정 전략
-      # 개발 단계: update 또는 create, 운영 단계: none 또는 validate 권장
-      ddl-auto: validate

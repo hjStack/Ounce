@@ -87,7 +87,7 @@
     }
 
     /* ── Left: Image ────────────────────── */
-    .image-col { position: sticky; top: 96px; }
+    /*.image-col { position: sticky; top: 96px; }*/
     .image-wrap {
         position: relative;
         width: 100%;
@@ -529,6 +529,11 @@
     .btn-modal-submit:hover { background: var(--accent-600); }
 
     .hidden { display: none !important; }
+
+    @media (min-width: 768px) {
+        .detail { grid-template-columns: 400px 1fr; gap: 48px; }
+        .image-col { position: sticky; top: 96px; }
+    }
 </style>
 
 <main class="container">

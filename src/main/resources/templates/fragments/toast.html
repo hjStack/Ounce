@@ -3,7 +3,7 @@
 <body>
 
 <div th:fragment="toast(message, type)" th:if="${message}"
-     th:class="${'fixed top-24 left-1/2 -translate-x-1/2 z-[60] px-6 py-3 rounded-lg shadow-lg text-sm font-medium text-white ' + (type == 'error' ? 'bg-accent-500' : 'bg-primary-500')}"
+     th:class="${'fixed top-24 left-1/2 -translate-x-1/2 z-[60] px-6 py-3 rounded-lg shadow-lg text-sm font-medium text-white ' + (type == 'error' ? 'bg-red-600' : 'bg-secondary-600')}"
      id="app-toast">
     <div class="flex items-center gap-2">
         <i th:class="${type == 'error' ? 'ri-error-warning-line text-lg' : 'ri-check-line text-lg'}"></i>
