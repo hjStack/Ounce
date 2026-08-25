@@ -65,7 +65,8 @@ window.Ounce = (function () {
 
         var badges = '';
         if (isTimeDeal) {
-            badges += '<span class="px-2 py-1 rounded-md bg-accent-500 text-white text-[11px] font-bold' +
+            // 세일 배지만 테라코타(deal). 나머지 강조는 초록(primary) 이라 세일이 튄다.
+            badges += '<span class="px-2 py-1 rounded-md bg-deal-500 text-white text-[11px] font-bold' +
                 ' shadow-sm">미드나이트</span>';
         }
         if (parts.serving) {
@@ -128,6 +129,42 @@ window.Ounce = (function () {
                 ' focus-visible:outline-offset-2 focus-visible:outline-primary-500"' +
                 ' aria-label="' + escapeHtml(parts.title) + ' 상세 보기"></a>' +
         '</article>';
+    }
+
+    /* ── 스켈레톤 ──────────────────────────────────────────────
+     * 실제 카드와 같은 골격(정사각 이미지 + 제목/설명/가격 줄)을 그려서
+     * 상품이 도착할 때 레이아웃이 튀지 않게 한다. */
+    function skeletonHTML() {
+        return '' +
+        '<div class="animate-pulse overflow-hidden rounded-xl border border-background-200 bg-white"' +
+            ' aria-hidden="true">' +
+            '<div class="aspect-square w-full bg-background-200"></div>' +
+            '<div class="flex flex-col gap-2 p-3.5 md:p-4">' +
+                '<div class="h-4 w-3/4 rounded bg-background-200"></div>' +
+                '<div class="h-3 w-full rounded bg-background-100"></div>' +
+                '<div class="mt-1 h-3 w-1/3 rounded bg-background-100"></div>' +
+                '<div class="mt-2.5 flex items-center justify-between">' +
+                    '<div class="h-5 w-20 rounded bg-background-200"></div>' +
+                    '<div class="h-9 w-9 rounded-full bg-background-200"></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    /** 카테고리 카드용 스켈레톤 (홈 '오늘은 뭐 먹지?' 섹션). */
+    function categorySkeletonHTML() {
+        return '<div class="animate-pulse aspect-[4/5] md:aspect-square rounded-xl bg-background-200"' +
+            ' aria-hidden="true"></div>';
+    }
+
+    /** 컨테이너를 스켈레톤 n개로 채운다. */
+    function renderSkeletons(container, count, kind) {
+        if (!container) return;
+        var make = kind === 'category' ? categorySkeletonHTML : skeletonHTML;
+        var html = '';
+        for (var i = 0; i < count; i++) html += make();
+        container.innerHTML = html;
+        container.setAttribute('aria-busy', 'true');
     }
 
     /* ── 카테고리 ──────────────────────────────────────────────
@@ -269,6 +306,7 @@ window.Ounce = (function () {
     function render(container, products) {
         if (!container) return;
         container.innerHTML = products.map(cardHTML).join('');
+        container.removeAttribute('aria-busy');
     }
 
     return {
@@ -277,6 +315,8 @@ window.Ounce = (function () {
         categoryOf: categoryOf,
         inCategory: inCategory,
         cardHTML: cardHTML,
+        skeletonHTML: skeletonHTML,
+        renderSkeletons: renderSkeletons,
         splitName: splitName,
         won: won,
         fetchCatalog: fetchCatalog,
