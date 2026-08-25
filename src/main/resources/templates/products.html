@@ -45,7 +45,8 @@
         <!-- ── Grid ───────────────────────────────────────── -->
         <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5"></div>
 
-        <div id="grid-status" class="py-20 text-center text-sm text-foreground-400">밀키트를 불러오는 중...</div>
+        <!-- 로딩 중에는 스켈레톤을 그리므로 이 영역은 빈 결과/실패 안내 전용 -->
+        <div id="grid-status" class="hidden py-20 text-center text-sm text-foreground-400"></div>
 
         <div class="mt-10 flex justify-center">
             <button id="load-more-btn"
@@ -123,6 +124,7 @@
             const next = filtered.slice(shown, shown + PAGE_SIZE);
             grid.insertAdjacentHTML('beforeend', next.map(Ounce.cardHTML).join(''));
             shown += next.length;
+            grid.removeAttribute('aria-busy');
             loadMoreBtn.classList.toggle('hidden', shown >= filtered.length);
 
             if (!filtered.length) {
@@ -210,13 +212,18 @@
         }
 
         /* ── 시작 ────────────────────────────────────────── */
+        // 요청 전에 스켈레톤을 먼저 깔아 로딩 중 레이아웃이 튀지 않게 한다
+        Ounce.renderSkeletons(grid, PAGE_SIZE);
+        renderHeader();   // 헤더/칩은 카탈로그 없이도 그릴 수 있어 먼저 그려둔다
+
         Ounce.fetchCatalog().then(products => {
             catalog = products;
-            renderHeader();
             renderChips();
             applyFilters();
         }).catch(() => {
+            grid.innerHTML = '';
             status.textContent = '밀키트를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';
+            status.classList.remove('hidden');
         });
     });
 </script>
