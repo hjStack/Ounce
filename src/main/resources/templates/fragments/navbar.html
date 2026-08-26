@@ -202,29 +202,6 @@
 
     <script th:inline="none">
 
-        const ui = {
-            toast: function(message, type = 'success') {
-                var existing = document.getElementById('ounce-js-toast');
-                if (existing) existing.remove();
-
-                var el = document.createElement('div');
-                el.id = 'ounce-js-toast';
-                el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
-                    ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
-                    (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
-                el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
-                    ' text-lg"></i><span></span>';
-                el.querySelector('span').textContent = message;
-                document.body.appendChild(el);
-
-                setTimeout(function () {
-                    el.style.opacity = '0';
-                    setTimeout(function () { el.remove(); }, 300);
-                }, 2600);
-            }
-        };
-
-
         document.addEventListener('DOMContentLoaded', function () {
             // 현재 페이지 내비 하이라이트.
             // Thymeleaf 3.1 부터 #httpServletRequest 가 없어서 서버에서 못 하니 경로로 판단.
