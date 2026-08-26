@@ -23,7 +23,7 @@ import ounce.market.demo.qna.dto.response.QnaCreateResponse;
 import ounce.market.demo.qna.dto.response.QnaResponse;
 import ounce.market.demo.qna.service.QnaService;
 
-@Tag(name = "12. Q&A", description = "1:1 문의 등록 및 조회")
+@Tag(name = "12-0. Q&A", description = "1:1 문의 등록 및 조회")
 @RestController
 @RequestMapping("/api/qna")
 @RequiredArgsConstructor

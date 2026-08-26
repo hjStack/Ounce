@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/policy.html").permitAll()
                         .requestMatchers("/terms.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
 

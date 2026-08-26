@@ -334,11 +334,12 @@
                     const id = p.productId || p.id || '';
                     const image = p.imageUrl || 'https://via.placeholder.com/300?text=No+Image'; // imageUrl이 없으면 대체 이미지
                     const name = p.name || '이름 없음';
-                    const price = p.basePrice || p.salePrice || p.price || 0; // basePrice 우선 사용
+                    const price = p.basePrice || p.salePrice; // basePrice 우선 사용
                     const isSoldOut = p.status === 'SOLD_OUT' || p.stock === 0;
 
                     return `
-                    <a href="/products/${id}" class="group block">
+                    <a href="/products-detail/${id}" class="group block">
+                        <!-- 💡 href 부분을 상세 페이지 주소에 맞게 변경했습니다 -->
                         <div class="relative aspect-square overflow-hidden rounded-xl bg-background-200 mb-3 border border-gray-100">
                             <img src="${image}" alt="${name}" class="object-cover w-full h-full transition-transform group-hover:scale-105" />
                             ${isSoldOut ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center"><span class="text-white font-bold">품절</span></div>' : ''}
