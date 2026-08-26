@@ -17,6 +17,7 @@ set -uo pipefail
 
 PROJECT_DIR="/home/ubuntu/ounce"
 ENV_FILE="$PROJECT_DIR/nginx/conf.d/service-env.inc"
+COMPOSE="docker compose -f docker-compose.yml"
 
 HEALTH_PATH="/"       # 앱이 200 또는 3xx 를 주는 경로
 HEALTH_RETRY=40       # 40회 x 3초 = 최대 120초 대기
@@ -45,10 +46,10 @@ echo "   현재 서비스 중: $OLD_COLOR  →  배포 대상: $TARGET_COLOR (�
 
 # ── 2. 신버전 컨테이너 기동 ─────────────────────────────────
 echo "🐳 $TARGET_COLOR 컨테이너를 최신 이미지로 실행합니다."
-docker compose pull "app-$TARGET_COLOR" || { echo "❌ 이미지 pull 실패"; exit 1; }
+$COMPOSE pull "app-$TARGET_COLOR" || { echo "❌ 이미지 pull 실패"; exit 1; }
 # --no-deps      : DB/Redis/nginx 등 다른 서비스를 건드리지 않는다.
 # --force-recreate: 태그가 latest 라 컨테이너가 남아있어도 확실히 새로 만든다.
-docker compose up -d --no-deps --force-recreate "app-$TARGET_COLOR" \
+$COMPOSE up -d --no-deps --force-recreate "app-$TARGET_COLOR" \
     || { echo "❌ $TARGET_COLOR 기동 실패"; exit 1; }
 
 # ── 3. 헬스 체크 ────────────────────────────────────────────
@@ -72,9 +73,9 @@ done
 if [ "$HEALTHY" -ne 1 ]; then
     echo "❌ 헬스 체크 실패. 트래픽은 그대로 $OLD_COLOR 에 둡니다 (서비스 영향 없음)."
     echo "   ── $TARGET_COLOR 컨테이너 로그 마지막 50줄 ──"
-    docker compose logs --tail=50 "app-$TARGET_COLOR"
-    docker compose stop -t 10 "app-$TARGET_COLOR"
-    docker compose rm -f "app-$TARGET_COLOR"
+    $COMPOSE logs --tail=50 "app-$TARGET_COLOR"
+    $COMPOSE stop -t 10 "app-$TARGET_COLOR"
+    $COMPOSE rm -f "app-$TARGET_COLOR"
     exit 1
 fi
 
@@ -82,7 +83,7 @@ fi
 # 위 헬스체크는 호스트 포트를 봤다. nginx 는 도커 DNS 로 app-green:8080 을
 # 찾아가므로, 그 경로가 실제로 뚫리는지 한 번 더 확인한다.
 # (nginx:alpine 에 wget 이 없을 수도 있으니 실패해도 경고만 남긴다)
-if docker compose exec -T nginx wget -q -T 5 -O /dev/null \
+if $COMPOSE exec -T nginx wget -q -T 5 -O /dev/null \
        "http://app-$TARGET_COLOR:8080$HEALTH_PATH" 2>/dev/null; then
     echo "✅ 도커 네트워크 경로(app-$TARGET_COLOR:8080) 확인 완료"
 else
@@ -102,18 +103,18 @@ echo "🔄 Nginx 트래픽을 $TARGET_COLOR 로 전환합니다."
 cp "$ENV_FILE" "$ENV_FILE.bak"
 echo "set \$service_url app-$TARGET_COLOR:8080;" > "$ENV_FILE"
 
-if ! docker compose exec -T nginx nginx -t; then
+if ! $COMPOSE exec -T nginx nginx -t; then
     echo "❌ nginx 설정 검증 실패. 원래 설정으로 롤백합니다."
     mv "$ENV_FILE.bak" "$ENV_FILE"
-    docker compose stop -t 10 "app-$TARGET_COLOR"
+    $COMPOSE stop -t 10 "app-$TARGET_COLOR"
     exit 1
 fi
 
-if ! docker compose exec -T nginx nginx -s reload; then
+if ! $COMPOSE exec -T nginx nginx -s reload; then
     echo "❌ nginx reload 실패. 원래 설정으로 롤백합니다."
     mv "$ENV_FILE.bak" "$ENV_FILE"
-    docker compose exec -T nginx nginx -s reload || true
-    docker compose stop -t 10 "app-$TARGET_COLOR"
+    $COMPOSE exec -T nginx nginx -s reload || true
+    $COMPOSE stop -t 10 "app-$TARGET_COLOR"
     exit 1
 fi
 rm -f "$ENV_FILE.bak"
@@ -128,7 +129,7 @@ sleep "$DRAIN_SECONDS"
 
 # ── 7. 구버전 graceful 종료 ─────────────────────────────────
 echo "🛑 기존 $OLD_COLOR 컨테이너를 종료합니다 (최대 ${STOP_TIMEOUT}초 대기)."
-docker compose stop -t "$STOP_TIMEOUT" "app-$OLD_COLOR"
-docker compose rm -f "app-$OLD_COLOR"
+$COMPOSE stop -t "$STOP_TIMEOUT" "app-$OLD_COLOR"
+$COMPOSE rm -f "app-$OLD_COLOR"
 
 echo "🎉 배포 완료. 현재 서비스 중: $TARGET_COLOR"

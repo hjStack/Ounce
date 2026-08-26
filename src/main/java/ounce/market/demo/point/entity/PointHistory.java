@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.common.BaseEntity;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.order.entity.Order;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -17,17 +20,33 @@ public class PointHistory extends BaseEntity {
     private Long pointHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     private int amount; // 사용/환불은 음수, 충전/적립은 양수
     @Enumerated(EnumType.STRING)
     private PointType type;
 
+    private String description;
+
+    private int balanceAfter;
+
+    private LocalDateTime expiresAt;
+
     @Builder
-    public PointHistory(Member member, int amount, PointType type) {
+    public PointHistory(Member member, Order order, int amount, PointType type,
+                        String description, int balanceAfter, LocalDateTime expiresAt) {
         this.member = member;
+        this.order = order;
         this.amount = amount;
         this.type = type;
+        this.description = description;
+        this.balanceAfter = balanceAfter;
+        this.expiresAt = expiresAt;
     }
 
     // todo 회원가입하면 1000포인트 주는 프론트 보여주기

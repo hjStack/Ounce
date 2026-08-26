@@ -14,4 +14,10 @@ import java.util.List;
 public class OrderCreateRequest {
     private List<Long> selectedCartProductIds;
     private DeliveryType deliveryType;
+    private Long couponId;
+    private String receiverName;
+    private String receiverPhone;
+    private String zipCode;
+    private String address;
+    private String addressDetail;
 }

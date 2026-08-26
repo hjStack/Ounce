@@ -68,8 +68,15 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 서버에 접속해서 최신 이미지를 다운받고 무중단 배포 스크립트(deploy.sh)를 실행합니다.
+            cd /home/${{ secrets.SERVER_USERNAME }}/ounce
+            
+            git fetch origin main
+            
+            git checkout main
+            git pull --ff-only origin main
+            
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ounce-api:latest
-            cd /home/${{ secrets.SERVER_USERNAME }}/ounce # 🔥 운영 서버의 Ounce 프로젝트 경로 (상황에 맞게 수정 필요)
+            
             chmod +x ./deploy.sh
             ./deploy.sh
+
