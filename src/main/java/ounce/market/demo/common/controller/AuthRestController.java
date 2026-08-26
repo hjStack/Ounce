@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.entity.Member;
@@ -23,7 +22,6 @@ public class AuthRestController {
     private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
 
-    @PostMapping("/api/auth/refresh")
     public ResponseEntity<?> refresh(
             @CookieValue(value = "Refresh", required = false) String refreshToken,
             HttpServletResponse response) {
