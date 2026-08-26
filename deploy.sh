@@ -20,7 +20,7 @@ ENV_FILE="$PROJECT_DIR/nginx/conf.d/service-env.inc"
 COMPOSE="docker compose -f docker-compose.yml"
 
 HEALTH_PATH="/"       # 앱이 200 또는 3xx 를 주는 경로
-HEALTH_RETRY=40       # 40회 x 3초 = 최대 120초 대기
+HEALTH_RETRY=80       
 HEALTH_INTERVAL=3
 DRAIN_SECONDS=25      # nginx worker_shutdown_timeout(20s) 보다 커야 함
 STOP_TIMEOUT=30       # 구버전에 주는 graceful shutdown 시간
