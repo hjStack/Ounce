@@ -29,6 +29,22 @@ cd "$PROJECT_DIR" || exit 1
 
 echo "🚀 Ounce 배포 스크립트를 시작합니다."
 
+# ── 0. 색 상태 파일 복구 ────────────────────────────────────
+# service-env.inc 는 설정이 아니라 "지금 어느 색이 서비스 중인지"라는 런타임 상태다.
+# 그래서 CI 의 scp 대상에서 제외했다(배포마다 덮으면 색 판별이 실제와 어긋난다).
+# 대신 파일이 유실됐거나 서버를 새로 세팅한 경우를 여기서 복구한다.
+# 판단 기준은 "지금 실제로 떠 있는 컨테이너"다.
+if [ ! -s "$ENV_FILE" ]; then
+    mkdir -p "$(dirname "$ENV_FILE")"
+    if docker ps --format '{{.Names}}' | grep -qx "app-green"; then
+        SEED_COLOR="app-green"
+    else
+        SEED_COLOR="app-blue"
+    fi
+    echo "⚠️  $ENV_FILE 이 없습니다. 실행 중인 컨테이너 기준으로 새로 만듭니다: $SEED_COLOR"
+    echo "set \$service_url $SEED_COLOR:8080;" > "$ENV_FILE"
+fi
+
 # ── 1. 현재 서비스 중인 색 판별 ──────────────────────────────
 # docker ps 이름 규칙에 의존하지 않는다.
 # nginx 가 지금 이 순간 어디로 프록시하고 있는지가 유일한 진실이다.
@@ -102,6 +118,23 @@ done
 echo "🔄 Nginx 트래픽을 $TARGET_COLOR 로 전환합니다."
 cp "$ENV_FILE" "$ENV_FILE.bak"
 echo "set \$service_url app-$TARGET_COLOR:8080;" > "$ENV_FILE"
+
+# ── 5-a. 호스트에 쓴 내용이 nginx 컨테이너에 실제로 보이는지 확인 ──
+# 2026-08-26 장애의 원인: 호스트에서 nginx 디렉터리를 mv 로 교체했더니
+# bind mount 가 컨테이너 기동 시점의 inode 를 계속 붙잡고 있어서,
+# 여기서 쓴 파일이 nginx 에게 영원히 보이지 않았다. 색 전환이 조용히 무효가 되고,
+# 나중에 구버전을 내리는 순간 502 가 됐다. 그 침묵을 여기서 깬다.
+if ! $COMPOSE exec -T nginx grep -q "app-$TARGET_COLOR" /etc/nginx/conf.d/service-env.inc; then
+    echo "❌ 치명적: 호스트의 $ENV_FILE 을 고쳤는데 nginx 컨테이너에는 반영되지 않았습니다."
+    echo "   bind mount 가 낡은 inode 를 보고 있을 가능성이 높습니다. 확인 방법:"
+    echo "     stat -c %i $(dirname "$ENV_FILE")"
+    echo "     docker compose -f docker-compose.yml exec -T nginx stat -c %i /etc/nginx/conf.d"
+    echo "   두 inode 가 다르면 nginx 컨테이너를 재생성해야 합니다."
+    echo "   트래픽은 그대로 $OLD_COLOR 에 둡니다 (서비스 영향 없음)."
+    mv "$ENV_FILE.bak" "$ENV_FILE"
+    $COMPOSE stop -t 10 "app-$TARGET_COLOR"
+    exit 1
+fi
 
 if ! $COMPOSE exec -T nginx nginx -t; then
     echo "❌ nginx 설정 검증 실패. 원래 설정으로 롤백합니다."

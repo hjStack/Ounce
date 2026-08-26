@@ -40,11 +40,11 @@
             <div class="hidden md:flex items-center gap-7">
                 <a href="/products" data-nav="/products"
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">전체 밀키트</a>
-                <a href="/products?cat=stew" data-nav="/products"
+                <a href="/products?categories=stew" data-nav="/products"
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">찌개·국물</a>
-                <a href="/products?cat=noodle" data-nav="/products"
+                <a href="/products?categories=noodle" data-nav="/products"
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">면·파스타</a>
-                <a href="/products?cat=meat" data-nav="/products"
+                <a href="/products?categories=meat" data-nav="/products"
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">고기·구이</a>
                 <a href="/timedeal" data-nav="/timedeal"
                    class="nav-link flex items-center gap-1.5 text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">
@@ -91,6 +91,16 @@
                         </a>
                         <a href="/orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
+                        </a>
+                        <a href="/support" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
+                            <i class="ri-customer-service-2-line text-foreground-400 text-base"></i> 고객센터
+                        </a>
+                        <!-- 관리자만 보이는 진입점. 문의 답변 화면으로 가는 링크가 어디에도 없으면
+                             주소를 외워서 들어가야 한다. -->
+                        <a href="/admin/qna" sec:authorize="hasAuthority('ADMIN')"
+                           class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
+                            <i class="ri-shield-user-line text-foreground-400 text-base"></i> 문의 관리
+                            <span class="ml-auto px-1.5 py-0.5 text-[10px] font-bold rounded bg-ink-500 text-white">ADMIN</span>
                         </a>
                         <hr class="my-1 border-background-200"/>
                         <button id="logoutBtn" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors text-left cursor-pointer">
@@ -176,6 +186,11 @@
                 </a>
                 <a href="/orders" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
+                </a>
+                <!-- 고객센터는 로그인 여부와 무관하게 보여준다. FAQ 는 누구나 봐야 하고,
+                     모바일에서 고객센터로 들어올 길은 이 항목과 푸터뿐이다. -->
+                <a href="/support" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
+                    <i class="ri-customer-service-2-line text-foreground-400 text-base"></i> 고객센터
                 </a>
                 <button id="logout-btn-mobile" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left w-full">
                     <i class="ri-logout-box-r-line text-base"></i> 로그아웃

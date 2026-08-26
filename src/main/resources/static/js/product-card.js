@@ -172,26 +172,26 @@ window.Ounce = (function () {
      * 상품명 키워드로 분류한다. 20개 상품 전부 정확히 한 곳에 들어가도록 맞춘 규칙이고,
      * 매칭 안 되는 신규 상품은 '전체'에서만 보인다 — 어디에도 안 걸려 사라지는 게 아니다.
      * 서버가 카테고리를 내려주게 되면 이 블록만 갈아내면 된다. */
-    var CATEGORIES = [
-        { key: 'stew',  label: '찌개·국물', icon: 'ri-fire-line',       pattern: /찌개|전골|육개장|마라탕|볶음탕/ },
-        { key: 'noodle', label: '면·파스타', icon: 'ri-bowl-line',      pattern: /파스타|올리오|라멘|우동|짜장|국수/ },
-        { key: 'meat',  label: '고기·구이',  icon: 'ri-restaurant-line', pattern: /불고기|갈비|제육|삼겹/ },
-        { key: 'nabe',  label: '나베·샤브',  icon: 'ri-drop-line',       pattern: /나베|스키야키|샤브/ },
-        { key: 'etc',   label: '분식·해물',  icon: 'ri-star-smile-line', pattern: /떡볶이|감바스|새우|어묵/ }
+    let CATEGORIES = [
+        { key: 'stew',   label: '찌개·국물', icon: 'ri-fire-line' },
+        { key: 'noodle', label: '면·파스타', icon: 'ri-bowl-line' },
+        { key: 'meat',   label: '고기·구이', icon: 'ri-restaurant-line' },
+        { key: 'nabe',   label: '나베·샤브', icon: 'ri-drop-line' },
+        { key: 'etc',    label: '분식·해물', icon: 'ri-star-smile-line' }
     ];
 
-    function categoryOf(product) {
-        var name = String(product.name || '');
-        for (var i = 0; i < CATEGORIES.length; i++) {
-            if (CATEGORIES[i].pattern.test(name)) return CATEGORIES[i].key;
-        }
-        return null;
-    }
-
-    function inCategory(product, key) {
-        if (!key || key === 'all') return true;
-        return categoryOf(product) === key;
-    }
+    // function categoryOf(product) {
+    //     var name = String(product.name || '');
+    //     for (var i = 0; i < CATEGORIES.length; i++) {
+    //         if (CATEGORIES[i].pattern.test(name)) return CATEGORIES[i].key;
+    //     }
+    //     return null;
+    // }
+    //
+    // function inCategory(product, key) {
+    //     if (!key || key === 'all') return true;
+    //     return categoryOf(product) === key;
+    // }
 
     /* ── 카탈로그 ──────────────────────────────────────────────
      * 상품이 20개짜리 한 페이지라 전체를 한 번 받아 캐시하고,
@@ -199,22 +199,32 @@ window.Ounce = (function () {
      * /api/products/search 를 쓰지 않는 이유: 그 응답에는 basePrice 가 없고
      * salePrice(=0) 만 있어서 가격을 0원으로 표시하게 된다.
      * (상품이 수백 개로 늘면 서버 페이징/검색으로 다시 옮겨야 한다.) */
-    var catalogPromise = null;
+    // var catalogPromise = null;
 
-    function fetchCatalog() {
-        if (!catalogPromise) {
-            catalogPromise = fetch('/api/products?page=0&size=200', { credentials: 'include' })
-                .then(function (res) {
-                    if (!res.ok) throw new Error('상품 조회 실패: ' + res.status);
-                    return res.json();
-                })
-                .then(function (page) { return page.content || []; })
-                .catch(function (err) {
-                    catalogPromise = null;   // 다음 호출에서 재시도할 수 있게
-                    throw err;
-                });
-        }
-        return catalogPromise;
+    /** 서버에 검색 조건을 넘겨 상품 한 페이지를 가져온다. */
+    function fetchProducts(params) {
+        let qs = new URLSearchParams();
+        if (params.categories && params.categories !== 'all') qs.set('categories', params.categories);
+        if (params.keyword) qs.set('keyword', params.keyword);
+        if (params.sort) qs.set('sort', params.sort);
+        qs.set('page', params.page || 0);
+        qs.set('size', params.size || 10);
+
+        return fetch('/api/products?' + qs.toString(), { credentials: 'include' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('상품 조회 실패: ' + res.status);
+                return res.json();
+            });
+    }
+
+    /** 카테고리별 상품 수 (칩에 표시) */
+    function fetchCategoryCounts(keyword) {
+        let qs = keyword ? '?keyword=' + encodeURIComponent(keyword) : '';
+        return fetch('/api/products/category-counts' + qs, { credentials: 'include' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('카테고리 조회 실패: ' + res.status);
+                return res.json();
+            });
     }
 
     /* ── 장바구니 ────────────────────────────────────────────── */
@@ -312,17 +322,28 @@ window.Ounce = (function () {
     return {
         PLACEHOLDER: PLACEHOLDER,
         CATEGORIES: CATEGORIES,
-        categoryOf: categoryOf,
-        inCategory: inCategory,
+
         cardHTML: cardHTML,
         skeletonHTML: skeletonHTML,
         renderSkeletons: renderSkeletons,
         splitName: splitName,
         won: won,
-        fetchCatalog: fetchCatalog,
+        fetchProducts: fetchProducts,
+        fetchCategoryCounts: fetchCategoryCounts,
         addToCart: addToCart,
         mountCartHandlers: mountCartHandlers,
         render: render,
         toast: toast
-    };
+    };/* Ounce 상품 카드 — 홈(index)과 상품목록(products)이 공유하는 단일 렌더러.
+ *
+ * 왜 JS 인가: 두 페이지 모두 /api/products 를 fetch 해서 그리기 때문에
+ * Thymeleaf fragment 로는 같은 카드를 쓸 수 없다. 카드 정의가 두 군데로
+ * 갈라지는 걸 막기 위해 JS 쪽을 단일 출처로 잡았다.
+ *
+ * 표시하는 값은 API 가 실제로 주는 것만 쓴다:
+ *   name / description / basePrice / stock / status / imageUrl
+ * 조리시간·평점·리뷰수 같은 필드는 서버에 없으므로 카드에 만들어 붙이지 않는다.
+ * salePrice 도 쓰지 않는다 (서버 계산이 discountPercent * basePrice 라 값이 깨져 있음).
+ */
+
 })();
