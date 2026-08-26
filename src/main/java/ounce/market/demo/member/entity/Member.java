@@ -60,6 +60,13 @@ public class Member extends BaseEntity {
         this.point -= amount;
     }
 
+    public void addPoint(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("지급할 포인트는 0보다 커야 합니다.");
+        }
+        this.point += amount;
+    }
+
     // Member 엔티티
     public void withdraw() {
         this.status = MemberStatus.WITHDRAWN;
