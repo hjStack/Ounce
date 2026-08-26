@@ -15,7 +15,7 @@ import ounce.market.demo.delivery.service.DeliveryService;
 
 import java.util.List;
 
-@Tag(name = "10. 배송", description = "내 배송 조회")
+@Tag(name = "10-0. 배송", description = "내 배송 조회")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor

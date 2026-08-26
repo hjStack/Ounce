@@ -1,3 +1,27 @@
+
+const ui = {
+    toast: function(message, type = 'success') {
+        var existing = document.getElementById('ounce-js-toast');
+        if (existing) existing.remove();
+
+        var el = document.createElement('div');
+        el.id = 'ounce-js-toast';
+        el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
+            ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
+            (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
+        el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
+            ' text-lg"></i><span></span>';
+        el.querySelector('span').textContent = message;
+        document.body.appendChild(el);
+
+        setTimeout(function () {
+            el.style.opacity = '0';
+            setTimeout(function () { el.remove(); }, 300);
+        }, 2600);
+    }
+};
+
+
 const signupForm = document.getElementById('signupForm');
 
 if (signupForm) {
@@ -15,23 +39,23 @@ if (signupForm) {
         const name = document.getElementById('name').value; // 💡 이름 값 가져오기
 
         if (!name) {
-            alert("이름을 입력해주세요.");
+            ui.toast("이름을 입력해주세요.");
             document.getElementById('name').focus();
             return; // 서버로 안 보내고 중단
         }
 
         if (!email) {
-            alert("이메일을 입력해주세요.");
+            ui.toast("이메일을 입력해주세요.");
             document.getElementById('email').focus();
             return;
         }
         if (!password) {
-            alert("비밀번호를 입력해주세요.");
+            ui.toast("비밀번호를 입력해주세요.");
             document.getElementById('password').focus();
             return;
         }
         if (!confirmPassword) {
-            alert("비밀번호 확인을 입력해주세요.");
+            ui.toast("비밀번호 확인을 입력해주세요.");
             document.getElementById('confirmPassword').focus();
             return;
         }
@@ -59,8 +83,11 @@ if (signupForm) {
             });
 
             if (response.ok || response.status === 201) {
-                alert("Ounce 가입을 환영합니다! 축하 포인트 1,000P가 지급되었어요 🎁");
-                window.location.href = '/login?welcome=true';
+                ui.toast("Ounce 가입을 환영합니다! 축하 포인트 1,000P가 지급되었어요 🎁");
+
+                setTimeout(() => {
+                    window.location.href = '/login?welcome=true';
+                }, 1000);
             }
             else if (response.status === 400 || response.status === 409) {
                 // 우리가 백엔드에서 만든 예쁜 ErrorResponse 낚아채기
