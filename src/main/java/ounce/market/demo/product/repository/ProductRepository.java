@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom  {
 
     List<Product> findByStatusIn(Collection<ProductStatus> statuses);
 
@@ -29,5 +29,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("select p from Product p where p.name like %:keyword%")
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    Page<Product> findByStatusIn(Collection<ProductStatus> statuses, Pageable pageable);
+    Page<Product> findByStatusIn(List<ProductStatus> status, Pageable pageable);
+
+//    @Query("SELECT DISTINCT p FROM Product p " +
+//            "JOIN ProductCategory pc ON pc.product = p " +
+//            "JOIN pc.category c " +
+//            "WHERE p.status IN :status AND c.key = :categoryKey")
+//    Page<Product> findByStatusInAndCategoryKey(
+//            @Param("status") List<ProductStatus> status,
+//            @Param("categoryKey") String categoryKey,
+//            Pageable pageable);
 }

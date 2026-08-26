@@ -30,6 +30,7 @@ public class ReviewController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         String email = userDetails.member().getEmail();
         Long reviewId = reviewService.createReview(email, productId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
@@ -45,8 +46,8 @@ public class ReviewController {
     @DeleteMapping("/api/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long reviewId
-    ) {
+            @PathVariable Long reviewId) {
+
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

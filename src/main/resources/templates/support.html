@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(title='고객센터 — Ounce')}"></head>
+<body class="bg-background-cream">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast :: toast(${toastMessage}, ${toastType})}"></div>
+
+<style>
+    /* 아코디언 화살표. 열림 상태는 부모 버튼의 aria-expanded 로만 표현한다
+       (클래스 토글을 따로 두면 두 값이 어긋나서 스크린리더와 화면이 다른 말을 한다). */
+    [aria-expanded="true"] .acc-chevron { transform: rotate(180deg); }
+    .acc-chevron { transition: transform .18s ease-out; }
+
+    /* 문의 본문·답변은 사용자가 줄바꿈을 넣어 쓴 글이라 그대로 살린다. */
+    .qna-body { white-space: pre-line; word-break: break-word; }
+</style>
+
+<main class="pt-20 md:pt-24 pb-24" id="support-root">
+    <div class="w-full px-4 md:px-8 lg:px-12 py-6 md:py-8 max-w-4xl mx-auto">
+
+        <!-- ── Header ─────────────────────────────────────── -->
+        <div class="mb-7">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-px bg-accent-500"></div>
+                <span class="text-accent-500 text-xs font-bold tracking-[0.2em]">Support</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-foreground-950 tracking-tight">고객센터</h1>
+            <p class="text-sm text-foreground-500 mt-1.5 break-keep">
+                자주 묻는 질문에서 먼저 찾아보고, 답이 없으면 1:1 문의를 남겨주세요.
+            </p>
+        </div>
+
+        <!-- ── 응대 안내 ───────────────────────────────────
+             푸터에 이미 적어둔 사실만 옮겼다. 유선 응대 시간처럼 확정되지 않은
+             약속은 여기에도 쓰지 않는다. -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+            <div class="rounded-xl border border-background-200 bg-white p-4">
+                <p class="text-[10px] tracking-wide text-foreground-400 mb-1.5">1:1 문의 접수</p>
+                <p class="text-base font-bold leading-tight text-foreground-950">365일</p>
+                <p class="text-xs text-foreground-500 mt-1">영업일 기준 1일 내 답변</p>
+            </div>
+            <div class="rounded-xl border border-background-200 bg-white p-4">
+                <p class="text-[10px] tracking-wide text-foreground-400 mb-1.5">주문 마감</p>
+                <p class="text-base font-bold leading-tight text-foreground-950">매일 밤 23:00</p>
+                <p class="text-xs text-foreground-500 mt-1">마감 전까지 변경·취소</p>
+            </div>
+            <div class="col-span-2 md:col-span-1 rounded-xl border border-background-200 bg-white p-4">
+                <p class="text-[10px] tracking-wide text-foreground-400 mb-1.5">이메일</p>
+                <a href="mailto:hye_jun0209@icloud.com"
+                   class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors break-all">
+                    <i class="ri-mail-line"></i> hye_jun0209@icloud.com
+                </a>
+                <p class="text-xs text-foreground-500 mt-1">대량 주문·제안 문의</p>
+            </div>
+        </div>
+
+        <!-- ── 탭 ─────────────────────────────────────────
+             FAQ 를 기본으로 둔다. 문의를 남기기 전에 이미 있는 답을 먼저 보게 하는 게
+             양쪽 모두에게 빠르다. 탭 상태는 해시(#inquiry)에 남겨서 새로고침·공유가 된다. -->
+        <div class="flex items-center gap-1 p-1 mb-6 rounded-xl bg-background-100/80" role="tablist">
+            <button id="tab-faq" type="button" role="tab" aria-selected="true" aria-controls="panel-faq"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors">
+                <i class="ri-question-line text-base"></i> 자주 묻는 질문
+            </button>
+            <button id="tab-inquiry" type="button" role="tab" aria-selected="false" aria-controls="panel-inquiry"
+                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors">
+                <i class="ri-chat-1-line text-base"></i> 내 문의
+                <span id="inquiry-count"
+                      class="hidden px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary-500 text-white tabular-nums"></span>
+            </button>
+        </div>
+
+        <!-- ══ FAQ ═══════════════════════════════════════════════ -->
+        <section id="panel-faq" role="tabpanel" aria-labelledby="tab-faq">
+
+            <div class="flex items-center gap-2 rounded-xl border border-background-200 bg-white px-4 py-3
+                        focus-within:border-primary-400 transition-colors mb-4">
+                <i class="ri-search-line text-foreground-400"></i>
+                <label for="faq-search" class="sr-only">자주 묻는 질문 검색</label>
+                <input id="faq-search" type="text" autocomplete="off"
+                       placeholder="궁금한 점을 검색해 보세요 (예: 배송, 취소)"
+                       class="flex-1 bg-transparent text-sm text-foreground-950 placeholder-foreground-400 focus:outline-none"/>
+                <button id="faq-search-clear" type="button" aria-label="검색어 지우기"
+                        class="hidden text-foreground-400 hover:text-foreground-700 transition-colors">
+                    <i class="ri-close-circle-line text-lg"></i>
+                </button>
+            </div>
+
+            <div id="faq-chips" class="flex flex-wrap items-center gap-2 mb-5"></div>
+
+            <div id="faq-list" class="flex flex-col gap-2"></div>
+            <p id="faq-empty" class="hidden py-14 text-center text-sm text-foreground-400"></p>
+
+            <!-- FAQ 로 안 풀리는 질문을 그냥 막다른 길로 두지 않는다 -->
+            <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border border-primary-100 bg-primary-50 px-5 py-4">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-primary-800">찾는 답이 없으셨나요?</p>
+                    <p class="text-xs text-primary-700/80 mt-0.5">1:1 문의를 남겨주시면 영업일 기준 1일 내에 답변드립니다.</p>
+                </div>
+                <button id="go-inquiry-btn" type="button"
+                        class="shrink-0 px-5 py-2.5 bg-ink-500 text-white text-sm font-semibold rounded-lg
+                               hover:bg-ink-600 transition-colors">
+                    1:1 문의하기
+                </button>
+            </div>
+        </section>
+
+        <!-- ══ 1:1 문의 ══════════════════════════════════════════ -->
+        <section id="panel-inquiry" class="hidden" role="tabpanel" aria-labelledby="tab-inquiry">
+
+            <!-- 비로그인. 문의는 계정에 묶여 있어야 답변을 돌려줄 수 있다. -->
+            <div id="inquiry-guest" class="hidden rounded-2xl border border-background-200 bg-white px-6 py-12 text-center">
+                <i class="ri-lock-line text-3xl text-foreground-300"></i>
+                <p class="text-base font-semibold text-foreground-950 mt-4">로그인 후 이용할 수 있어요</p>
+                <p class="text-sm text-foreground-500 mt-1.5 break-keep">
+                    문의 내역과 답변을 계정에서 보여드리기 때문에 로그인이 필요합니다.
+                </p>
+                <a href="/login"
+                   class="inline-block mt-5 px-6 py-3 bg-ink-500 text-white text-sm font-semibold rounded-lg
+                          hover:bg-ink-600 transition-colors">로그인하기</a>
+                <p class="text-xs text-foreground-400 mt-4">
+                    계정이 없으시면 <a href="/signup" class="font-semibold text-primary-600 hover:text-primary-700 underline">회원가입</a>
+                </p>
+            </div>
+
+            <!-- 로그인 -->
+            <div id="inquiry-member" class="hidden">
+
+                <div class="flex flex-wrap items-end justify-between gap-3 pb-4 mb-5 border-b border-background-200">
+                    <div>
+                        <h2 class="text-lg font-bold text-foreground-950">내 문의</h2>
+                        <p class="text-sm text-foreground-500 mt-1">
+                            답변이 등록되면 이 화면에서 바로 확인할 수 있어요.
+                        </p>
+                    </div>
+                    <button id="compose-open-btn" type="button"
+                            class="flex items-center gap-1.5 px-5 py-2.5 bg-ink-500 text-white text-sm font-semibold
+                                   rounded-lg hover:bg-ink-600 transition-colors">
+                        <i class="ri-add-line text-base"></i> 문의 남기기
+                    </button>
+                </div>
+
+                <!-- 작성·수정 폼. 수정도 같은 폼을 쓴다. 화면이 둘로 갈리면
+                     검증·글자수 같은 규칙을 두 군데서 고쳐야 한다. -->
+                <form id="compose-form" class="hidden rounded-2xl border border-background-200 bg-white p-5 md:p-6 mb-6">
+                    <div class="flex items-start justify-between gap-3 mb-5">
+                        <div>
+                            <h3 id="compose-title" class="text-base font-semibold text-foreground-950">문의 남기기</h3>
+                            <p id="compose-hint" class="text-xs text-foreground-400 mt-1">
+                                주문 관련 문의는 주문번호를 함께 적어주시면 더 빠릅니다.
+                            </p>
+                        </div>
+                        <button id="compose-close-btn" type="button" aria-label="닫기"
+                                class="shrink-0 text-foreground-400 hover:text-foreground-700 transition-colors">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="compose-category" class="block text-sm font-medium text-foreground-700 mb-1.5">문의 유형</label>
+                        <select id="compose-category"
+                                class="w-full px-3.5 py-2.5 text-sm text-foreground-950 bg-white border border-background-200
+                                       rounded-lg focus:border-primary-400 focus:outline-none"></select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="compose-subject" class="block text-sm font-medium text-foreground-700 mb-1.5">제목</label>
+                        <input id="compose-subject" type="text" maxlength="60" autocomplete="off"
+                               placeholder="한 줄로 요약해 주세요"
+                               class="w-full px-3.5 py-2.5 text-sm text-foreground-950 placeholder-foreground-400
+                                      bg-white border border-background-200 rounded-lg
+                                      focus:border-primary-400 focus:outline-none"/>
+                    </div>
+
+                    <div class="mb-2">
+                        <label for="compose-content" class="block text-sm font-medium text-foreground-700 mb-1.5">내용</label>
+                        <textarea id="compose-content" rows="6" maxlength="2000"
+                                  placeholder="어떤 일이 있었는지 알려주세요. 주문번호·상품명·발생 시점이 있으면 확인이 빨라집니다."
+                                  class="w-full px-3.5 py-2.5 text-sm text-foreground-950 placeholder-foreground-400
+                                         bg-white border border-background-200 rounded-lg resize-y
+                                         focus:border-primary-400 focus:outline-none"></textarea>
+                        <p class="mt-1.5 text-right text-xs text-foreground-400">
+                            <span id="compose-counter" class="tabular-nums">0</span> / 2000
+                        </p>
+                    </div>
+
+                    <p id="compose-error" class="hidden mb-3 flex items-center gap-1.5 text-xs text-red-600">
+                        <i class="ri-error-warning-line text-sm"></i><span></span>
+                    </p>
+
+                    <!-- 사진 첨부는 서버에 업로드 API 가 없어서 아직 못 받는다.
+                         버튼만 놔두면 눌러보고 안 되는 기능이 되므로, 대신 안내로 적었다. -->
+                    <p class="flex items-start gap-1.5 mb-5 text-xs text-foreground-400 break-keep">
+                        <i class="ri-information-line text-sm mt-px"></i>
+                        <span>사진 첨부는 준비 중입니다. 상품 상태 확인이 필요하면
+                            <a href="mailto:hye_jun0209@icloud.com" class="underline hover:text-foreground-600">이메일</a>로 사진을 보내주세요.</span>
+                    </p>
+
+                    <div class="flex items-center gap-2">
+                        <button id="compose-submit-btn" type="submit"
+                                class="flex-1 sm:flex-none px-6 py-3 bg-primary-500 text-white text-sm font-semibold
+                                       rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-40">
+                            문의 등록
+                        </button>
+                        <button id="compose-cancel-btn" type="button"
+                                class="px-6 py-3 bg-white border border-background-200 text-foreground-700 text-sm
+                                       font-semibold rounded-lg hover:bg-background-100 transition-colors">
+                            취소
+                        </button>
+                    </div>
+                </form>
+
+                <div id="qna-list" class="flex flex-col gap-2.5"></div>
+                <p id="qna-status" class="hidden py-14 text-center text-sm text-foreground-400"></p>
+
+                <div class="mt-6 text-center">
+                    <button id="qna-more-btn" type="button"
+                            class="hidden px-6 py-3 bg-white border border-background-200 text-foreground-700 text-sm
+                                   font-semibold rounded-lg hover:bg-background-100 transition-colors">
+                        문의 더 보기
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="/js/product-card.js"></script>
+<script src="/js/support.js"></script>
+</body>
+</html>

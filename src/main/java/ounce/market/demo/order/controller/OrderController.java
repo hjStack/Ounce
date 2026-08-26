@@ -28,15 +28,15 @@ public class OrderController {
             @RequestBody OrderCreateRequest request
             // TODO: 로그인 회원 id를 여기서 받아야 함 -> 완료
     ) {
-        Long memberId = userDetails.member().getMemberId();
-        Long orderId = orderService.createOrderFromCart(memberId, request);
+        String email = userDetails.getUsername();
+        Long orderId = orderService.createOrderFromCart(email, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
     }
 
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getMyOrders(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long memberId = userDetails.member().getMemberId();
-        return ResponseEntity.ok(orderService.getMyOrders(memberId));
+        String email = userDetails.getUsername();
+        return ResponseEntity.ok(orderService.getMyOrders(email));
     }
 }

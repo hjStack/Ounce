@@ -66,15 +66,24 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      # 운영 기본값. application-prod.yml 에만 server.shutdown: graceful 과
+      # spring.lifecycle.timeout-per-shutdown-phase 가 있어서, 이게 local 이면
+      # 무중단 배포의 graceful shutdown 이 꺼집니다 (jar 안에 application-local.yml 은 없음).
+      # 로컬 개발은 docker-compose.local.yml 이 local 로 덮습니다.
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       DB_HOST: ounce-db
       JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
 
     depends_on:
       ounce-db:
@@ -87,15 +96,26 @@ services:
     ports:
       - "8081:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      # 운영 기본값. application-prod.yml 에만 server.shutdown: graceful 과
+      # spring.lifecycle.timeout-per-shutdown-phase 가 있어서, 이게 local 이면
+      # 무중단 배포의 graceful shutdown 이 꺼집니다 (jar 안에 application-local.yml 은 없음).
+      # 로컬 개발은 docker-compose.local.yml 이 local 로 덮습니다.
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       DB_HOST: ounce-db
       JWT_SECRET: ${JWT_SECRET}
+      # 구글 OAuth. 이 두 줄이 없으면 application.yml 의 ${GOOGLE_CLIENT_ID} 가
+      # 치환되지 않고 리터럴 문자열로 구글에 전달돼 invalid_client 로 로그인이 실패합니다.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
 
     depends_on:
       ounce-db:
@@ -107,10 +127,18 @@ services:
     container_name: ounce-nginx
     ports:
       - "80:80"
+      - "443:443"
 
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      # 운영 설정은 nginx.prod.conf 입니다.
+      # nginx/nginx.conf 는 로컬용(80 포트, TLS 없음)이라 서버에 마운트하면 HTTPS 가 날아갑니다.
+      # 로컬에서 nginx 를 띄울 때는 docker-compose.local.yml 이 이 마운트를 되돌립니다.
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
       - ./nginx/conf.d:/etc/nginx/conf.d
+      # certbot 인증서. 이게 없으면 443 서버 블록이 기동 실패합니다.
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      # certbot renew 용 ACME 챌린지 경로 (nginx.prod.conf 의 /.well-known/acme-challenge/).
+      - ./certbot-webroot:/var/www/certbot
     restart: always
 
 volumes:

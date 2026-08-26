@@ -28,6 +28,7 @@ public class ReviewService {
     public Long createReview(String email, Long productId, ReviewCreateRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 

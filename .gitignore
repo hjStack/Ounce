@@ -6,8 +6,7 @@ target/
 *.log
 
 nginx/nginx.conf
-
-.openclawignore
+nginx/nginx.prod.conf
 
 docker-compose.yml
 
