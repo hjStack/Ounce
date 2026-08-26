@@ -277,7 +277,6 @@
 <script th:inline="none">
     document.addEventListener('DOMContentLoaded', function () {
 
-        /* ── 자정 카운트다운 ───────────────────────────────── */
         const countdownEl = document.getElementById('mid-countdown');
         if (countdownEl) {
             const pad = n => String(n).padStart(2, '0');
@@ -293,61 +292,18 @@
             setInterval(tick, 1000);
         }
 
-        /* ── 상품 그리드 + 카테고리 ─────────────────────────── */
-        const HOME_LIMIT = 8;
-        const grid = document.getElementById('home-product-grid');
-        const status = document.getElementById('home-grid-status');
-        const categoryGrid = document.getElementById('category-grid');
-        const menuCountEl = document.getElementById('menu-count');
+        /* ── 2. 메뉴 총 개수 동적으로 가져오기 ─────────────────── */
+        fetch('/api/products/category-counts')
+            .then(res => res.ok ? res.json() : Promise.reject(res))
+            .then(data => {
+                const menuCountEl = document.getElementById('menu-count');
+                if (menuCountEl && data.all !== undefined) {
+                    menuCountEl.textContent = data.all;
+                }
+            })
+            .catch(err => console.error('메뉴 개수 로드 실패:', err));
 
-        Ounce.mountCartHandlers(grid);
-
-        Ounce.fetchCatalog().then(products => {
-            if (!products.length) {
-                status.textContent = '준비된 밀키트가 없습니다.';
-                return;
-            }
-
-            if (menuCountEl) menuCountEl.textContent = products.length;
-
-            // 품절 상품은 홈 그리드에서 뒤로 밀고, 최근 등록순(productId 내림차순)으로 노출
-            const featured = products
-                .slice()
-                .sort((a, b) => {
-                    const aOut = a.status === 'SOLD_OUT' || a.stock <= 0;
-                    const bOut = b.status === 'SOLD_OUT' || b.stock <= 0;
-                    if (aOut !== bOut) return aOut ? 1 : -1;
-                    return b.productId - a.productId;
-                })
-                .slice(0, HOME_LIMIT);
-
-            Ounce.render(grid, featured);
-            status.classList.add('hidden');
-
-            // 카테고리 카드: 각 카테고리의 첫 상품 이미지를 대표 이미지로 사용
-            categoryGrid.innerHTML = Ounce.CATEGORIES.map(cat => {
-                const members = products.filter(p => Ounce.inCategory(p, cat.key));
-                if (!members.length) return '';
-                const cover = members[0].imageUrl || Ounce.PLACEHOLDER;
-                return `
-                    <a href="/products?cat=${cat.key}"
-                       class="group relative overflow-hidden rounded-xl aspect-[4/5] md:aspect-square bg-background-200 shadow-sm hover:shadow-lg transition-shadow">
-                        <img src="${cover}" alt="${cat.label}" loading="lazy"
-                             class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                             onerror="this.onerror=null;this.src=Ounce.PLACEHOLDER"/>
-                        <div class="absolute inset-0 bg-gradient-to-t from-foreground-950/85 via-foreground-950/20 to-transparent"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4">
-                            <i class="${cat.icon} text-accent-400 text-lg mb-1 block"></i>
-                            <h3 class="text-white text-sm md:text-base font-bold leading-snug">${cat.label}</h3>
-                            <p class="text-white/60 text-xs mt-0.5">${members.length}종</p>
-                        </div>
-                    </a>`;
-            }).join('');
-        }).catch(() => {
-            status.textContent = '밀키트를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';
-        });
-
-        /* ── 멤버 수 (있을 때만 노출) ───────────────────────── */
+        /* ── 3. 멤버 수 가져오기 (있을 때만 노출) ───────────────── */
         fetch('/api/members/count')
             .then(res => res.ok ? res.json() : null)
             .then(count => {
@@ -355,9 +311,98 @@
                 document.getElementById('member-count').textContent = count.toLocaleString();
                 document.getElementById('member-stat').classList.remove('hidden');
             })
-            .catch(() => { /* 실패하면 멤버 통계는 계속 숨김 */ });
+            .catch(() => { /* 실패 시 무시 */ });
+
+        /* ── 상품 리스트 & 카테고리 렌더링 (디버깅 모드) ────────────── */
+        const grid = document.getElementById('home-product-grid');
+        const status = document.getElementById('home-grid-status');
+        const categoryGrid = document.getElementById('category-grid');
+
+        // API로 상품 목록 가져오기
+        fetch('/api/products?size=20')
+            .then(res => res.json())
+            .then(data => {
+
+                // ProductSliceResponse 안의 실제 상품 배열 찾기
+                const products = data.products || data.content || data.items || [];
+
+                if (products.length === 0) {
+                    status.textContent = '상품 목록이 비어있습니다. (데이터를 못 가져옴)';
+                    status.classList.remove('hidden');
+                    return;
+                }
+
+                // [밀키트 그리드 렌더링]
+                const featured = products.slice(0, 8);
+                grid.innerHTML = featured.map(p => {
+
+                    const id = p.productId || p.id || '';
+                    const image = p.imageUrl || 'https://via.placeholder.com/300?text=No+Image'; // imageUrl이 없으면 대체 이미지
+                    const name = p.name || '이름 없음';
+                    const price = p.basePrice || p.salePrice || p.price || 0; // basePrice 우선 사용
+                    const isSoldOut = p.status === 'SOLD_OUT' || p.stock === 0;
+
+                    return `
+                    <a href="/products/${id}" class="group block">
+                        <div class="relative aspect-square overflow-hidden rounded-xl bg-background-200 mb-3 border border-gray-100">
+                            <img src="${image}" alt="${name}" class="object-cover w-full h-full transition-transform group-hover:scale-105" />
+                            ${isSoldOut ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center"><span class="text-white font-bold">품절</span></div>' : ''}
+                        </div>
+                        <h3 class="text-sm md:text-base font-medium text-foreground-900 truncate">${name}</h3>
+                        <p class="text-sm font-bold text-foreground-950 mt-1">${price.toLocaleString()}원</p>
+                    </a>
+                    `;
+                }).join('');
+
+                status.classList.add('hidden');
+
+                // [카테고리 그리드 렌더링]
+
+                // 이거 나중에 수정 todo
+                const categories = [
+                    { key: 'SOUP', label: '찌개·국물', icon: 'ri-cup-line' },
+                    { key: 'NOODLE', label: '면·파스타', icon: 'ri-restaurant-line' },
+                    { key: 'MEAT', label: '고기·구이', icon: 'ri-fire-line' },
+                    { key: 'MIDNIGHT', label: '미드나이트', icon: 'ri-moon-line' }
+                ];
+
+                categoryGrid.innerHTML = categories.map((cat, index) => {
+                    // 1. 카테고리 찾기: category 필드가 없더라도 productCode에 'SOUP' 등이 포함되어 있는지 검사
+                    const members = products.filter(p =>
+                        p.category === cat.key ||
+                        p.categoryCode === cat.key ||
+                        (p.productCode && p.productCode.toUpperCase().includes(cat.key))
+                    );
+
+                    // 2. 이미지 배정: 일치하는 상품이 있으면 그 이미지, 없으면 전체 상품 중 순서대로 아무 이미지나 임시 배정
+                    let coverImg = 'https://via.placeholder.com/300?text=No+Image'; // 기본 이미지
+
+                    if (members.length > 0 && (members[0].imageUrl || members[0].image)) {
+                        coverImg = members[0].imageUrl || members[0].image;
+                    } else if (products.length > index && (products[index].imageUrl || products[index].image)) {
+                        // DB에 카테고리 정보가 아예 없어서 못 찾은 경우, 빈 화면이 되지 않게 상품 이미지를 채워 넣음
+                        coverImg = products[index].imageUrl || products[index].image;
+                    }
+
+                    return `
+                        <a href="/products?categories=${cat.key}"
+                           class="group relative overflow-hidden rounded-xl aspect-[4/5] md:aspect-square bg-background-200 shadow-sm hover:shadow-lg transition-shadow">
+                            <img src="${coverImg}" alt="${cat.label}" loading="lazy"
+                                 class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-foreground-950/85 via-foreground-950/20 to-transparent"></div>
+                            <div class="absolute bottom-0 left-0 right-0 p-4">
+                                <i class="${cat.icon} text-accent-400 text-lg mb-1 block"></i>
+                                <h3 class="text-white text-sm md:text-base font-bold leading-snug">${cat.label}</h3>
+                            </div>
+                        </a>`;
+                }).join('');
+            })
+            .catch(err => {
+                console.error('상품 로드 실패:', err);
+                status.textContent = '데이터를 그리는 중 오류가 발생했습니다. (F12 콘솔 확인)';
+                status.classList.remove('hidden');
+            });
     });
 </script>
-
 </body>
 </html>

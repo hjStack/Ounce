@@ -43,6 +43,6 @@ public class ProductAdminService {
     public void activateProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. productId=" + productId));
-        product.changeStatus(ProductStatus.ON_SALE);
+        product.changeStatus(ProductStatus.VISIBLE);
     }
 }
