@@ -13,6 +13,9 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+
   redis:
     image: redis:7-alpine
     container_name: ounce-redis
@@ -21,6 +24,8 @@ services:
     command: redis-server --appendonly yes   # 재시작 시 데이터 유지
     volumes:
       - redis-data:/data
+    restart: unless-stopped
+
   elasticsearch:
     build:
       context: .
@@ -48,17 +53,17 @@ services:
       start_period: 40s
     restart: unless-stopped
 
-  kibana:
-      image: docker.elastic.co/kibana/kibana:9.4.3
-      container_name: ounce-kibana
-      environment:
-        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      ports:
-        - "5601:5601"
-      depends_on:
-        elasticsearch:
-          condition: service_healthy
-      restart: unless-stopped
+#  kibana:
+#      image: docker.elastic.co/kibana/kibana:9.4.3
+#      container_name: ounce-kibana
+#      environment:
+#        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+#      ports:
+#        - "5601:5601"
+#      depends_on:
+#        elasticsearch:
+#          condition: service_healthy
+#      restart: unless-stopped
 
   app-blue:
     image: hyejun02/ounce-api:latest
@@ -122,24 +127,24 @@ services:
         condition: service_healthy
     restart: always
 
-  nginx:
-    image: nginx:alpine
-    container_name: ounce-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-
-    volumes:
-      # 운영 설정은 nginx.prod.conf 입니다.
-      # nginx/nginx.conf 는 로컬용(80 포트, TLS 없음)이라 서버에 마운트하면 HTTPS 가 날아갑니다.
-      # 로컬에서 nginx 를 띄울 때는 docker-compose.local.yml 이 이 마운트를 되돌립니다.
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      # certbot 인증서. 이게 없으면 443 서버 블록이 기동 실패합니다.
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      # certbot renew 용 ACME 챌린지 경로 (nginx.prod.conf 의 /.well-known/acme-challenge/).
-      - ./certbot-webroot:/var/www/certbot
-    restart: always
+#  nginx:
+#    image: nginx:alpine
+#    container_name: ounce-nginx
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#
+#    volumes:
+#      # 운영 설정은 nginx.prod.conf 입니다.
+#      # nginx/nginx.conf 는 로컬용(80 포트, TLS 없음)이라 서버에 마운트하면 HTTPS 가 날아갑니다.
+#      # 로컬에서 nginx 를 띄울 때는 docker-compose.local.yml 이 이 마운트를 되돌립니다.
+#      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+#      - ./nginx/conf.d:/etc/nginx/conf.d
+#      # certbot 인증서. 이게 없으면 443 서버 블록이 기동 실패합니다.
+#      - /etc/letsencrypt:/etc/letsencrypt:ro
+#      # certbot renew 용 ACME 챌린지 경로 (nginx.prod.conf 의 /.well-known/acme-challenge/).
+#      - ./certbot-webroot:/var/www/certbot
+#    restart: always
 
 volumes:
   db_data:

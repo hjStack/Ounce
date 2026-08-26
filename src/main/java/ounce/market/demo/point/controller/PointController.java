@@ -15,7 +15,7 @@ import ounce.market.demo.point.dto.response.PointBalanceResponse;
 import ounce.market.demo.point.dto.response.PointHistoryResponse;
 import ounce.market.demo.point.service.PointService;
 
-@Tag(name = "11. 포인트", description = "내 포인트 잔액 및 이력 조회")
+@Tag(name = "11-0. 포인트", description = "내 포인트 잔액 및 이력 조회")
 @RestController
 @RequestMapping("/api/points")
 @RequiredArgsConstructor

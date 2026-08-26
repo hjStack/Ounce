@@ -2,7 +2,7 @@
 async function handleCheckout() {
     // 장바구니가 비어 있으면 막기
     if (!cart || cart.length === 0) {
-        alert('장바구니가 비어 있습니다.');
+        ui.toast('장바구니가 비어 있습니다.');
         return;
     }
 
@@ -21,17 +21,17 @@ async function handleCheckout() {
 
         if (response.status === 201) {
             const orderId = await response.text();
-            alert(`결제가 완료되었습니다! (주문번호: ${orderId})`);
+            ui.toast(`결제가 완료되었습니다! (주문번호: ${orderId})`);
             window.location.href = `/orders/${orderId}`;
         } else if (response.status === 401) {
-            alert('로그인이 필요한 서비스입니다.');
+            ui.confirm('로그인이 필요한 서비스입니다.');
             window.location.href = '/login';
         } else {
             const errorMsg = await response.text();
-            alert('결제 실패: ' + errorMsg);
+            ui.confirm('결제 실패: ' + errorMsg);
         }
     } catch (error) {
         console.error('결제 에러:', error);
-        alert('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        ui,confirm('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     }
 }

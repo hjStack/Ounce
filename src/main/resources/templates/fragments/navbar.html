@@ -202,6 +202,28 @@
 
     <script th:inline="none">
 
+        const ui = {
+            toast: function(message, type = 'success') {
+                var existing = document.getElementById('ounce-js-toast');
+                if (existing) existing.remove();
+
+                var el = document.createElement('div');
+                el.id = 'ounce-js-toast';
+                el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
+                    ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
+                    (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
+                el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
+                    ' text-lg"></i><span></span>';
+                el.querySelector('span').textContent = message;
+                document.body.appendChild(el);
+
+                setTimeout(function () {
+                    el.style.opacity = '0';
+                    setTimeout(function () { el.remove(); }, 300);
+                }, 2600);
+            }
+        };
+
 
         document.addEventListener('DOMContentLoaded', function () {
             // 현재 페이지 내비 하이라이트.
@@ -243,8 +265,10 @@
                 } catch (err) {
                     console.error("로그아웃 요청 실패:", err);
                 }
-                alert('로그아웃 되었습니다.');
-                window.location.href = '/';
+                ui.toast('로그아웃 되었습니다.');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 500);
             };
 
             // navbar 스크립트 안, DOMContentLoaded 콜백에 추가

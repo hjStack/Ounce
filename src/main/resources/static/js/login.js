@@ -1,4 +1,28 @@
 
+
+const ui = {
+    toast: function(message, type = 'success') {
+        var existing = document.getElementById('ounce-js-toast');
+        if (existing) existing.remove();
+
+        var el = document.createElement('div');
+        el.id = 'ounce-js-toast';
+        el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
+            ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
+            (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
+        el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
+            ' text-lg"></i><span></span>';
+        el.querySelector('span').textContent = message;
+        document.body.appendChild(el);
+
+        setTimeout(function () {
+            el.style.opacity = '0';
+            setTimeout(function () { el.remove(); }, 300);
+        }, 2600);
+    }
+};
+
+
 const loginForm = document.getElementById('loginForm');
 
 if (loginForm) {
@@ -22,27 +46,29 @@ if (loginForm) {
             });
 
             if (response.ok) {
-                alert("오늘도 맛있는 하루! Ounce와 함께 열어볼까요?");
-                window.location.href = '/';
+                ui.toast("오늘도 맛있는 하루! Ounce와 함께 열어볼까요?");
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
             } else {
                 const message = await response.text();
 
                 if (message.includes('탈퇴')) {
-                    alert("이미 탈퇴한 계정이에요. 새로 가입하시려면 회원가입을 이용해주세요.");
+                    ui.toast("이미 탈퇴한 계정이에요. 새로 가입하시려면 회원가입을 이용해주세요.");
                 } else {
-                    alert("아직 Ounce의 문이 열리지 않았어요! 이메일과 비밀번호를 다시 한번 확인해 볼까요?");
+                    ui.toast("아직 Ounce의 문이 열리지 않았어요! 이메일과 비밀번호를 다시 한번 확인해 볼까요?");
                 }
             }
         } catch (error) {
             console.error("서버 통신 실패:", error);
-            alert("서버와 통신 중 문제가 발생했습니다.");
+            ui.toast("서버와 통신 중 문제가 발생했습니다.");
         }
     });
 }
 
 window.addEventListener('DOMContentLoaded', function () {
     const ua = navigator.userAgent.toLowerCase();
-    const isKakao = ua.includes('kakaotalk');
+    // const isKakao = ua.includes('kakaotalk');
     const isInApp =
         isKakao ||
         ua.includes('instagram') ||
@@ -55,11 +81,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const targetUrl = 'https://ouncefresh.com/login';
 
-    if (isKakao) {
-        location.href =
-            'kakaotalk://web/openExternal?url=' + encodeURIComponent(targetUrl);
-        return;
-    }
 
     document.body.innerHTML = `
     <div style="padding:24px; text-align:center; font-family:sans-serif;">

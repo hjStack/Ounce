@@ -11,7 +11,7 @@ import ounce.market.demo.product.repository.CategoryRepository;
 
 import java.util.List;
 
-//@Tag(name = "05. 카테고리", description = "상품 카테고리 조회")
+@Tag(name = "13. 카테고리", description = "상품 카테고리 조회")
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor

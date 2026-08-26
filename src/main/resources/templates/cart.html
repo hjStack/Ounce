@@ -121,6 +121,82 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
+    // 💡 최상단에 ui 객체 및 toast, confirm 함수 정의
+    const ui = {
+        toast: function(message, type = 'success') {
+            var existing = document.getElementById('ounce-js-toast');
+            if (existing) existing.remove();
+
+            var el = document.createElement('div');
+            el.id = 'ounce-js-toast';
+            el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
+                ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
+                (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
+            el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
+                ' text-lg"></i><span></span>';
+            el.querySelector('span').textContent = message;
+            document.body.appendChild(el);
+
+            setTimeout(function () {
+                el.style.opacity = '0';
+                setTimeout(function () { el.remove(); }, 300);
+            }, 2600);
+        },
+
+        // 🌟 새롭게 추가된 커스텀 확인(Confirm) 모달창 함수
+        confirm: function(message, onConfirm) {
+            let existing = document.getElementById('ounce-js-confirm');
+            if (existing) existing.remove();
+
+            let overlay = document.createElement('div');
+            overlay.id = 'ounce-js-confirm';
+            // 배경을 살짝 어둡게 하고 블러 처리합니다.
+            overlay.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-200';
+
+            let box = document.createElement('div');
+            box.className = 'bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-200';
+
+            box.innerHTML = `
+                <div class="flex flex-col items-center text-center mb-6 mt-2">
+                    <!-- 은은한 초록색 배경의 휴지통 아이콘 -->
+                    <div class="w-14 h-14 bg-[#447861]/10 text-[#447861] rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-900 font-bold text-lg break-keep">${message}</p>
+                    <p class="text-gray-500 text-sm mt-2">삭제된 상품은 언제든 다시 담으실 수 있어요.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="confirm-cancel" class="flex-1 py-3.5 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors">취소</button>
+                    <button id="confirm-ok" class="flex-1 py-3.5 rounded-xl bg-[#447861] text-white font-semibold hover:bg-[#396652] transition-colors shadow-sm focus:ring-2 focus:ring-[#447861]/50 focus:outline-none">확인</button>
+                </div>
+            `;
+
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+
+            // 부드럽게 나타나는 애니메이션 적용
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+            });
+
+            const closeUI = () => {
+                overlay.classList.add('opacity-0');
+                box.classList.add('scale-95');
+                setTimeout(() => overlay.remove(), 100); // 애니메이션 끝난 후 삭제
+            };
+
+            // 취소, 확인 버튼 이벤트 연결
+            document.getElementById('confirm-cancel').addEventListener('click', closeUI);
+            document.getElementById('confirm-ok').addEventListener('click', () => {
+                closeUI();
+                if (onConfirm) onConfirm(); // 확인을 눌렀을 때만 콜백 함수 실행
+            });
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         // 💡 1. 가짜 로컬 스토리지를 폭파하고, 서버 데이터를 담을 전역 배열 선언
         let cart = [];
@@ -140,8 +216,11 @@
 
                 // 🚨 인증 유효성 체크: 만약 쿠키가 없거나 문지기(JwtFilter)한테 쫓겨나면 로그인으로 리다이렉트
                 if (response.status === 401) {
-                    alert('로그인이 필요한 서비스입니다.');
-                    window.location.href = '/login';
+                    ui.toast('로그인이 필요한 서비스입니다.', 'error');
+                    // 알림을 읽을 수 있도록 1.5초 뒤에 로그인 페이지로 리다이렉트
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1500);
                     return;
                 }
 
@@ -250,39 +329,43 @@
                     item.quantity = targetQty;
                     renderCart();
                 } else {
-                    alert('수량 수정에 실패했습니다.');
+                    ui.toast('수량 수정에 실패했습니다.', 'error');
                 }
             } catch (err) {
                 console.error('수량 업데이트 네트워크 오류:', err);
+                ui.toast('서버와의 통신에 실패했습니다.', 'error');
             }
         };
 
         // 💡 5. 장바구니 아이템 삭제 API 연동 (DELETE)
         window.removeItem = async function(cartId) {
-            if (!confirm('선택하신 상품을 장바구니에서 완전히 뺄까요?')) return;
+            // 투박한 브라우저 알림창 대신 예쁜 커스텀 모달 띄우기
+            ui.confirm('선택하신 상품을 장바구니에서 완전히 뺄까요?', async () => {
+                try {
+                    const response = await fetch(`/api/carts/${cartId}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
 
-            try {
-                const response = await fetch(`/api/carts/${cartId}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    cart = cart.filter(i => i.cartId !== cartId);
-                    renderCart();
-                } else {
-                    alert('상품 제거에 실패했습니다.');
+                    if (response.ok) {
+                        cart = cart.filter(i => i.cartId !== cartId);
+                        renderCart();
+                        ui.toast('상품이 삭제되었습니다.');
+                    } else {
+                        ui.toast('상품 제거에 실패했습니다.', 'error');
+                    }
+                } catch (err) {
+                    console.error('삭제 처리 네트워크 오류:', err);
+                    ui.toast('서버와의 통신에 실패했습니다.', 'error');
                 }
-            } catch (err) {
-                console.error('삭제 처리 네트워크 오류:', err);
-            }
+            });
         };
 
         window.handleCheckout = function() {
             window.location.href = '/orders';
         };
 
-        // --- 실시간 알림 애니메이션 배너 로직 (대표님의 기존 코드 보존) ---
+        // --- 실시간 알림 애니메이션 배너 로직 ---
         const viewerCountEl = document.getElementById('viewer-count');
         let currentViewers = 42;
         setInterval(() => {
