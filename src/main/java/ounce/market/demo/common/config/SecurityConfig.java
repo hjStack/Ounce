@@ -52,12 +52,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/members/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/orders/**").authenticated()
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        // 관리자 화면(/admin/qna 등)도 API 와 같은 권한으로 막는다.
+                        // 안 적으면 anyRequest 로 떨어져서 로그인한 일반 회원도 화면이 열린다.
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/products/search").permitAll()
                         .requestMatchers("/dev/**").permitAll()
                         .requestMatchers("/timedeal").permitAll()   // 미드나이트 페이지 자체도 열기
                         // 반면 /subscription(내 구독)은 여기 안 적어서 anyRequest 로 로그인이 걸린다.
                         .requestMatchers("/subscribe").permitAll()
+                        // 고객센터: FAQ 는 누구나 봐야 한다. 문의 API(/api/qna/**)만 anyRequest 로 로그인이 걸린다.
+                        .requestMatchers("/support").permitAll()
                         .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인

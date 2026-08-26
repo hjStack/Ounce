@@ -1,7 +1,12 @@
 # 로컬 실행 가이드 (Docker)
 
 로컬은 전부 컨테이너로 띄웁니다. `docker-compose.yml`(배포용 블루/그린 토폴로지)은 손대지 않고,
-`docker-compose.override.yml`이 자동 병합되어 로컬용 설정을 덮습니다.
+`docker-compose.local.yml`이 병합되어 로컬용 설정을 덮습니다.
+
+이 파일은 일부러 `docker-compose.override.yml`이 **아닌** 이름입니다. override 라는 이름이면
+Compose 가 어디서든 자동 병합하는데, 이 파일은 git 으로 운영 서버에도 내려가기 때문에
+서버에서 `docker compose up` 한 번에 로컬 설정이 운영에 적용됩니다.
+대신 `.env` 의 `COMPOSE_FILE` 로 로컬에서만 병합합니다 (0번 참고).
 
 **앱 주소: http://localhost:8081**
 
@@ -18,6 +23,19 @@ docker info >/dev/null && echo "docker ready"
 ```
 
 `.env` 에 `MYSQL_ROOT_PASSWORD`, `JWT_SECRET` 이 있어야 합니다. (이미 있음)
+
+그리고 **`.env` 에 아래 한 줄이 반드시 있어야** 아래의 `docker compose ...` 명령들이
+로컬 설정으로 동작합니다. 이 줄이 없으면 운영 토폴로지(app-blue+green+nginx, 8080)가 뜹니다.
+
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose.local.yml
+```
+
+확인:
+
+```bash
+docker compose config | grep -E "8081|ounce-api:local"   # 나오면 병합 정상
+```
 
 ---
 
@@ -125,7 +143,7 @@ docker compose logs app-blue | grep -v "Hibernate:"
 SQL_LOG=DEBUG docker compose up -d app-blue
 ```
 
-로그 레벨은 override 파일의 `LOGGING_LEVEL_*` 환경변수로 조절합니다.
+로그 레벨은 `docker-compose.local.yml` 의 `LOGGING_LEVEL_*` 환경변수로 조절합니다.
 `local` 프로필이 `show_sql`/`format_sql`/`use_sql_comments` 를 다 켜두기 때문에
 기본값으로 `org.hibernate.SQL` 을 `WARN` 으로 눌러놨습니다.
 
@@ -148,8 +166,9 @@ docker compose down -v               # ⚠️ 볼륨까지 삭제 = DB 데이터
 | `Cannot connect to the Docker daemon` | Docker Desktop 이 꺼짐 → `open -a Docker` |
 | `COPY target/*-SNAPSHOT.jar: no such file` | jar 를 안 만듦 → `./mvnw -DskipTests package` |
 | `Access denied for user 'root'` | `db_data` 볼륨이 옛 비밀번호로 초기화됨. MySQL 은 첫 기동 때만 `MYSQL_ROOT_PASSWORD` 를 씀 → `docker compose down -v` (⚠️ DB 데이터 삭제) |
-| `port is already allocated` (6379) | 호스트 brew redis 가 점유 중. override 에서 6380 으로 옮겨놨으니 그대로 두면 됨. 다른 포트가 충돌하면: `lsof -i :3306 -i :8081 -i :9200 -sTCP:LISTEN` |
-| Redis 연결 실패 | `docker-compose.yml` 의 `SPRING_REDIS_HOST` 는 Boot 2 이름이라 Boot 4 에서 무시됨. override 의 `SPRING_DATA_REDIS_HOST` 가 정답 |
+| `port is already allocated` (6379) | 호스트 brew redis 가 점유 중. `docker-compose.local.yml` 에서 6380 으로 옮겨놨으니 그대로 두면 됨. 다른 포트가 충돌하면: `lsof -i :3306 -i :8081 -i :9200 -sTCP:LISTEN` |
+| 앱이 8081 이 아니라 8080 에 뜬다 / `app-green`·`nginx` 가 같이 뜬다 | `.env` 의 `COMPOSE_FILE` 이 없어서 `docker-compose.local.yml` 이 병합되지 않음 → 0번 참고 |
+| Redis 연결 실패 (`localhost/<unresolved>:6379`) | Boot 4 는 `spring.data.redis.*` 를 읽습니다. `SPRING_REDIS_HOST` 는 Boot 2 이름이라 **에러 없이 무시**되고 localhost 로 붙습니다. `SPRING_DATA_REDIS_HOST` 가 정답 (2026-08-26 운영 502 장애 원인) |
 | ES 연결 실패 | `SEARCH_ENGINE=elasticsearch` 인데 `--profile search` 를 안 붙임 |
 | ES 이미지 pull 실패 | `9.4.3` 태그 확인. `Dockerfile.es` 가 nori 플러그인을 설치하므로 첫 빌드가 느림 |
 

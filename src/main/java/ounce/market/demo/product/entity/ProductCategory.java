@@ -1,9 +1,9 @@
 package ounce.market.demo.product.entity;
 
-import jakarta.persistence.Entity;
-
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -20,4 +20,13 @@ public class ProductCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    private ProductCategory(Product product, Category category) {
+        this.product = product;
+        this.category = category;
+    }
+
+    public static ProductCategory of(Product product, Category category) {
+        return new ProductCategory(product, category);
+    }
 }

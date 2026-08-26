@@ -90,7 +90,10 @@ public class MemberService {
         // 2. 검증을 무사히 통과하면 JWTUtil을 불러 Access Token을 발급합니다!
         // (원래는 Refresh Token도 여기서 같이 발급해야 합니다)
 
-        String accessToken= jwtUtil.createAccessToken(request.getEmail(), "ROLE_USER");
+        String accessToken = jwtUtil.createAccessToken(
+                request.getEmail(),
+                "ROLE_" + member.getRole().name()
+        );
 
         return accessToken;
     }
