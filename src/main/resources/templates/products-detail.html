@@ -733,6 +733,90 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
+
+    const ui = {
+        toast: function(message, type = 'success') {
+            var existing = document.getElementById('ounce-js-toast');
+            if (existing) existing.remove();
+
+            var el = document.createElement('div');
+            el.id = 'ounce-js-toast';
+            el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
+                ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
+                (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
+            el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
+                ' text-lg"></i><span></span>';
+            el.querySelector('span').textContent = message;
+            document.body.appendChild(el);
+
+            setTimeout(function () {
+                el.style.opacity = '0';
+                setTimeout(function () { el.remove(); }, 300);
+            }, 2600);
+        },
+
+        confirm: function(message, onConfirm, iconType = 'delete') {
+            let existing = document.getElementById('ounce-js-confirm');
+            if (existing) existing.remove();
+
+            let overlay = document.createElement('div');
+            overlay.id = 'ounce-js-confirm';
+            overlay.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-100 ease-out';
+
+            let box = document.createElement('div');
+            box.className = 'bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-all duration-100 ease-out';
+
+            let iconSvg = '';
+            let subText = '';
+
+            if (iconType === 'login') {
+                iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>`;
+                subText = '로그인 후 Ounce의 특별한 혜택을 누려보세요.';
+            } else {
+                iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>`;
+                subText = '삭제된 데이터는 복구할 수 없어요.';
+            }
+
+            box.innerHTML = `
+                <div class="flex flex-col items-center text-center mb-6 mt-2">
+                    <div class="w-14 h-14 bg-[#447861]/10 text-[#447861] rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${iconSvg}
+                        </svg>
+                    </div>
+                    <p class="text-gray-900 font-bold text-lg break-keep">${message}</p>
+                    <p class="text-gray-500 text-sm mt-2">${subText}</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="confirm-cancel" class="flex-1 py-3.5 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors">취소</button>
+                    <button id="confirm-ok" class="flex-1 py-3.5 rounded-xl bg-[#447861] text-white font-semibold hover:bg-[#396652] transition-colors shadow-sm focus:ring-2 focus:ring-[#447861]/50 focus:outline-none">확인</button>
+                </div>
+            `;
+
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            });
+
+            const closeUI = () => {
+                overlay.classList.add('opacity-0');
+                box.classList.remove('scale-100');
+                box.classList.add('scale-95');
+                setTimeout(() => overlay.remove(), 100);
+            };
+
+            document.getElementById('confirm-cancel').addEventListener('click', closeUI);
+            document.getElementById('confirm-ok').addEventListener('click', () => {
+                closeUI();
+                if (onConfirm) onConfirm();
+            });
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         // ── URL에서 productId 추출 (/products-detail/{id}) ──
         const productId = window.location.pathname.split('/').filter(Boolean).pop();
@@ -988,22 +1072,28 @@
         }
 
         async function handleDeleteReview(reviewId) {
-            if (!confirm('리뷰를 삭제하시겠습니까?')) return;
+            // ui.confirm을 띄우고, '확인'을 눌렀을 때만 작동할 로직을 화살표 함수 () => {} 안에 넣습니다.
+            ui.confirm('작성하신 리뷰를 삭제하시겠습니까?', async () => {
 
-            try {
-                const res = await fetch(`/api/reviews/${reviewId}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-                if (res.status === 401) { requireLogin(); return; }
-                if (res.status === 403) { alert('본인이 작성한 리뷰만 삭제할 수 있습니다.'); return; }
-                if (!res.ok) { alert('리뷰 삭제에 실패했습니다.'); return; }
+                try {
+                    const res = await fetch(`/api/reviews/${reviewId}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
 
-                loadReviews(productId); // 삭제 후 목록만 다시 불러오기
-            } catch (err) {
-                console.error('리뷰 삭제 오류:', err);
-                alert('오류가 발생했습니다.');
-            }
+                    if (res.status === 401) { requireLogin(); return; }
+                    if (res.status === 403) { ui.toast('본인이 작성한 리뷰만 삭제할 수 있습니다.', 'error'); return; }
+                    if (!res.ok) { ui.toast('리뷰 삭제에 실패했습니다.', 'error'); return; }
+
+                    loadReviews(productId);
+                    ui.toast('리뷰가 삭제되었습니다.'); // 삭제 성공 시에만 토스트 알림!
+
+                } catch (err) {
+                    console.error('리뷰 삭제 오류:', err);
+                    ui.toast('오류가 발생했습니다.', 'error');
+                }
+
+            }, 'delete');
         }
 
         // ── 탭 전환 ──
@@ -1026,7 +1116,7 @@
             }
             document.getElementById('btn-cart').addEventListener('click', async () => {
                 const ok = await addToCart();
-                if (ok) alert('장바구니에 담았습니다.');
+                if (ok) ui.toast('장바구니에 담았습니다.');
             });
             document.getElementById('btn-buy').addEventListener('click', async () => {
                 const ok = await addToCart();
@@ -1057,16 +1147,23 @@
 
         // ── 장바구니 / 바로구매 ──
         function requireLogin() {
-            if (confirm('로그인이 필요합니다.\n로그인 페이지로 이동할까요?')) {
+            ui.toast('로그인이 필요한 서비스입니다.', 'error');
+
+            // 2. 사용자가 알림을 읽을 수 있도록 1.5초 뒤에 로그인 페이지로 자동 이동합니다.
+            setTimeout(() => {
                 window.location.href = '/login';
-            }
+            }, 1000);
         }
 
         async function addToCart() {
-            if (!purchasable) { alert('품절된 상품입니다.'); return false; }
+            if (!purchasable) {
+                ui.toast('품절된 상품입니다.');
+                return false; }
             if (!isLoggedIn) { requireLogin(); return false; }
 
-            if (quantity > 10) { alert('한 번에 최대 10개까지 담을 수 있습니다.'); return false; }
+            if (quantity > 10) {
+                ui.toast('한 번에 최대 10개까지 담을 수 있습니다.');
+                return false; }
 
             try {
                 const res = await fetch('/api/carts/items', {
@@ -1077,12 +1174,12 @@
                 });
                 if (res.status === 401) { requireLogin(); return false; }
                 if (!res.ok) {
-                    alert('상품 1개당 최대 10개까지 담을 수 있습니다.');
+                    ui.toast('상품 1개당 최대 10개까지 담을 수 있습니다.');
                     return false; }
                 return true;
             } catch (err) {
                 console.error('담기 오류:', err);
-                alert('오류가 발생했습니다.');
+                ui.toast('오류가 발생했습니다.');
                 return false;
             }
         }
@@ -1130,7 +1227,7 @@
         // 제출 → /api/products/{id}/reviews (백엔드 구현 필요)
         document.getElementById('review-submit').addEventListener('click', async () => {
             const content = $reviewText.value.trim();
-            if (content.length < 5) { alert('리뷰 내용을 5자 이상 입력해주세요.'); return; }
+            if (content.length < 5) { ui.toast('리뷰 내용을 5자 이상 입력해주세요.'); return; }
 
             try {
                 const res = await fetch(`/api/products/${productId}/reviews`, {
@@ -1140,13 +1237,13 @@
                     body: JSON.stringify({ rating: selectedRating, content })
                 });
                 if (res.status === 401) { requireLogin(); return; }
-                if (!res.ok) { alert('리뷰 등록에 실패했습니다.'); return; }
-                alert('리뷰가 등록되었습니다.');
+                if (!res.ok) { ui.toast('리뷰 등록에 실패했습니다.'); return; }
+                ui.toast('리뷰가 등록되었습니다.');
                 closeReviewModal();
                 loadReviews(productId); // 리뷰 목록만 다시 불러오기 (전체 새로고침 불필요)
             } catch (err) {
                 console.error('리뷰 등록 오류:', err);
-                alert('오류가 발생했습니다.');
+                ui.toast('오류가 발생했습니다.');
             }
         });
 

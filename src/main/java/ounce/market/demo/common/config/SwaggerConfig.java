@@ -39,12 +39,19 @@ public class SwaggerConfig {
                         new Tag().name("06. 미드나이트").description("미드나이트 관련 API"),
                         new Tag().name("07. 미드나이트 알림").description("알림 관련 API"),
                         new Tag().name("08. 리뷰").description("리뷰 관련 API"),
-                        new Tag().name("09. 쿠폰").description("쿠폰 관련 API"),
-                        new Tag().name("10. 배송").description("배송 관련 API"),
-                        new Tag().name("11. 포인트").description("포인트 관련 API"),
-                        new Tag().name("12. Q&A").description("Q&A 관련 API")
+                        new Tag().name("09-0. 쿠폰").description("쿠폰 관련 API"),
+                        new Tag().name("09-1. 쿠폰 관리자").description("쿠폰 관리자 API"),
+                        new Tag().name("10-0. 배송").description("배송 관련 API"),
+                        new Tag().name("10-1. 배송 관리자").description("배송 관리자 API"),
+                        new Tag().name("11-0. 포인트").description("포인트 관련 API"),
+                        new Tag().name("11-1. 포인트 관리자").description("포인트 관리자 API"),
+                        new Tag().name("12-0. Q&A").description("Q&A 관련 API"),
+                        new Tag().name("12-1. Q&A 관리자").description("Q&A 관리자 API"),
+                        new Tag().name("13. 카테고리").description("카테고리 관련 API")
                 ))
                 .addSecurityItem(securityRequirement)   // ✅ 메서드 호출
                 .components(components);                // ✅ 메서드 호출
     }
+
+
 }
