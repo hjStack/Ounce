@@ -1,6 +1,7 @@
 package ounce.market.demo.common.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,7 @@ import ounce.market.demo.product.repository.StockRedisRepository;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class StockInitializer implements ApplicationRunner {
 
     private final ProductRepository productRepository;
@@ -16,8 +18,13 @@ public class StockInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        productRepository.findAll().forEach(p ->
-                stockRedisRepository.initStockIfAbsent(p.getProductId(), p.getStock()));
+
+        try {
+            productRepository.findAll().forEach(p ->
+                    stockRedisRepository.initStockIfAbsent(p.getProductId(), p.getStock()));
+        } catch (Exception e) {
+            log.error("재고 초기화 실패 — 앱은 계속 기동합니다", e);
+        }
     }
 }
 
