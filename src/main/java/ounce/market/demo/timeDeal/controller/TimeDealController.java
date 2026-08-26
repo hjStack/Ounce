@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/timedeal")
 @RequiredArgsConstructor
-
 public class TimeDealController {
 
     private final TimeDealService timeDealService;
