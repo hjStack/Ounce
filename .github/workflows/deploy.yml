@@ -60,16 +60,6 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/ounce-api:latest
 
       # 7. 설정 파일을 운영 서버로 전송
-      #
-      # 서버에서 git pull 을 하지 않는 이유: 이 레포는 private 이고 서버에는
-      # GitHub 자격증명이 없습니다(credential helper·.git-credentials·SSH 키 전부 없음).
-      # 러너는 이미 이 커밋을 체크아웃한 상태이므로, 서버가 당겨오는 대신 러너가 밀어넣습니다.
-      # 이렇게 하면 서버에 새 비밀키를 심지 않아도 레포가 유일한 설정 소스가 됩니다.
-      #
-      # ⚠️ nginx/conf.d/ 는 일부러 제외합니다.
-      #    그 안의 service-env.inc 는 설정이 아니라 "지금 어느 색이 서비스 중인지"라는
-      #    런타임 상태입니다. 배포마다 덮어쓰면 deploy.sh 의 색 판별이 실제와 어긋나서,
-      #    트래픽을 받고 있는 컨테이너를 재생성하는 다운타임이 발생합니다.
       - name: 📦 설정 파일 운영 서버로 전송
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: appleboy/scp-action@master
@@ -90,6 +80,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 20m
           script: |
             set -e
             cd /home/${{ secrets.SERVER_USERNAME }}/ounce
