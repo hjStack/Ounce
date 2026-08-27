@@ -816,6 +816,14 @@
             });
         }
     };
+    //
+    // document.getElementById('btn-cart').addEventListener('click', async () => {
+    //     const ok = await addToCart();
+    //     if (ok) {
+    //         ui.toast('장바구니에 담았습니다.');
+    //         window.refreshCartBadge();
+    //     }
+    // });
 
     document.addEventListener('DOMContentLoaded', function () {
         // ── URL에서 productId 추출 (/products-detail/{id}) ──
@@ -1116,7 +1124,10 @@
             }
             document.getElementById('btn-cart').addEventListener('click', async () => {
                 const ok = await addToCart();
-                if (ok) ui.toast('장바구니에 담았습니다.');
+                if (ok) {
+                    ui.toast('장바구니에 담았습니다.');
+                    window.refreshCartBadge();
+                }
             });
             document.getElementById('btn-buy').addEventListener('click', async () => {
                 const ok = await addToCart();

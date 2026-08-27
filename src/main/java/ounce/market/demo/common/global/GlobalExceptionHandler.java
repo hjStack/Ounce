@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ounce.market.demo.common.Exception.DuplicateEmailException;
 import ounce.market.demo.common.dto.ErrorResponse;
 
+import java.nio.file.AccessDeniedException;
+
 // @RestControllerAdvice: 프로젝트 내의 모든 @RestController에서 발생하는 에러를 여기서 가로챕니다.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,6 +41,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDenied(AccessDeniedException e) {
+        return ResponseEntity.status(403).body(e.getMessage());
     }
 
 //    @ExceptionHandler(Exception.class)

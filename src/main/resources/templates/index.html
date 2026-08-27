@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/head :: head(title='Ounce - 1인분 밀키트')}"></head>
-<!-- is-home: 내비바의 구독 pill 을 숨기는 표식.
-     홈은 아래 초록 구독 배너가 진입로라 pill 까지 두면 같은 CTA 가 두 번 나온다.
-     (다른 페이지에는 배너가 없으므로 거기서는 pill 이 유일한 구독 진입로다) -->
+<head th:replace="~{fragments/head :: head(title='Ounce - 1인분 밀키트')}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;900&display=swap" rel="stylesheet">
+</head>
 <body class="bg-background-cream is-home">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -14,21 +13,18 @@
 
 <main class="pt-20 md:pt-24">
 
-    <!-- ══ Hero ══════════════════════════════════════════════════
-         이전에는 가운데 정렬 Ounce 워드마크 블록과 이 에디토리얼 히어로가
-         브랜드 소개를 두 번 반복했다. 내비바에 이미 워드마크가 있으니 하나로 합쳤다. -->
+    <!-- ══ Hero ══════════════════════════════════════════════════ -->
     <section class="w-full px-6 md:px-8 lg:px-12 pt-8 pb-14 md:pt-12 md:pb-20 max-w-7xl mx-auto
                     flex flex-col md:flex-row items-center gap-12 lg:gap-20">
         <div class="w-full md:w-1/2 flex flex-col items-start text-left z-10">
             <div class="flex items-center gap-4 mb-6">
                 <div class="w-8 h-px bg-black"></div>
-                <!-- 0.2em 자간은 영문 라벨용. 한글에선 글자가 흩어져 보여서 0.12em 로 -->
-                <span class="text-black text-xs font-bold tracking-[0.12em]">1인분 밀키트</span>
+                <span class="text-black text-xs font-bold tracking-[0.12em]">남는 재료 없이 깔끔하게</span>
             </div>
 
             <h3 class="text-4xl md:text-5xl lg:text-[3.4rem] font-black text-foreground-950 leading-[1.15] mb-6 tracking-tight">
-                혼자 먹는 한 끼,<br/>
-                <span class="text-black">딱 1인분으로</span>
+                딱 맞는 1인분만,
+                <span class="block mt-4 text-black">낭비 없는 맛있는 습관</span>
             </h3>
 
             <p class="text-foreground-600 text-base md:text-lg mb-8 leading-relaxed">
@@ -37,26 +33,6 @@
                 냄비 하나, 10분이면 완성됩니다.
             </p>
 
-<!--            <div class="flex flex-wrap items-center gap-3 mb-12">-->
-<!--                <a href="/subscribe"-->
-<!--                   class="px-6 py-3.5 bg-ink-500 text-white text-sm font-semibold rounded-lg hover:bg-ink-600-->
-<!--                          transition-colors flex items-center gap-2 shadow-sm">-->
-<!--                    <i class="ri-calendar-check-line text-base"></i>-->
-<!--                    구독 시작하기-->
-<!--                    <i class="ri-arrow-right-line text-base"></i>-->
-<!--                </a>-->
-<!--                <a href="/timedeal"-->
-<!--                   class="px-6 py-3.5 bg-white border border-background-200 text-foreground-700 text-sm font-semibold-->
-<!--                          rounded-lg hover:bg-background-100 transition-colors flex items-center gap-2 shadow-sm">-->
-<!--                    <i class="ri-moon-line text-deal-500 text-base"></i>-->
-<!--                    미드나이트 세일-->
-<!--                </a>-->
-<!--            </div>-->
-
-            <!-- 숫자를 키우고 라벨은 작게: 모바일에서 값이 먼저 읽히게.
-                 통계 4개가 30px 글씨라 좁은 화면(360px 이하)에서는 한 줄에 안 들어가므로
-                 flex-wrap 으로 접히게 두고, 구분선은 별도 요소 대신 각 항목의 왼쪽
-                 테두리로 처리했다 (별도 divider 는 줄바꿈될 때 외톨이로 남음). -->
             <div class="flex flex-wrap items-center gap-x-5 gap-y-4 sm:gap-x-7 md:gap-x-9">
                 <div>
                     <p class="text-3xl font-bold leading-none text-foreground-950 mb-1.5">
@@ -72,31 +48,26 @@
                     <p class="text-3xl font-bold leading-none text-foreground-950 mb-1.5">7시</p>
                     <p class="text-[10px] tracking-wide text-foreground-400">새벽 배송</p>
                 </div>
-                <!-- 멤버 수는 0명일 때 "0+" 로 보이는 게 더 나빠서 값이 있을 때만 노출 -->
-                <div id="member-stat" class="hidden sm:border-l sm:border-background-200 sm:pl-7 md:pl-9">
-                    <p class="text-3xl font-bold leading-none text-foreground-950 mb-1.5">
-                        <span id="member-count">–</span><span class="text-lg font-semibold">+</span>
-                    </p>
-                    <p class="text-[10px] tracking-wide text-foreground-400">Ounce 멤버</p>
-                </div>
             </div>
         </div>
 
         <div class="w-full md:w-1/2 flex flex-col gap-4">
-            <div class="bg-deal-50 p-5 rounded-xl shadow-sm border border-deal-100 flex items-start gap-4
-                        hover:shadow-md transition-shadow">
-                <div class="w-11 h-11 bg-deal-500 rounded-full flex items-center justify-center shrink-0">
-                    <i class="ri-moon-line text-white text-xl"></i>
+            <!-- 🌙 미드나이트 강조 카드 (다크 슬레이트 테마) -->
+            <div class="bg-slate-900 p-5 rounded-xl shadow-lg border border-slate-800 flex items-start gap-4
+                        hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                <div class="w-11 h-11 bg-indigo-500/20 rounded-full flex items-center justify-center shrink-0 border border-indigo-500/30">
+                    <i class="ri-moon-line text-indigo-400 text-xl"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-foreground-950 mb-0.5">미드나이트 세일</h3>
-                    <p class="text-xs text-deal-500 font-medium mb-1.5">매일 22:00 - 23:00</p>
-                    <p class="text-xs text-foreground-500 leading-relaxed">
+                    <h3 class="text-sm font-bold text-white mb-0.5">미드나이트 세일</h3>
+                    <p class="text-xs text-indigo-400 font-medium mb-1.5">매일 22:00 - 23:00</p>
+                    <p class="text-xs text-slate-400 leading-relaxed">
                         한 시간만 열리는 특별한 가격의 밀키트. 선착순 한정 수량.
                     </p>
                 </div>
             </div>
 
+            <!-- 새벽 배송 카드 (화이트) -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-background-200 flex items-start gap-4
             hover:shadow-md transition-shadow">
                 <div class="w-11 h-11 bg-secondary-600 rounded-full flex items-center justify-center shrink-0">
@@ -111,6 +82,7 @@
                 </div>
             </div>
 
+            <!-- 1인분 소분 카드 (화이트) -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-background-200 flex items-start gap-4
             hover:shadow-md transition-shadow">
                 <div class="w-11 h-11 bg-secondary-600 rounded-full flex items-center justify-center shrink-0">
@@ -127,11 +99,7 @@
         </div>
     </section>
 
-    <!-- ══ 구독 배너 ═════════════════════════════════════════════
-         홈의 구독 진입로. 아래 미드나이트 배너와 같은 폭·같은 골격을 쓰되
-         색만 초록(구독)/검정(세일)으로 갈라서 두 배너가 한 세트로 읽히게 했다.
-         구독이 본류이므로 순서상 미드나이트보다 위에 둔다.
-         색은 Tailwind 토큰 대신 head.html 의 GREEN 500/600 을 그대로 쓴 클래스다. -->
+    <!-- ══ 구독 배너 ═════════════════════════════════════════════ -->
     <section class="w-full px-4 md:px-8 lg:px-12 pb-4 max-w-7xl mx-auto">
         <a href="/subscribe"
            class="group flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl
@@ -156,30 +124,27 @@
         </a>
     </section>
 
-    <!-- ══ 미드나이트 슬림 배너 ═══════════════════════════════════
-         이 자리에 있던 큰 검은 박스는 컨트롤러가 timeDealProducts 를 채우지 않아
-         항상 "진행 중인 타임딜 상품이 없습니다" 만 띄우는 빈 화면이었다.
-         타임딜은 /timedeal 페이지가 담당하고 홈에는 한 줄 안내만 남긴다. -->
+    <!-- ══ 미드나이트 슬림 배너 (인디고 테마) ═════════════════════════ -->
     <section class="w-full px-4 md:px-8 lg:px-12 pb-14 md:pb-20 max-w-7xl mx-auto">
         <a href="/timedeal"
            class="group flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl
-                  bg-foreground-950 px-6 py-5 md:px-8 shadow-lg hover:bg-foreground-900 transition-colors">
+                  bg-indigo-950 border border-indigo-900 px-6 py-5 md:px-8 shadow-lg hover:bg-indigo-900 transition-colors">
             <div class="flex items-center gap-4">
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-deal-500">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-500 shadow-inner">
                     <i class="ri-moon-line text-white text-lg"></i>
                 </span>
                 <div>
                     <p class="text-sm font-bold text-white">미드나이트 세일 — 매일 밤 10시부터 한 시간</p>
-                    <p class="text-xs text-white/50 mt-0.5">선착순 한정 수량 · 내일 아침 7시 배송</p>
+                    <p class="text-xs text-indigo-300 mt-0.5">선착순 한정 수량 · 내일 아침 7시 배송</p>
                 </div>
             </div>
             <div class="flex items-center gap-4 shrink-0">
-                <div class="flex items-center gap-1.5 text-white/70">
-                    <i class="ri-time-line text-deal-500 text-sm"></i>
+                <div class="flex items-center gap-1.5 text-indigo-300">
+                    <i class="ri-time-line text-indigo-400 text-sm"></i>
                     <span class="text-xs">자정까지</span>
-                    <span id="mid-countdown" class="text-sm font-semibold tabular-nums text-white">--:--:--</span>
+                    <span id="mid-countdown" class="text-sm font-bold tabular-nums text-white">--:--:--</span>
                 </div>
-                <span class="flex items-center gap-1 text-xs font-semibold text-deal-500 whitespace-nowrap">
+                <span class="flex items-center gap-1 text-xs font-bold text-indigo-400 whitespace-nowrap group-hover:text-white transition-colors">
                     보러 가기 <i class="ri-arrow-right-line transition-transform group-hover:translate-x-0.5"></i>
                 </span>
             </div>
@@ -209,14 +174,10 @@
         </div>
 
         <div id="home-product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5"></div>
-
-        <!-- 로딩 중에는 스켈레톤을 그리므로 이 영역은 빈 목록/실패 안내 전용 -->
         <div id="home-grid-status" class="hidden py-16 text-center text-sm text-foreground-400"></div>
     </section>
 
-    <!-- ══ 카테고리 ═══════════════════════════════════════════════
-         이 자리에 있던 dailyDeals 프래그먼트는 categories 모델 속성이 없어서
-         제목만 있는 회색 빈 섹션으로 렌더됐다. 실제 상품 이미지로 채운다. -->
+    <!-- ══ 카테고리 ═══════════════════════════════════════════════ -->
     <section class="w-full bg-background-100 py-16 md:py-24">
         <div class="w-full px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-10">
@@ -238,27 +199,34 @@
         </div>
     </section>
 
-    <!-- ══ 가입 CTA ═══════════════════════════════════════════════ -->
-    <section class="w-full px-4 md:px-8 lg:px-12 py-16 md:py-20 max-w-7xl mx-auto">
-        <div class="rounded-2xl bg-foreground-950 px-6 py-12 md:px-12 text-center shadow-lg">
-            <div class="max-w-xl mx-auto">
-                <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">놓치지 마세요</h2>
-                <p class="text-sm text-white/50 mb-7 leading-relaxed">
-                    매일 밤 10시, 한 시간만 열리는 미드나이트 세일.<br/>
-                    회원가입하고 알림을 받아보세요.
+    <!-- ══ 가입 CTA (강조된 미드나이트 테마) ═════════════════════════ -->
+    <section class="w-full px-4 md:px-8 lg:px-12 py-16 md:py-24 max-w-7xl mx-auto">
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 px-6 py-14 md:px-12 text-center shadow-2xl border border-indigo-800/50">
+
+            <!-- 별빛/야간 배경 효과 (옵션) -->
+            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 50% 50%, #ffffff 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+            <div class="relative z-10 max-w-xl mx-auto">
+                <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 mb-6 border border-indigo-500/30">
+                    <i class="ri-moon-fill text-2xl"></i>
+                </span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">매일 밤 10시의 혜택</h2>
+                <p class="text-base text-indigo-200 mb-8 leading-relaxed">
+                    한 시간만 열리는 미드나이트 세일.<br/>
+                    매일 새로운 메뉴를 상상할 수 없는 가격에 만나보세요.
                 </p>
 
                 <a sec:authorize="isAnonymous()" href="/signup"
-                   class="inline-flex items-center gap-2 px-8 py-3.5 bg-deal-500 text-white text-sm font-semibold
-                          rounded-lg hover:bg-deal-600 transition-colors">
-                    <i class="ri-notification-3-line text-base"></i>
+                   class="inline-flex items-center gap-2 px-8 py-4 bg-indigo-500 text-white text-sm font-bold
+                          rounded-xl hover:bg-indigo-600 hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-indigo-500/30">
+                    <i class="ri-notification-3-line text-lg"></i>
                     미드나이트 알림 받기
                 </a>
 
                 <a sec:authorize="isAuthenticated()" href="/timedeal"
-                   class="inline-flex items-center gap-2 px-8 py-3.5 bg-white/10 text-white text-sm font-semibold
-                          rounded-lg hover:bg-white/20 transition-colors ring-1 ring-white/15">
-                    <i class="ri-check-line text-base text-deal-500"></i>
+                   class="inline-flex items-center gap-2 px-8 py-4 bg-white/10 text-white text-sm font-bold
+                          rounded-xl hover:bg-white/20 transition-all ring-1 ring-white/15">
+                    <i class="ri-check-line text-lg text-indigo-400"></i>
                     알림 수신 중 — 세일 보러 가기
                 </a>
             </div>
@@ -308,17 +276,14 @@
             })
             .catch(() => { /* 실패 시 무시 */ });
 
-        /* ── 상품 리스트 & 카테고리 렌더링 (디버깅 모드) ────────────── */
+        /* ── 상품 리스트 & 카테고리 렌더링 ────────────── */
         const grid = document.getElementById('home-product-grid');
         const status = document.getElementById('home-grid-status');
         const categoryGrid = document.getElementById('category-grid');
 
-        // API로 상품 목록 가져오기
         fetch('/api/products?size=20')
             .then(res => res.json())
             .then(data => {
-
-                // ProductSliceResponse 안의 실제 상품 배열 찾기
                 const products = data.products || data.content || data.items || [];
 
                 if (products.length === 0) {
@@ -327,21 +292,18 @@
                     return;
                 }
 
-                // [밀키트 그리드 렌더링]
                 const featured = products.slice(0, 8);
                 grid.innerHTML = featured.map(p => {
-
                     const id = p.productId || p.id || '';
-                    const image = p.imageUrl || 'https://via.placeholder.com/300?text=No+Image'; // imageUrl이 없으면 대체 이미지
+                    const image = p.imageUrl || 'https://via.placeholder.com/300?text=No+Image';
                     const name = p.name || '이름 없음';
-                    const price = p.basePrice || p.salePrice; // basePrice 우선 사용
+                    const price = p.basePrice || p.salePrice;
                     const isSoldOut = p.status === 'SOLD_OUT' || p.stock === 0;
 
                     return `
                     <a href="/products-detail/${id}" class="group block">
-                        <!-- 💡 href 부분을 상세 페이지 주소에 맞게 변경했습니다 -->
                         <div class="relative aspect-square overflow-hidden rounded-xl bg-background-200 mb-3 border border-gray-100">
-                            <img src="${image}" alt="${name}" class="object-cover w-full h-full transition-transform group-hover:scale-105" />
+                            <img src="${image}" alt="${name}" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105" />
                             ${isSoldOut ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center"><span class="text-white font-bold">품절</span></div>' : ''}
                         </div>
                         <h3 class="text-sm md:text-base font-medium text-foreground-900 truncate">${name}</h3>
@@ -352,9 +314,6 @@
 
                 status.classList.add('hidden');
 
-                // [카테고리 그리드 렌더링]
-
-                // 이거 나중에 수정 todo
                 const categories = [
                     { key: 'SOUP', label: '찌개·국물', icon: 'ri-cup-line' },
                     { key: 'NOODLE', label: '면·파스타', icon: 'ri-restaurant-line' },
@@ -363,20 +322,17 @@
                 ];
 
                 categoryGrid.innerHTML = categories.map((cat, index) => {
-                    // 1. 카테고리 찾기: category 필드가 없더라도 productCode에 'SOUP' 등이 포함되어 있는지 검사
                     const members = products.filter(p =>
                         p.category === cat.key ||
                         p.categoryCode === cat.key ||
                         (p.productCode && p.productCode.toUpperCase().includes(cat.key))
                     );
 
-                    // 2. 이미지 배정: 일치하는 상품이 있으면 그 이미지, 없으면 전체 상품 중 순서대로 아무 이미지나 임시 배정
-                    let coverImg = 'https://via.placeholder.com/300?text=No+Image'; // 기본 이미지
+                    let coverImg = 'https://via.placeholder.com/300?text=No+Image';
 
                     if (members.length > 0 && (members[0].imageUrl || members[0].image)) {
                         coverImg = members[0].imageUrl || members[0].image;
                     } else if (products.length > index && (products[index].imageUrl || products[index].image)) {
-                        // DB에 카테고리 정보가 아예 없어서 못 찾은 경우, 빈 화면이 되지 않게 상품 이미지를 채워 넣음
                         coverImg = products[index].imageUrl || products[index].image;
                     }
 
@@ -401,4 +357,4 @@
     });
 </script>
 </body>
-</html>
+</html>ㄱ
