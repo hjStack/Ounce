@@ -11,15 +11,10 @@ import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-    Optional<Cart> findByCartId(Long cartId);
-
-//    @Query("SELECT c FROM Cart c JOIN FETCH c.cartItems ci JOIN FETCH ci.product " +
-//            "WHERE c.member.email = :email")
-//    Optional<Cart> findByMemberEmailWithItems(@Param("email") String email);
+    // 이메일로 회원인지 검증
+    @Query("SELECT c FROM Cart c left JOIN FETCH c.cartItems ci left JOIN FETCH ci.product " +
+            "WHERE c.member.email = :email")
+    Optional<Cart> findByMemberEmailWithItems(@Param("email") String email);
 
     Optional<Cart> findByMemberMemberId(Long memberMemberId);
-
-    boolean existsByMember(Member member);
-
-    Optional<Cart> findByMember_MemberId(Long memberId);
 }

@@ -72,8 +72,18 @@ public class SecurityConfig {
                         .requestMatchers("/terms.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/carts/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(403);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"message\":\"" + e.getMessage() + "\"}");
+                        })
+                )
+
 
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
@@ -81,6 +91,7 @@ public class SecurityConfig {
                         .userService(customOAuth2UserService) // Step 1: 구글에서 사용자 이메일, 이름 가져오기
                 )
                 .successHandler(oAuth2SuccessHandler) // Step 2: 정보 가져오기 성공하면 JWT 만들어서 프론트로 던져주기!
+
         )
                 .addFilterBefore(new JwtFilter(jwtUtil),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
 

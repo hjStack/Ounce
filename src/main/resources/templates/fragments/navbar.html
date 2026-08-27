@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
@@ -6,37 +5,20 @@
 
 <nav th:fragment="navbar" class="fixed top-0 left-0 right-0 z-50 bg-background-cream/90 backdrop-blur-md border-b border-background-200/70">
 
-    <!-- 구독 CTA 색을 Tailwind 토큰이 아니라 hex 로 박은 이유:
-         timedeal.html 은 자체 tailwind.config 에서 primary 를 흰색으로 덮는다.
-         거기서 bg-primary-500 text-white 를 쓰면 흰 배경에 흰 글씨가 되어 버튼이 사라진다.
-         내비바는 12개 템플릿이 공유하므로 페이지가 토큰을 어떻게 재정의하든 견뎌야 한다.
-         값은 head.html 의 GREEN 500/600 과 같다.
-         style 을 nav 안에 둔 이유: 템플릿들이 `:: navbar` 로 이 <nav> 엘리먼트만
-         가져가므로, 밖에 두면 아예 렌더되지 않는다. -->
     <style>
         .nav-subscribe-cta { background-color: #2f7a5f; color: #ffffff; }
         .nav-subscribe-cta:hover { background-color: #276650; }
-
-        /* pill 을 숨겨야 하는 페이지가 두 군데인데 숨기는 대상이 다르다.
-           페이지가 body 에 표식을 달고, 어느 pill 을 지울지는 여기서 정한다.
-           JS 로 숨기면 로드 직후 한 번 번쩍이므로 CSS 로 처리. */
-
-        /* 홈(index): 초록 구독 배너가 이미 '구독 시작' 을 하고 있어서 pill 은 중복.
-           단 로그인 상태의 '내 구독' 은 성격이 다른 액션(이번 주 메뉴 바꾸기)이라 남긴다. */
         body.is-home .nav-subscribe-cta--guest { display: none; }
-
-        /* 내 구독 페이지: 지금 보고 있는 페이지를 가리키는 pill 이라 군더더기. */
         body.is-subscription .nav-subscribe-cta--member { display: none; }
     </style>
 
     <div class="w-full px-4 md:px-8 lg:px-12">
-        <!-- 높이는 h-20/h-24 유지: 모든 페이지가 pt-20 md:pt-24 로 이걸 상쇄하고 있음 -->
         <div class="flex items-center justify-between h-20 md:h-24">
             <a href="/" class="flex items-center gap-2 shrink-0">
                 <span class="text-xl md:text-2xl font-semibold font-heading text-foreground-950 tracking-tight">Ounce</span>
             </a>
 
-            <!-- 카테고리 내비 (기존 '상품'/'베스트' 두 링크가 같은 /products 로 가던 걸 정리) -->
+            <!-- 데스크탑 내비게이션 -->
             <div class="hidden md:flex items-center gap-7">
                 <a href="/products" data-nav="/products"
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">전체 밀키트</a>
@@ -46,43 +28,26 @@
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">면·파스타</a>
                 <a href="/products?categories=meat" data-nav="/products"
                    class="nav-link text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">고기·구이</a>
+
+                <!-- 🌙 미드나이트 강조 (인디고 텍스트 및 아이콘) -->
                 <a href="/timedeal" data-nav="/timedeal"
-                   class="nav-link flex items-center gap-1.5 text-sm font-medium text-foreground-600 hover:text-foreground-950 transition-colors whitespace-nowrap">
-                    <i class="ri-moon-line text-deal-500"></i>미드나이트
+                   class="nav-link flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors whitespace-nowrap">
+                    <i class="ri-moon-fill text-indigo-500 text-lg"></i>미드나이트
                 </a>
             </div>
 
             <div class="flex items-center gap-3 md:gap-4">
-
-                <!-- 구독 진입. 왼쪽 카테고리 줄에 끼우지 않은 이유: 구독은 둘러보는
-                     카테고리가 아니라 가입 액션이다. 탐색 링크 사이에 텍스트로 섞으면
-                     가장 중요한 버튼이 가장 안 보이는 링크가 된다.
-                     로그인 여부에 따라 목적지가 다르다 — 아직 구독 안 한 사람은 소개(/subscribe),
-                     구독자는 이번 주 메뉴를 바꾸러(/subscription) 간다. -->
-<!--                <a href="/subscribe" sec:authorize="!isAuthenticated()"-->
-<!--                   class="nav-subscribe-cta hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap shadow-sm">-->
-<!--                    <i class="ri-calendar-check-line text-base"></i>구독 시작-->
-<!--                </a>-->
-                <!-- 로그인 상태에서만. 비로그인용 '구독 시작' pill 은 홈의 초록 배너가
-                     대신하고 있어서 위처럼 접어두었다. -->
-<!--                <a href="/subscription" sec:authorize="isAuthenticated()"-->
-<!--                   class="nav-subscribe-cta nav-subscribe-cta&#45;&#45;member hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap shadow-sm">-->
-<!--                    <i class="ri-calendar-check-line text-base"></i>내 구독-->
-<!--                </a>-->
-
                 <!-- 로그인 상태에서만 -->
                 <div class="relative" id="user-menu-wrap" sec:authorize="isAuthenticated()">
                     <button
                             id="user-menu-btn"
                             class="group flex items-center gap-1.5 text-sm font-medium text-foreground-700 hover:text-foreground-950 transition-colors cursor-pointer"
                     >
-                        <!-- 이름 영역 -->
                         <span class="whitespace-nowrap" id="nav-user-name">사용자</span>
                         <span class="text-foreground-500">님</span>
                         <i class="ri-arrow-down-s-line text-sm text-foreground-400 group-hover:text-foreground-600 transition-transform duration-200 group-hover:translate-y-0.5"></i>
                     </button>
                     <div id="user-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border border-background-200 rounded-xl shadow-lg overflow-hidden z-50 py-1">
-                        <!-- 구독이 재방문의 주된 이유(이번 주 메뉴 바꾸기)라 맨 위에 둔다 -->
                         <a href="/subscription" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-calendar-check-line text-foreground-400 text-base"></i> 내 구독
                         </a>
@@ -95,8 +60,6 @@
                         <a href="/support" class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-customer-service-2-line text-foreground-400 text-base"></i> 고객센터
                         </a>
-                        <!-- 관리자만 보이는 진입점. 문의 답변 화면으로 가는 링크가 어디에도 없으면
-                             주소를 외워서 들어가야 한다. -->
                         <a href="/admin/qna" sec:authorize="hasAuthority('ADMIN')"
                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground-700 hover:bg-background-100 transition-colors">
                             <i class="ri-shield-user-line text-foreground-400 text-base"></i> 문의 관리
@@ -117,9 +80,13 @@
                     <i class="ri-search-line text-xl"></i>
                 </button>
 
-                <a href="/cart" class="relative text-foreground-700 hover:text-primary-500 transition-colors">
-                    <i class="ri-shopping-cart-2-line text-xl"></i>
-                    <span class="cart-badge hidden absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center bg-primary-500 text-white text-[10px] font-bold rounded-full">0</span>
+                <a href="/cart" class="relative">
+                    <i class="ri-shopping-cart-2-line text-xl group-hover:scale-110 transition-transform duration-200"></i>
+                    <span id="cart-badge"
+                          class="hidden absolute -top-1 -right-2 min-w-[18px] h-[18px] px-1
+                 flex items-center justify-center rounded-full
+                 bg-[#447861] text-white text-[11px] font-bold leading-none tracking-tighter
+                 ring-2 ring-white shadow-sm transition-all duration-300">0</span>
                 </a>
             </div>
 
@@ -129,11 +96,9 @@
         </div>
     </div>
 
+    <!-- 모바일 메뉴 -->
     <div id="mobile-menu" class="hidden md:hidden bg-background-50/98 backdrop-blur-md border-t border-background-200 shadow-lg">
         <div class="px-4 py-5">
-
-            <!-- 구독. 데스크탑 pill 은 sm 미만에서 숨기므로 모바일 진입은 여기가 유일하다.
-                 '둘러보기' 그리드에 섞으면 카테고리 하나로 보여서 위에 따로 세웠다. -->
             <a href="/subscribe" sec:authorize="!isAuthenticated()"
                class="flex items-center justify-between gap-3 px-4 py-3.5 mb-5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
                 <span class="flex items-center gap-2.5 text-sm font-semibold">
@@ -149,15 +114,17 @@
                 <span class="text-[11px] text-white/70">이번 주 메뉴 바꾸기</span>
             </a>
 
-            <!-- 네비게이션 섹션 (데스크탑 카테고리와 동일한 구성) -->
             <p class="px-1 mb-2 text-[11px] font-semibold text-foreground-400 tracking-wider uppercase">둘러보기</p>
             <div class="grid grid-cols-2 gap-2 mb-5">
                 <a href="/products" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-grid-line text-primary-500 text-lg"></i> 전체 밀키트
                 </a>
-                <a href="/timedeal" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
-                    <i class="ri-moon-line text-primary-500 text-lg"></i> 미드나이트
+
+                <!-- 🌙 모바일 미드나이트 강조 -->
+                <a href="/timedeal" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-bold text-indigo-600 bg-indigo-50/70 hover:bg-indigo-100 rounded-xl transition-colors">
+                    <i class="ri-moon-fill text-indigo-500 text-lg"></i> 미드나이트
                 </a>
+
                 <a href="/products?cat=stew" class="flex items-center gap-2.5 px-3 py-3.5 text-sm font-medium text-foreground-700 bg-background-100/60 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-fire-line text-primary-500 text-lg"></i> 찌개·국물
                 </a>
@@ -172,23 +139,17 @@
                 </a>
             </div>
 
-            <!-- 계정 섹션 -->
             <p class="px-1 mb-2 text-[11px] font-semibold text-foreground-400 tracking-wider uppercase">내 계정</p>
             <div class="flex flex-col gap-0.5">
-                <!-- 비로그인 -->
                 <a href="/login" sec:authorize="!isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-login-box-line text-foreground-400 text-base"></i> 로그인
                 </a>
-
-                <!-- 로그인 -->
                 <a href="/account" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-user-line text-foreground-400 text-base"></i> 내 계정
                 </a>
                 <a href="/orders" sec:authorize="isAuthenticated()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-file-list-3-line text-foreground-400 text-base"></i> 주문 내역
                 </a>
-                <!-- 고객센터는 로그인 여부와 무관하게 보여준다. FAQ 는 누구나 봐야 하고,
-                     모바일에서 고객센터로 들어올 길은 이 항목과 푸터뿐이다. -->
                 <a href="/support" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-foreground-700 hover:bg-background-100 rounded-xl transition-colors">
                     <i class="ri-customer-service-2-line text-foreground-400 text-base"></i> 고객센터
                 </a>
@@ -196,33 +157,59 @@
                     <i class="ri-logout-box-r-line text-base"></i> 로그아웃
                 </button>
             </div>
-
         </div>
     </div>
 
     <script th:inline="none">
 
+        window.updateCartBadge = function (count) {
+            const $badge = document.getElementById('cart-badge');
+            if (!$badge) return;
+            const newText = count > 99 ? '99+' : count.toString();
+            const isChanged = $badge.textContent !== newText;
+
+            $badge.textContent = newText;
+            $badge.classList.toggle('hidden', !count);
+
+            if (isChanged && count > 0) {
+                $badge.classList.add('scale-125');
+                setTimeout(() => {
+                    $badge.classList.remove('scale-125');
+                }, 200);
+            }
+        };
+
+        window.refreshCartBadge = async function () {
+            try {
+                const res = await fetch('/api/carts/items', { credentials: 'include' });
+                if (!res.ok) return;
+                const items = await res.json();
+                window.updateCartBadge(items.reduce((sum, i) => sum + i.quantity, 0));
+            } catch (e) {
+                console.error('장바구니 개수 조회 실패:', e);
+            }
+        };
+
+
+        document.addEventListener('DOMContentLoaded', window.refreshCartBadge);
+        window.addEventListener('pageshow', e => { if (e.persisted) window.refreshCartBadge(); });
         document.addEventListener('DOMContentLoaded', function () {
-            // 현재 페이지 내비 하이라이트.
-            // Thymeleaf 3.1 부터 #httpServletRequest 가 없어서 서버에서 못 하니 경로로 판단.
             document.querySelectorAll('.nav-link[data-nav]').forEach(link => {
                 const isCurrent = window.location.pathname === link.dataset.nav
                     && link.getAttribute('href') === (window.location.pathname + window.location.search);
                 if (isCurrent) {
-                    link.classList.remove('text-foreground-600');
-                    link.classList.add('text-foreground-950', 'font-semibold');
+                    link.classList.remove('text-foreground-600', 'text-indigo-600');
+                    link.classList.add('text-foreground-950', 'font-bold');
                     link.setAttribute('aria-current', 'page');
                 }
             });
 
-            // 모바일 메뉴 토글
             const mobileBtn = document.getElementById('mobile-menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             if (mobileBtn && mobileMenu) {
                 mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
             }
 
-            // 유저 드롭다운 토글
             const userBtn = document.getElementById('user-menu-btn');
             const userMenu = document.getElementById('user-menu');
             if (userBtn && userMenu) {
@@ -234,57 +221,40 @@
                 });
             }
 
-            // 로그아웃 (서버에 요청 → 쿠키 만료)
+            // 🛠️ 로그아웃 버그 픽스
             const handleLogout = async function(e) {
                 e.preventDefault();
                 try {
-                    await fetch('/api/members/logout', { method: 'POST', credentials: 'include' });
+                    // API 호출 시도
+                    const res = await fetch('/api/members/logout', { method: 'POST', credentials: 'include' });
+                    // API가 없을 경우 Spring 기본 로그아웃 경로로 폴백
+                    if (res.status === 404) {
+                        await fetch('/logout', { method: 'POST' });
+                    }
                 } catch (err) {
                     console.error("로그아웃 요청 실패:", err);
                 }
-                ui.toast('로그아웃 되었습니다.');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 500);
+
+                // ui.toast가 없어서 에러나는 상황 방지
+                try {
+                    if (typeof ui !== 'undefined' && ui.toast) {
+                        ui.toast('로그아웃 되었습니다.');
+                    }
+                } catch(e) {}
+
+                // 대기 시간 없이 즉시 리다이렉트
+                window.location.href = '/';
             };
 
-            // navbar 스크립트 안, DOMContentLoaded 콜백에 추가
-            fetch('/api/carts/me', { credentials: 'include' })
-                .then(res => {
-                    if (!res.ok) return null;   // 비로그인(401 등)이면 조용히 종료
-                    const contentType = res.headers.get('content-type') || '';
-                    if (!contentType.includes('application/json')) return null;
-                    return res.json();
-                })
-                .then(cart => {
-                    if (!cart || !Array.isArray(cart)) return;
 
-                    // 장바구니에 담긴 상품 수량 합계
-                    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-                    document.querySelectorAll('.cart-badge').forEach(badge => {
-                        if (count > 0) {
-                            badge.textContent = count > 99 ? '99+' : count;
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
-                    });
-                })
-                .catch(() => {});   // 혹시 모를 에러도 조용히
 
-            // 로그인 상태면 이메일 @앞부분을 이름으로 채우기
             fetch('/api/members/me', { credentials: 'include' })
                 .then(res => res.ok ? res.json() : null)
                 .then(data => {
-                    if (!data) return;  // 비로그인(401)이면 그냥 패스
-
+                    if (!data) return;
                     const namePart = data.email.split('@')[0];
-
-                    // 이름 채우기
                     const nameEl = document.getElementById('nav-user-name');
                     if (nameEl) nameEl.textContent = namePart;
-
-                    // 아바타 글자도 첫 글자로
                     const avatarEl = document.querySelector('#user-menu-btn .rounded-full');
                     if (avatarEl) avatarEl.textContent = namePart.charAt(0).toUpperCase();
                 })
@@ -295,7 +265,6 @@
             if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
             if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', handleLogout);
 
-            // 검색 오버레이 토글
             const searchBtn = document.getElementById('search-btn');
             const searchOverlay = document.getElementById('search-overlay');
             const searchInput = document.getElementById('search-input');
@@ -307,7 +276,6 @@
                 if (!searchOverlay) return;
                 if (mobileMenu) mobileMenu.classList.add('hidden');
                 searchOverlay.classList.remove('hidden');
-                // 다음 프레임에 트랜지션 적용 (fade in + slide down)
                 requestAnimationFrame(() => {
                     searchOverlay.classList.remove('opacity-0');
                     if (searchPanel) searchPanel.classList.remove('-translate-y-3');
@@ -318,26 +286,23 @@
                 if (!searchOverlay) return;
                 searchOverlay.classList.add('opacity-0');
                 if (searchPanel) searchPanel.classList.add('-translate-y-3');
-                setTimeout(() => searchOverlay.classList.add('hidden'), 200); // 트랜지션 후 숨김
+                setTimeout(() => searchOverlay.classList.add('hidden'), 200);
             }
 
             if (searchBtn) searchBtn.addEventListener('click', openSearch);
             if (searchClose) searchClose.addEventListener('click', closeSearch);
             if (searchBack) searchBack.addEventListener('click', closeSearch);
 
-            // 배경 클릭 시 닫기
             if (searchOverlay) {
                 searchOverlay.addEventListener('click', (e) => {
                     if (e.target === searchOverlay) closeSearch();
                 });
             }
 
-            // ESC로 닫기
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeSearch();
             });
 
-// 엔터 시 검색 결과 페이지로 이동
             if (searchInput) {
                 searchInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
@@ -346,26 +311,22 @@
                     }
                 });
             }
-
         });
 
-        // document.addEventListener("DOMContentLoaded", function() {
-        //     document.querySelectorAll('.ready-btn').forEach(btn => {
-        //         btn.addEventListener('click', (e) => {
-        //             e.preventDefault(); // 404 페이지로 넘어가는 것을 차단!
-        //             alert("🚧 현재 22시 타임딜 대규모 트래픽 방어를 위해 '주문 및 결제 아키텍처'를 치열하게 튜닝 중입니다. 곧 정식 오픈됩니다!");
-        //         });
-        //     });
+
+
+        // document.getElementById('btn-cart').addEventListener('click', async () => {
+        //     const ok = await addToCart();
+        //     if (ok) {
+        //         ui.toast('장바구니에 담았습니다.');
+        //         await refreshCartBadge();
+        //     }
         // });
-
-
 
     </script>
     <div id="search-overlay" class="hidden fixed top-20 md:top-24 left-0 right-0 bottom-0 z-40 bg-foreground-950/40 opacity-0 transition-opacity duration-200">
         <div class="w-full px-4 flex justify-center pt-6 md:pt-8">
             <div id="search-panel" class="w-full max-w-2xl -translate-y-3 transition-transform duration-200">
-
-                <!-- 검색 입력 -->
                 <div class="flex items-center gap-3 bg-white rounded-2xl shadow-2xl ring-1 ring-background-200 px-5 py-4 focus-within:ring-2 focus-within:ring-primary-500/40 transition-all">
                     <button id="search-back" class="text-foreground-400 hover:text-foreground-700 transition-colors shrink-0" aria-label="뒤로">
                         <i class="ri-arrow-left-line text-xl"></i>
@@ -381,8 +342,6 @@
                         <i class="ri-close-line text-2xl"></i>
                     </button>
                 </div>
-
-                <!-- 추천 키워드 -->
                 <div class="mt-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl ring-1 ring-background-200 px-5 py-4">
                     <p class="text-[11px] font-semibold text-foreground-400 tracking-wider uppercase mb-3">추천 검색어</p>
                     <div class="flex flex-wrap gap-2">
@@ -396,8 +355,6 @@
             </div>
         </div>
     </div>
-
 </nav>
-
 </body>
 </html>

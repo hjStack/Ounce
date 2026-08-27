@@ -14,7 +14,7 @@ import ounce.market.demo.timeDeal.entity.DealStatus;
 import ounce.market.demo.timeDeal.entity.TimeDeal;
 import ounce.market.demo.timeDeal.repository.TimeDealRepository;
 
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -41,21 +41,12 @@ public class CartService {
         }
     }
 
-    @Transactional
     // 💡 1. 내 장바구니 조회
-    public List<CartItemDto> getCartItems(Long memberId) {
+    public List<CartItemDto> getCartItems(String name) {
 
-        Optional<Cart> cartOpt = cartRepository.findByMember_MemberId(memberId);
-
-        if (cartOpt.isEmpty()) {
-            return Collections.emptyList();  // 장바구니 없으면 빈 목록
-        }
-        Cart cart1 = cartOpt.get();
-
-        Cart cart = cartRepository.findByMemberMemberId(memberId)
+        Cart cart = cartRepository.findByMemberEmailWithItems(name)
                 .orElseThrow(() ->  new IllegalArgumentException("장바구니가 존재하지 않습니다."));
 
-        List<CartProduct> cartProducts = cartProductRepository.findByCartCartId(cart.getCartId());
 
         Map<Long, Integer> dealRateMap = timeDealRepository
                 .findActiveDealsWithProduct(DealStatus.IN_PROGRESS, LocalDateTime.now())
@@ -66,7 +57,7 @@ public class CartService {
                         (a, b) -> a   // 혹시 같은 상품 중복 딜이면 첫 번째
                 ));
 
-        return cartProducts.stream()
+        return cart.getCartItems().stream()
                 .map(cp -> CartItemDto.from(cp, dealRateMap.get(cp.getProduct().getProductId())))
                 .collect(Collectors.toList());
     }
@@ -87,10 +78,6 @@ public class CartService {
 
     @Transactional
     public void addCartItem(Long memberId, Long productId, int quantity) {
-
-        if (quantity > MAX_PER_ORDER) {
-            throw new IllegalArgumentException("최대 10개까지 구매 가능합니다.");
-        }
 
         Cart cart = cartRepository.findByMemberMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니가 존재하지 않습니다."));
@@ -120,10 +107,14 @@ public class CartService {
     }
 
     @Transactional
-    public void  deleteCartItem(Long cartItemId){
+    public void  deleteCartItem(Long memberId, Long cartItemId) {
 
         CartProduct cartItem = cartProductRepository.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장바구니 항목입니다."));
+
+        if (!cartItem.getCart().getMember().getMemberId().equals(memberId)) {
+            throw new AccessDeniedException("본인의 장바구니만 삭제할 수 있습니다.");
+        }
         cartProductRepository.delete(cartItem);  // ← 찾은 걸 실제로 삭제
     }
 }
