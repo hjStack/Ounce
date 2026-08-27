@@ -107,10 +107,10 @@
 
     /* ── 권한 ──────────────────────────────────────────────── */
     function showForbidden() {
-        els.list.innerHTML = '';
+        els.list.textContent = '';
         els.pager.classList.add('hidden');
         els.status.classList.remove('hidden');
-        els.status.innerHTML = '관리자 권한이 필요한 화면입니다. ' +
+        els.status.textContent = '관리자 권한이 필요한 화면입니다. ' +
             'ADMIN 계정으로 <a href="/login" class="font-semibold text-primary-600 underline">로그인</a> 후 다시 열어주세요.';
     }
 
