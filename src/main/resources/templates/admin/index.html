@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ounce 관리자 대시보드</title>
+    <!-- Tailwind CSS (CDN or Local) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- ── 1. 사이드바 (Sidebar) ── -->
+    <aside class="w-64 bg-gray-900 text-gray-300 flex flex-col transition-all">
+        <div class="h-16 flex items-center px-6 bg-gray-950">
+            <a href="/admin" class="text-xl font-bold text-white tracking-tight">Ounce <span class="text-xs font-normal text-gray-400 ml-1">Admin</span></a>
+        </div>
+
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <!-- 활성화된 메뉴는 bg-gray-800 text-white 클래스를 추가합니다 -->
+            <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 bg-gray-800 text-white rounded-lg group">
+                <i class="ri-dashboard-3-line text-lg text-gray-400 group-hover:text-white"></i>
+                <span class="text-sm font-medium">대시보드</span>
+            </a>
+            <a href="/admin/products" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white group transition-colors">
+                <i class="ri-shopping-bag-3-line text-lg text-gray-400 group-hover:text-white"></i>
+                <span class="text-sm font-medium">상품 관리</span>
+            </a>
+            <a href="/admin/orders" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white group transition-colors">
+                <i class="ri-file-list-3-line text-lg text-gray-400 group-hover:text-white"></i>
+                <span class="text-sm font-medium">주문 관리</span>
+                <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+            </a>
+            <a href="/admin/members" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white group transition-colors">
+                <i class="ri-group-line text-lg text-gray-400 group-hover:text-white"></i>
+                <span class="text-sm font-medium">회원 관리</span>
+            </a>
+            <a href="/admin/qna" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white group transition-colors">
+                <i class="ri-question-answer-line text-lg text-gray-400 group-hover:text-white"></i>
+                <span class="text-sm font-medium">문의 및 리뷰</span>
+            </a>
+        </nav>
+
+        <div class="p-4 bg-gray-950">
+            <a href="/" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+                <i class="ri-external-link-line"></i> 스토어 홈으로
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── 2. 메인 컨텐츠 영역 ── -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- 상단 헤더 -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 lg:px-8 shrink-0">
+            <h1 class="text-lg font-bold text-gray-800">대시보드</h1>
+
+            <div class="flex items-center gap-4">
+                <button class="text-gray-400 hover:text-gray-600 relative">
+                    <i class="ri-notification-3-line text-xl"></i>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <div class="w-px h-6 bg-gray-200"></div>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 bg-[#447861] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                        AD
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">최고관리자</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 본문 (스크롤) -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 lg:p-8">
+
+            <!-- 요약 카드 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">오늘 매출</h3>
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                            <i class="ri-money-dollar-circle-line text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900">1,245,000원</p>
+                    <p class="text-xs text-green-600 mt-2 flex items-center gap-1"><i class="ri-arrow-right-up-line"></i> 어제 대비 12% 증가</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">신규 주문</h3>
+                        <div class="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
+                            <i class="ri-shopping-bag-3-line text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900">42건</p>
+                    <p class="text-xs text-gray-500 mt-2">결제대기 3건 포함</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">배송 준비중</h3>
+                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center">
+                            <i class="ri-truck-line text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900">18건</p>
+                    <p class="text-xs text-orange-600 mt-2">오늘 자정 출고 마감</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">미답변 문의</h3>
+                        <div class="w-10 h-10 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
+                            <i class="ri-question-answer-line text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-900">5건</p>
+                    <a href="/admin/qna" class="text-xs text-gray-500 hover:text-gray-800 underline mt-2 inline-block">바로가기</a>
+                </div>
+            </div>
+
+            <!-- 최근 주문 테이블 -->
+            <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h2 class="text-base font-bold text-gray-800">최근 들어온 주문</h2>
+                    <a href="/admin/orders" class="text-sm text-blue-600 hover:underline">전체보기</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500">
+                        <tr>
+                            <th class="px-6 py-3 font-medium">주문번호</th>
+                            <th class="px-6 py-3 font-medium">주문자</th>
+                            <th class="px-6 py-3 font-medium">상품명</th>
+                            <th class="px-6 py-3 font-medium">결제금액</th>
+                            <th class="px-6 py-3 font-medium">상태</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                        <tr>
+                            <td class="px-6 py-4 font-medium">ORD-20260827-001</td>
+                            <td class="px-6 py-4">홍길동</td>
+                            <td class="px-6 py-4 truncate max-w-[200px]">[1인분] 소불고기 밀키트 외 2건</td>
+                            <td class="px-6 py-4 font-bold">42,500원</td>
+                            <td class="px-6 py-4"><span class="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-md">결제완료</span></td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 font-medium">ORD-20260827-002</td>
+                            <td class="px-6 py-4">김철수</td>
+                            <td class="px-6 py-4 truncate max-w-[200px]">[1인분] 명란 크림 우동 밀키트</td>
+                            <td class="px-6 py-4 font-bold">10,900원</td>
+                            <td class="px-6 py-4"><span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-md">배송준비</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+</body>
+</html>
