@@ -121,7 +121,9 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
+
     // 💡 최상단에 ui 객체 및 toast, confirm 함수 정의
+    // modal
     const ui = {
         toast: function(message, type = 'success') {
             var existing = document.getElementById('ounce-js-toast');
@@ -201,6 +203,7 @@
         // 💡 1. 가짜 로컬 스토리지를 폭파하고, 서버 데이터를 담을 전역 배열 선언
         let cart = [];
 
+        // 배송비 나중에 수정 todo
         const FREE_SHIPPING_THRESHOLD = 30000;
         const SHIPPING_FEE = 3000;
 
@@ -209,10 +212,10 @@
         const cartItemsContainer = document.getElementById('cart-items-container');
 
 
-        // 💡 1. 네비게이션 바를 타고 오자마자 백엔드 API(/api/carts/me)를 찔러 데이터 가져오기
+        // 💡 1. 네비게이션 바를 타고 오자마자 백엔드 API(/api/carts/items)를 찔러 데이터 가져오기
         async function fetchMyCart() {
             try {
-                const response = await fetch('/api/carts/me', { credentials: 'include' });
+                const response = await fetch('/api/carts/items', { credentials: 'include' });
 
                 // 🚨 인증 유효성 체크: 만약 쿠키가 없거나 문지기(JwtFilter)한테 쫓겨나면 로그인으로 리다이렉트
                 if (response.status === 401) {
@@ -226,16 +229,30 @@
 
                 if (!response.ok) throw new Error('서버 데이터 로드 실패');
 
+                // 로그인 후
                 // 백엔드 CartApiController가 보내준 List<CartItemDto>를 통째로 파싱
                 cart = await response.json();
                 renderCart(); // 받아온 생생한 DB 데이터로 화면 렌더링 시작!
             } catch (error) {
                 console.error('장바구니 로딩 중 에러 발생:', error);
+                cart = [];
+                renderCart();
+                ui.toast('장바구니를 불러오지 못했습니다.', 'error');
             }
+        }
+
+        function updateCartBadge() {
+            const $badge = document.getElementById('cart-badge');
+            if (!$badge) return;
+            $badge.textContent = cart.length;
+            $badge.classList.toggle('hidden', cart.length === 0);
         }
 
         // 💡 3. 장바구니 렌더링 함수 (서버 DTO 규격에 맞게 필드명 매핑)
         function renderCart() {
+
+            window.updateCartBadge(cart.reduce((sum, i) => sum + i.quantity, 0));
+
             if (cart.length === 0) {
                 emptyCartEl.classList.remove('hidden');
                 cartContentEl.classList.add('hidden');
@@ -365,34 +382,15 @@
             window.location.href = '/orders';
         };
 
-        // --- 실시간 알림 애니메이션 배너 로직 ---
-        const viewerCountEl = document.getElementById('viewer-count');
-        let currentViewers = 42;
-        setInterval(() => {
-            const change = Math.floor(Math.random() * 9) - 4;
-            currentViewers = Math.max(12, Math.min(180, currentViewers + change));
-            if(viewerCountEl) viewerCountEl.textContent = `${currentViewers}명`;
-        }, 3000 + Math.floor(Math.random() * 3000));
+        // // --- 실시간 알림 애니메이션 배너 로직 ---
+        // const viewerCountEl = document.getElementById('viewer-count');
+        // let currentViewers = 42;
+        // setInterval(() => {
+        //     const change = Math.floor(Math.random() * 9) - 4;
+        //     currentViewers = Math.max(12, Math.min(180, currentViewers + change));
+        //     if(viewerCountEl) viewerCountEl.textContent = `${currentViewers}명`;
+        // }, 3000 + Math.floor(Math.random() * 3000));
 
-        const CITIES = ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '수원', '성남', '고양', '용인', '청주', '전주', '창원', '김해'];
-        const purchaseTicker = document.getElementById('purchase-ticker');
-        const purchaseText = document.getElementById('purchase-text');
-
-        setInterval(() => {
-            const city = CITIES[Math.floor(Math.random() * CITIES.length)];
-            const minutes = Math.floor(Math.random() * 5) + 1;
-            if(purchaseTicker) purchaseTicker.classList.add('opacity-0');
-            setTimeout(() => {
-                if(purchaseText) purchaseText.innerHTML = `<strong>${city}</strong>에서 <strong>${minutes}분 전</strong> 결제 완료`;
-                if(purchaseTicker) {
-                    purchaseTicker.classList.remove('opacity-0');
-                    purchaseTicker.classList.add('scale-[1.02]', 'bg-[#3b4055]/20');
-                    setTimeout(() => {
-                        purchaseTicker.classList.remove('scale-[1.02]', 'bg-[#3b4055]/20');
-                    }, 800);
-                }
-            }, 300);
-        }, 5000 + Math.floor(Math.random() * 5000));
 
         const countdownTextEl = document.getElementById('countdown-text');
         const countdownBanner = document.getElementById('countdown-banner');

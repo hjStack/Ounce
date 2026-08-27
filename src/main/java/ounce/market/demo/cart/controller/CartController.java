@@ -1,5 +1,6 @@
 package ounce.market.demo.cart.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
@@ -10,22 +11,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ounce.market.demo.cart.dto.response.CartItemDto;
-import ounce.market.demo.cart.entity.CartProduct;
 import ounce.market.demo.cart.repository.CartProductRepository;
 import ounce.market.demo.cart.service.CartService;
 import ounce.market.demo.member.repository.MemberRepository;
 
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.member.entity.Member;
-import ounce.market.demo.product.entity.Product;
 
 /*
 todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성 -> 완료
-todo 7/30 cart n+1 해결하기
+todo 7/30 cart n+1 해결하기 -> 완료
  */
 
 @Tag(name = "03. 장바구니", description = "장바구니 조회, 회원가입시 장바구니 생성, 장바구니 삭제")
@@ -55,19 +53,12 @@ public class CartController {
         cartService.addCartItem(member.getMemberId(), productId, quantity);
         return ResponseEntity.ok().build();
     }
-    
-    @GetMapping("/me")
+
+    @Operation(summary = "장바구니 조회", description = "로그인한 회원의 장바구니에 담긴 상품 목록을 반환합니다.")
+    @GetMapping("/items")
     public ResponseEntity<?> getMyCartItems(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
-        }
 
-        // 인증 객체에 저장된 유저 이메일로 memberId 조회
-        String email = authentication.getName();
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        List<CartItemDto> cartItems = cartService.getCartItems(member.getMemberId());
+        List<CartItemDto> cartItems = cartService.getCartItems(authentication.getName());
         return ResponseEntity.ok(cartItems);
     }
 
@@ -88,8 +79,14 @@ public class CartController {
     }
 
     @DeleteMapping("/{cartItemId}")
-    public ResponseEntity<Void> deleteCartItem(@PathVariable Long cartItemId) {
-        cartService.deleteCartItem(cartItemId);
+    public ResponseEntity<Void> deleteCartItem(
+            Authentication authentication,
+            @PathVariable Long cartItemId)  {
+
+        Member member = memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        cartService.deleteCartItem(member.getMemberId(), cartItemId);
         return ResponseEntity.noContent().build();
     }
 }
