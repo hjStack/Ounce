@@ -82,7 +82,7 @@
         }
 
         slots = pickSlots(count);
-        els.previewGrid.innerHTML = slots.map(slotHTML).join('');
+        els.previewGrid.textContent = slots.map(slotHTML).join('');
         els.previewGrid.removeAttribute('aria-busy');
 
         if (els.previewStatus) {

@@ -58,12 +58,12 @@ window.Ounce = (function () {
      *  링크는 카드 전체를 덮는 오버레이 <a> 로 처리한다.
      *  담기 버튼을 <a> 안에 넣으면 잘못된 중첩이라 형제로 두고 z-index 로 띄웠다. */
     function cardHTML(product) {
-        var parts = splitName(product.name);
-        var state = stockState(product);
-        var isTimeDeal = product.status === 'TIME_DEAL';
-        var soldOut = state === 'soldout';
+        let parts = splitName(product.name);
+        let state = stockState(product);
+        let isTimeDeal = product.status === 'TIME_DEAL';
+        let soldOut = state === 'soldout';
 
-        var badges = '';
+        let badges = '';
         if (isTimeDeal) {
             // 세일 배지만 테라코타(deal). 나머지 강조는 초록(primary) 이라 세일이 튄다.
             badges += '<span class="px-2 py-1 rounded-md bg-deal-500 text-white text-[11px] font-bold' +
@@ -273,7 +273,6 @@ window.Ounce = (function () {
             badge.classList.toggle('hidden', next <= 0);
         });
     }
-
     function addToCart(productId, button) {
         return isLoggedIn().then(function (loggedIn) {
             if (!loggedIn) { goLogin(); return; }
@@ -283,11 +282,27 @@ window.Ounce = (function () {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 credentials: 'include',
-                body: 'productId=' + encodeURIComponent(productId) + '&quantity=1'
+                body: `productId=${productId}`
             }).then(function (res) {
                 if (res.status === 401) { loginState = null; goLogin(); return; }
-                if (!res.ok) { toast('장바구니에 담지 못했습니다.', 'error'); return; }
-                bumpCartBadge(1);
+                if (!res.ok) {
+                    toast('상품 1개당 최대 10개까지 담을 수 있습니다.', 'error'); return; }
+
+                // 🔥 3. 엉뚱한 곳을 찾던 bumpCartBadge 대신,
+                // 우리가 만들어둔 '즉시 동기화 애니메이션' 함수를 직접 호출!
+                if (typeof window.refreshCartBadge === 'function') {
+                    window.refreshCartBadge();
+                } else {
+                    // (만약 함수가 없을 때를 대비한 예비용 코드 수정)
+                    let badge = document.getElementById('cart-badge');
+                    if(badge) {
+                        let current = parseInt(badge.textContent, 10);
+                        let next = (isNaN(current) ? 0 : current) + 1;
+                        badge.textContent = next > 99 ? '99+' : next;
+                        badge.classList.toggle('hidden', next <= 0);
+                    }
+                }
+
                 toast('장바구니에 담았습니다.');
             }).catch(function () {
                 toast('오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'error');
