@@ -183,6 +183,13 @@
             try {
                 const res = await fetch('/api/carts/items', { credentials: 'include' });
                 if (!res.ok) return;
+
+                // 🔥 응답이 JSON 형식인지 확인하는 방어 로직 추가
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    return; // HTML(로그인 창 등)이 응답으로 오면 무시
+                }
+
                 const items = await res.json();
                 window.updateCartBadge(items.reduce((sum, i) => sum + i.quantity, 0));
             } catch (e) {

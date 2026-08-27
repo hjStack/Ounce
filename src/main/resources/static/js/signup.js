@@ -9,7 +9,7 @@ const ui = {
         el.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-5 py-3' +
             ' rounded-lg shadow-lg text-sm font-medium text-white transition-opacity duration-300 ' +
             (type === 'error' ? 'bg-red-600' : 'bg-secondary-600');
-        el.innerHTML = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
+        el.textContent = '<i class="' + (type === 'error' ? 'ri-error-warning-line' : 'ri-check-line') +
             ' text-lg"></i><span></span>';
         el.querySelector('span').textContent = message;
         document.body.appendChild(el);

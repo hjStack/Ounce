@@ -1,5 +1,4 @@
 
-
 const ui = {
     toast: function(message, type = 'success') {
         var existing = document.getElementById('ounce-js-toast');
@@ -80,7 +79,6 @@ window.addEventListener('DOMContentLoaded', function () {
     if (!isInApp) return;
 
     const targetUrl = 'https://ouncefresh.com/login';
-
 
     document.body.innerHTML = `
     <div style="padding:24px; text-align:center; font-family:sans-serif;">

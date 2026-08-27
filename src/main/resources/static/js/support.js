@@ -207,7 +207,7 @@
     function renderChips() {
         var chips = [{ key: 'all', label: '전체' }].concat(CATEGORIES);
 
-        els.faqChips.innerHTML = chips.map(function (c) {
+        els.faqChips.textContent = chips.map(function (c) {
             return '<button type="button" class="' + (c.key === faqCategory ? CHIP_ON : CHIP_OFF) + '"' +
                 ' data-cat="' + c.key + '">' + escapeHtml(c.label) + '</button>';
         }).join('');

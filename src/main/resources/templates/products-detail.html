@@ -1173,8 +1173,9 @@
             if (!isLoggedIn) { requireLogin(); return false; }
 
             if (quantity > 10) {
-                ui.toast('한 번에 최대 10개까지 담을 수 있습니다.');
-                return false; }
+                ui.toast('상품 1개당 최대 10개까지 담을 수 있습니다.', 'error');
+                return false;
+            }
 
             try {
                 const res = await fetch('/api/carts/items', {
@@ -1185,7 +1186,7 @@
                 });
                 if (res.status === 401) { requireLogin(); return false; }
                 if (!res.ok) {
-                    ui.toast('상품 1개당 최대 10개까지 담을 수 있습니다.');
+                    ui.toast('상품 1개당 최대 10개까지 담을 수 있습니다.','error');
                     return false; }
                 return true;
             } catch (err) {

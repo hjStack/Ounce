@@ -199,7 +199,7 @@
     }
 
     function renderSlots() {
-        els.slotGrid.innerHTML = state.slots.map(slotHTML).join('');
+        els.slotGrid.textContent = state.slots.map(slotHTML).join('');
         els.slotGrid.removeAttribute('aria-busy');
     }
 
