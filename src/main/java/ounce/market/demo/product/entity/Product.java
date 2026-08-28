@@ -34,7 +34,7 @@ public class Product extends BaseEntity {
     @Builder
     public Product(String productCode, String name, Long basePrice,
                    Long discountPercent,
-                   int stock, String description, String imageUrl) {
+                   int stock, String description, String imageUrl,ProductStatus status) {
    
         this.productCode = productCode;
         this.name = name;
@@ -43,9 +43,7 @@ public class Product extends BaseEntity {
         this.stock=stock;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.status = ProductStatus.PREPARING;
-
-
+        this.status = ProductStatus.VISIBLE;
     }
 
 
