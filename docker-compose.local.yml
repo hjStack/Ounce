@@ -36,7 +36,7 @@ services:
       SEARCH_ENGINE: ${SEARCH_ENGINE:-jpa}
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
 
-      APP_FRONTEND_URL: http://localhost:8081/
+      APP_FRONTEND_URL: http://localhost:3000/
 
       # 로그: local 프로필이 show_sql + format_sql + use_sql_comments 를 모두 켜둬서
       #       SQL 이 부팅 로그를 덮어버립니다. 우리 패키지만 DEBUG 로 보고 나머지는 INFO.

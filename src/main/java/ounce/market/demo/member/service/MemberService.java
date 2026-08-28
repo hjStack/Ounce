@@ -3,7 +3,7 @@ package ounce.market.demo.member.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,12 +79,16 @@ public class MemberService {
         }
 
         // 권한 검증
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
 
 
         // 2. 검증을 무사히 통과하면 JWTUtil을 불러 Access Token을 발급합니다!
