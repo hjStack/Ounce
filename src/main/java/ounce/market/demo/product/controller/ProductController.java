@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import ounce.market.demo.product.dto.request.ProductCreateRequest;
 import ounce.market.demo.product.dto.request.ProductSearchCondition;
 import ounce.market.demo.product.dto.response.ProductResponse;
 import ounce.market.demo.product.dto.response.ProductSliceResponse;
@@ -21,7 +22,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Slf4j
 public class ProductController {
 
@@ -34,6 +34,15 @@ public class ProductController {
             ProductStatus.TIME_DEAL,
             ProductStatus.SOLD_OUT
     );
+
+    @PostMapping
+    public ResponseEntity<Long> createProduct(@RequestBody ProductCreateRequest request) {
+        // 서비스 로직 실행 후, 방금 저장된 상품의 ID를 반환받음
+        Long createdProductId = productService.createProduct(request);
+
+        // 성공적으로 저장되었다면 HTTP 200 OK와 함께 생성된 ID를 프론트엔드에 응답
+        return ResponseEntity.ok(createdProductId);
+    }
 
     @GetMapping
     public ProductSliceResponse getProducts(ProductSearchCondition cond) {
@@ -65,4 +74,6 @@ public class ProductController {
     public ResponseEntity<ProductResponse> getProduct(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.getProduct(productId));
     }
+
+
 }
