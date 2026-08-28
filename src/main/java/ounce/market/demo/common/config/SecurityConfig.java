@@ -46,6 +46,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 1. 프론트엔드 디자인 파일들 (css, js, img) 통과!
+
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+
                         .requestMatchers("/css/**", "/js/**", "/img/**","/favicon.ico","/favicon.png").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup", "/login").permitAll()
@@ -71,7 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/policy.html").permitAll()
                         .requestMatchers("/terms.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/carts/**").authenticated()
                         .anyRequest().authenticated()
                 )
