@@ -45,4 +45,11 @@ public class ProductAdminService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. productId=" + productId));
         product.changeStatus(ProductStatus.VISIBLE);
     }
+
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. productId=" + productId));
+        product.changeStatus(ProductStatus.STOPPED);
+    }
 }
