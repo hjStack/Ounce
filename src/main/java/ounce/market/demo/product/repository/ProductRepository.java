@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ounce.market.demo.cart.entity.CartProduct;
 import ounce.market.demo.product.entity.Product;
 import ounce.market.demo.product.entity.ProductStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,7 +28,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     @Query("select p from Product p where p.name like %:keyword%")
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    Page<Product> findByStatusIn(List<ProductStatus> status, Pageable pageable);
+//    Page<Product> findByStatusIn(List<ProductStatus> status, Pageable pageable);
+
+//    void deleteById(Long byId);
 
 //    @Query("SELECT DISTINCT p FROM Product p " +
 //            "JOIN ProductCategory pc ON pc.product = p " +
