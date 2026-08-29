@@ -71,4 +71,8 @@ public class Product extends BaseEntity {
         }
         this.stock -= quantity;
     }
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl=imageUrl;
+    }
 }
