@@ -54,6 +54,7 @@ public class ProductService {
         if (uploadedImageUrl != null) {
             newProduct.updateImageUrl(uploadedImageUrl);
         }
+
         // 💡 2. DB에 저장한 결과는 savedProduct 라는 '새로운 변수'에 담습니다.
         Product savedProduct = productRepository.save(newProduct);
 
@@ -66,6 +67,15 @@ public class ProductService {
                 ));
 
         return savedProduct.getProductId();
+    }
+
+    @Transactional
+    public void deleteProduct(Long productId){
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. productId = " + productId));
+
+        product.changeStatus(ProductStatus.STOPPED);
     }
 
 
