@@ -2,6 +2,9 @@ package ounce.market.demo.product.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.channels.MulticastChannel;
 
 @Entity
 @Getter
@@ -20,11 +23,6 @@ public class ProductCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
-    private ProductCategory(Product product, Category category) {
-        this.product = product;
-        this.category = category;
-    }
 
     public static ProductCategory of(Product product, Category category) {
         return ProductCategory.builder()

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ounce.market.demo.product.dto.request.ProductCreateRequest;
 import ounce.market.demo.product.dto.request.ProductSearchCondition;
 import ounce.market.demo.product.dto.response.ProductResponse;
@@ -16,6 +17,7 @@ import ounce.market.demo.product.repository.ProductRepository;
 import ounce.market.demo.product.repository.ProductRepositoryImpl;
 import ounce.market.demo.product.service.ProductService;
 
+import java.io.IOException;
 import java.util.*;
 
 @Tag(name = "04. 상품", description = "상품 조회")
@@ -35,10 +37,11 @@ public class ProductController {
             ProductStatus.SOLD_OUT
     );
 
-    @PostMapping
-    public ResponseEntity<Long> createProduct(@RequestBody ProductCreateRequest request) {
+    @PostMapping(consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE) // 💡 파일 업로드 명시!
+    public ResponseEntity<Long> createProduct(@RequestPart("request") ProductCreateRequest request,
+                                              @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         // 서비스 로직 실행 후, 방금 저장된 상품의 ID를 반환받음
-        Long createdProductId = productService.createProduct(request);
+        Long createdProductId = productService.createProduct(request,image);
 
         // 성공적으로 저장되었다면 HTTP 200 OK와 함께 생성된 ID를 프론트엔드에 응답
         return ResponseEntity.ok(createdProductId);

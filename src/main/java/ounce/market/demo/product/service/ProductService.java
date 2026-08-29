@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import ounce.market.demo.common.service.S3UploadService;
 import ounce.market.demo.product.dto.request.ProductCreateRequest;
 import ounce.market.demo.product.dto.request.ProductSearchCondition;
 import ounce.market.demo.product.dto.response.ProductSliceResponse;
@@ -15,6 +17,7 @@ import ounce.market.demo.product.repository.ProductCategoryRepository;
 import ounce.market.demo.product.repository.ProductRepository;
 import ounce.market.demo.product.dto.response.ProductResponse;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -25,6 +28,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final S3UploadService s3UploadService;
 
 
     // 상품 상세
@@ -36,20 +40,33 @@ public class ProductService {
 
 
     @Transactional
-    public Long createProduct(ProductCreateRequest request) {
-        // 1. DTO를 Entity로 변환해서 Product 테이블에 저장 (이미지 URL도 함께 저장됨!)
-        Product product = productRepository.save(request.toEntity());
+    public Long createProduct(ProductCreateRequest request, MultipartFile image) throws IOException {
 
-        // 2. 전달받은 카테고리 ID들로 다대다(N:M) 연관관계 테이블에 매핑 저장
+        String uploadedImageUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            uploadedImageUrl = s3UploadService.uploadImage(image);
+        }
+
+        // 💡 1. 여기서 변수 이름을 분리합니다!
+        Product newProduct = request.toEntity();
+
+        if (uploadedImageUrl != null) {
+            newProduct.updateImageUrl(uploadedImageUrl);
+        }
+        // 💡 2. DB에 저장한 결과는 savedProduct 라는 '새로운 변수'에 담습니다.
+        Product savedProduct = productRepository.save(newProduct);
+
         categoryRepository.findAllById(request.getCategoryIds())
                 .forEach(c -> productCategoryRepository.save(
-                        // of() 대신 익숙한 builder()를 사용합니다!
                         ProductCategory.builder()
-                                .product(product)
+                                .product(savedProduct)
                                 .category(c)
                                 .build()
                 ));
 
-        return product.getProductId(); // 방금 생성된 상품의 번호 반환
+        return savedProduct.getProductId();
     }
+
+
 }
