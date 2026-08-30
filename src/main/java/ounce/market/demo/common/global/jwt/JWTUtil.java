@@ -29,6 +29,7 @@ public class JWTUtil {
     // 1. Access Token 발급 (이메일 기반 로그인 검증용)
     public String createAccessToken(String email, String role) {
         return Jwts.builder()
+                .claim("typ", "access")
                 .claim("email", email) // 토큰 안에 유저 이메일(식별자) 저장
                 .claim("role", role)   // 토큰 안에 유저 권한(ROLE_USER 등) 저장
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -42,7 +43,8 @@ public class JWTUtil {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshExpirationTime);
         return Jwts.builder()
-                .setSubject(email)
+                .claim("typ", "refresh")
+                .claim("email", email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -53,7 +55,6 @@ public class JWTUtil {
     public String getEmail(String token) {
         return getClaims(token).get("email", String.class);
     }
-
 
     // 4. 토큰에서 권한 꺼내기
     public String getRole(String token){
@@ -86,6 +87,21 @@ public class JWTUtil {
              log.error("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+    // 토큰 타입 확인
+    public String getType(String token) {
+        return getClaims(token).get("typ", String.class);
+    }
+
+    // Access Token 전용 검증
+    public boolean validateAccessToken(String token) {
+        return validateToken(token) && "access".equals(getType(token));
+    }
+
+    // Refresh Token 전용 검증
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token) && "refresh".equals(getType(token));
     }
 
 
