@@ -86,6 +86,8 @@ public class CartController {
         Member member = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
+
+
         cartService.deleteCartItem(member.getMemberId(), cartItemId);
         return ResponseEntity.noContent().build();
     }
