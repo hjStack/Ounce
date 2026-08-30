@@ -129,11 +129,11 @@ public class MemberController {
         return ResponseEntity.ok("로그아웃 성공");
     }
 
-    @GetMapping("/count")
-    public ResponseEntity<Long> getMemberCount() {
-        return ResponseEntity.ok(memberRepository.count());   // JpaRepository 기본 제공
-    }
-
+    // 멤버 수 세는 api -> 없어도 될것같음
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> getMemberCount() {
+//        return ResponseEntity.ok(memberRepository.count());   // JpaRepository 기본 제공
+//    }
 
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(

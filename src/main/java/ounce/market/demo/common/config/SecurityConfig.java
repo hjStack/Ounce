@@ -77,26 +77,36 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
                         .requestMatchers("/api/carts/**").authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler((req, res, e) -> {
-                            res.setStatus(403);
-                            res.setContentType("application/json;charset=UTF-8");
-                            res.getWriter().write("{\"message\":\"" + e.getMessage() + "\"}");
-                        })
-                )
 
 
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
+
                 .userInfoEndpoint(userInfo -> userInfo
                         .userService(customOAuth2UserService) // Step 1: 구글에서 사용자 이메일, 이름 가져오기
                 )
                 .successHandler(oAuth2SuccessHandler) // Step 2: 정보 가져오기 성공하면 JWT 만들어서 프론트로 던져주기!
-
         )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            if (req.getRequestURI().startsWith("/api/")) {
+                                res.setStatus(401);
+                                res.setContentType("application/json;charset=UTF-8");
+                                res.getWriter().write("{\"message\":\"인증이 필요합니다\"}");
+                            } else {
+                                res.sendRedirect("/login");
+                            }
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(403);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"message\":\"권한이 없습니다\"}");
+                        })
+                )
                 .addFilterBefore(new JwtFilter(jwtUtil),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
 
         return http.build();
