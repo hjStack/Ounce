@@ -3,6 +3,7 @@ package ounce.market.demo.common.OAuth;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
@@ -73,7 +75,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         // 4. 프론트엔드로 리다이렉트 (이동)
-       response.sendRedirect(frontendUrl);
+
+        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
+
+        response.sendRedirect(frontendUrl);
     }
 }
 

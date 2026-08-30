@@ -28,17 +28,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = null;
 
-        // 1. 클라이언트가 보낸 쿠키통(Cookies)에서 "Authorization" 쿠키 찾기
         Cookie[] cookies = request.getCookies();
-
-        if (cookies == null){
-            log.debug("⚠️ 쿠키 없음! 요청 URI: {}", request.getRequestURI());  // 👈 URI 추가
-        }
 
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -49,34 +45,54 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // 2. 토큰이 아예 없거나, 검증(validateToken)에 실패하면 통과 안 시킴!
-        if (token == null || !jwtUtil.validateToken(token)) {
-
-            filterChain.doFilter(request, response);  // 여기서 401
+        // 토큰 없음 → 익명으로 통과 (인가 단계에서 처리)
+        if (token == null) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        // 3. 토큰이 유효하다면, 내부에 숨겨진 이메일과 권한(Role) 꺼내기
+        // Access Token 검증 (타입까지 확인)
+        if (!jwtUtil.validateAccessToken(token)) {
+            log.debug("유효하지 않은 access token. URI: {}", request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
 
+        // 방어 코드: claim이 비어있으면 인증하지 않음
+        if (email == null || role == null) {
+            log.warn("토큰에 필수 claim 누락. URI: {}", request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Role parsedRole;
+        try {
+            parsedRole = Role.valueOf(role.replace("ROLE_", ""));
+        } catch (IllegalArgumentException e) {
+            log.warn("알 수 없는 role 값: {}", role);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         Member temporaryMember = Member.builder()
                 .email(email)
-                .role(Role.valueOf(role.replace("ROLE_", "")))
+                .role(parsedRole)
                 .build();
 
         CustomUserDetails userDetails = new CustomUserDetails(temporaryMember);
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(
-                userDetails, // 💡 기존 email 문자열에서 userDetails 객체로 변경!
+                userDetails,
                 null,
                 userDetails.getAuthorities()
         );
 
-        // 5. 💡 핵심: "이 유저 인증 통과했어!" 라고 스프링 시큐리티 상황실(SecurityContext)에 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        // 6. 무사히 인증을 마쳤으니 다음 필터로(또는 실제 컨트롤러로) 이동!
         filterChain.doFilter(request, response);
     }
+
 }
