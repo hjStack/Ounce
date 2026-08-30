@@ -9,6 +9,7 @@ import ounce.market.demo.cart.repository.CartProductRepository;
 import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.cart.dto.response.CartItemDto;
 import ounce.market.demo.product.entity.Product;
+import ounce.market.demo.product.entity.ProductStatus;
 import ounce.market.demo.product.repository.ProductRepository;
 import ounce.market.demo.timeDeal.entity.DealStatus;
 import ounce.market.demo.timeDeal.entity.TimeDeal;
@@ -58,6 +59,7 @@ public class CartService {
                 ));
 
         return cart.getCartItems().stream()
+                .filter(cartProduct -> cartProduct.getProduct() != null)
                 .map(cp -> CartItemDto.from(cp, dealRateMap.get(cp.getProduct().getProductId())))
                 .collect(Collectors.toList());
     }
@@ -84,6 +86,11 @@ public class CartService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+        if (product.getStatus() != ProductStatus.VISIBLE
+                && product.getStatus() != ProductStatus.TIME_DEAL) {
+            throw new IllegalArgumentException("현재 판매하지 않는 상품입니다.");
+        };
 
         Optional<CartProduct> existing = cartProductRepository.findByCartCartIdAndProductProductId(cart.getCartId(), productId);
 

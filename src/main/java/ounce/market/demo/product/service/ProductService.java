@@ -1,6 +1,7 @@
 package ounce.market.demo.product.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -41,6 +43,10 @@ public class ProductService {
 
     @Transactional
     public Long createProduct(ProductCreateRequest request, MultipartFile image) throws IOException {
+
+//        log.info("image = {}, size = {}",
+//                image == null ? "NULL" : image.getOriginalFilename(),
+//                image == null ? -1 : image.getSize());
 
         String uploadedImageUrl = null;
 
@@ -74,6 +80,8 @@ public class ProductService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. productId = " + productId));
+
+
 
         product.changeStatus(ProductStatus.STOPPED);
     }
