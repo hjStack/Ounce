@@ -1,18 +1,21 @@
 package ounce.market.demo.common.global;
 
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ounce.market.demo.common.Exception.DuplicateEmailException;
 import ounce.market.demo.common.dto.ErrorResponse;
+import ounce.market.demo.coupon.error.BusinessException;
+import ounce.market.demo.coupon.error.ErrorCode;
 
-import java.nio.file.AccessDeniedException;
 
 // @RestControllerAdvice: 프로젝트 내의 모든 @RestController에서 발생하는 에러를 여기서 가로챕니다.
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     // @Valid 검증에 실패했을 때 Spring이 터뜨리는 예외를 잡는 메서드
@@ -44,6 +47,7 @@ public class GlobalExceptionHandler {
     }
 
 
+    // 파일 시스템 권한 예외
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDenied(AccessDeniedException e) {
         return ResponseEntity.status(403).body(e.getMessage());
@@ -55,6 +59,22 @@ public class GlobalExceptionHandler {
 //        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 //                .body(e.getClass().getName() + ": " + e.getMessage());
 //    }
+
+    // GlobalExceptionHandler 안에 추가. 나머지는 그대로 둬.
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+        ErrorCode errorCode = e.getErrorCode();
+
+        if (errorCode.getStatus().is5xxServerError()) {
+            log.error("서버 오류. code={}", errorCode.getCode(), e);
+        } else {
+            log.warn("비즈니스 예외. code={}, message={}", errorCode.getCode(), e.getMessage());
+        }
+
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(new ErrorResponse(errorCode.getStatus().value(), e.getMessage()));
+    }
 
 
 }

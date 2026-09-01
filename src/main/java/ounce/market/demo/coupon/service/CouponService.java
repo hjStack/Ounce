@@ -1,5 +1,6 @@
 package ounce.market.demo.coupon.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,97 +9,72 @@ import ounce.market.demo.coupon.dto.response.CouponResponse;
 import ounce.market.demo.coupon.dto.response.CouponValidationResponse;
 import ounce.market.demo.coupon.entity.Coupon;
 import ounce.market.demo.coupon.entity.CouponStatus;
-import ounce.market.demo.coupon.entity.DiscountType;
+import ounce.market.demo.coupon.entity.CouponUnavailableReason;
+import ounce.market.demo.coupon.error.CouponErrorCode;
+import ounce.market.demo.coupon.error.CouponException;
 import ounce.market.demo.coupon.repository.CouponRepository;
-import ounce.market.demo.member.entity.Member;
-import ounce.market.demo.member.repository.MemberRepository;
+import ounce.market.demo.delivery.entity.ShippingPolicy;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CouponService {
 
     private final CouponRepository couponRepository;
-    private final MemberRepository memberRepository;
+    private final ShippingPolicy shippingPolicy;
 
-    @Transactional(readOnly = true)
-    public List<CouponResponse> getMyCoupons(String email) {
-        Member member = getMemberByEmail(email);
-        return couponRepository.findAllByMemberMemberIdOrderByCouponIdDesc(member.getMemberId())
-                .stream()
+    public List<CouponResponse> getMyCoupons(Long memberId) {
+        return couponRepository.findAllByMemberId(memberId).stream()
                 .map(CouponResponse::from)
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public List<CouponValidationResponse> getAvailableCoupons(String email, int orderAmount) {
-        Member member = getMemberByEmail(email);
-        return couponRepository
-                .findAllByMemberMemberIdAndStatusOrderByCouponIdDesc(member.getMemberId(), CouponStatus.AVAILABLE)
-                .stream()
-                .filter(coupon -> coupon.isAvailableFor(orderAmount))
-                .map(coupon -> toValidationResponse(coupon, orderAmount))
+    /** 사용 가능한 쿠폰을 할인액 큰 순으로 정렬해서 반환 */
+    public List<CouponValidationResponse> getAvailableCoupons(Long memberId, int productAmount) {
+        LocalDateTime now = LocalDateTime.now();
+        int shippingFee = shippingPolicy.calculateShippingFee(productAmount, now);
+
+        return couponRepository.findByMemberIdAndStatus(memberId, CouponStatus.AVAILABLE).stream()
+                .map(coupon -> toValidationResponse(coupon, productAmount, shippingFee, now))
+                .filter(CouponValidationResponse::available)
+                .sorted(Comparator.comparingInt(
+                        (CouponValidationResponse r) ->
+                                r.productDiscountAmount() + r.shippingDiscountAmount()).reversed())
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public CouponValidationResponse validateCoupon(String email, Long couponId, int orderAmount) {
-        Member member = getMemberByEmail(email);
-        Coupon coupon = couponRepository.findByCouponIdAndMemberMemberId(couponId, member.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
+    public CouponValidationResponse validateCoupon(Long memberId, Long couponId, int productAmount) {
+        LocalDateTime now = LocalDateTime.now();
 
-        return toValidationResponse(coupon, orderAmount);
-    }
-
-    @Transactional
-    public Long issueCoupon(CouponIssueRequest request) {
-        validateCouponPolicy(request);
-
-        Member member = memberRepository.findById(request.memberId())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-
-        Coupon coupon = Coupon.builder()
-                .member(member)
-                .name(request.name())
-                .discountType(request.discountType())
-                .discountAmount(request.discountAmount())
-                .maxDiscountAmount(request.maxDiscountAmount())
-                .minOrderAmount(request.minOrderAmount())
-                .expiresAt(request.expiresAt())
-                .build();
-
-        return couponRepository.save(coupon).getCouponId();
-    }
-
-    @Transactional
-    public CouponResponse expireCoupon(Long couponId) {
         Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CouponException(CouponErrorCode.COUPON_NOT_FOUND));
 
-        coupon.expire();
-        return CouponResponse.from(coupon);
+        // 남의 쿠폰이면 존재 자체를 숨긴다 (403 대신 404)
+        if (!coupon.isOwnedBy(memberId)) {
+            throw new CouponException(CouponErrorCode.COUPON_NOT_FOUND);
+        }
+
+        int shippingFee = shippingPolicy.calculateShippingFee(productAmount, now);
+        return toValidationResponse(coupon, productAmount, shippingFee, now);
     }
 
-    private CouponValidationResponse toValidationResponse(Coupon coupon, int orderAmount) {
-        boolean available = coupon.isAvailableFor(orderAmount);
-        int discountAmount = available ? coupon.calculateDiscountAmount(orderAmount) : 0;
+    private CouponValidationResponse toValidationResponse(
+            Coupon coupon, int productAmount, int shippingFee, LocalDateTime now) {
+
+        CouponUnavailableReason reason = coupon.validateFor(productAmount, now);
+        int productDiscount = coupon.calculateProductDiscount(productAmount, now);
+        int shippingDiscount = coupon.calculateShippingDiscount(productAmount, shippingFee, now);
+
         return new CouponValidationResponse(
                 coupon.getCouponId(),
-                available,
-                discountAmount,
-                Math.max(orderAmount - discountAmount, 0)
-        );
-    }
-
-    private Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-    }
-
-    private void validateCouponPolicy(CouponIssueRequest request) {
-        if (request.discountType() == DiscountType.PERCENT && request.discountAmount() > 100) {
-            throw new IllegalArgumentException("정률 쿠폰 할인율은 100 이하이어야 합니다.");
-        }
+                coupon.getName(),
+                coupon.isAvailableFor(productAmount,now),
+                coupon.getDiscountAmount(),
+                coupon.getFinalAmount(),
+                coupon.getShipppingAmount());
     }
 }

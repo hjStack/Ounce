@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ounce.market.demo.cart.entity.CartProduct;
 import ounce.market.demo.cart.repository.CartProductRepository;
 import ounce.market.demo.coupon.entity.Coupon;
+import ounce.market.demo.coupon.entity.CouponUnavailableReason;
+import ounce.market.demo.coupon.error.CouponErrorCode;
+import ounce.market.demo.coupon.error.CouponException;
 import ounce.market.demo.coupon.repository.CouponRepository;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
@@ -15,6 +18,7 @@ import ounce.market.demo.order.dto.response.OrderResponse;
 import ounce.market.demo.order.repository.OrderRepository;
 import ounce.market.demo.product.repository.StockRedisRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -91,12 +95,13 @@ public class OrderService {
         }
 
         Coupon coupon = couponRepository.findByCouponIdAndMemberMemberId(couponId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CouponException(CouponErrorCode.COUPON_NOT_FOUND));
 
-        if (!coupon.isAvailableFor(totalAmount)) {
-            throw new IllegalArgumentException("사용할 수 없는 쿠폰입니다.");
+        LocalDateTime now = LocalDateTime.now();
+        if (coupon.validateFor(totalAmount, now) != CouponUnavailableReason.NONE) {
+            throw new CouponException(CouponErrorCode.COUPON_NOT_FOUND);
         }
 
-        return Math.max(totalAmount - coupon.calculateDiscountAmount(totalAmount), 0);
+        return Math.max(totalAmount - coupon.calculateProductDiscount(totalAmount, now), 0);
     }
 }
