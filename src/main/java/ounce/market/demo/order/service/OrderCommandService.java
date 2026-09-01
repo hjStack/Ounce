@@ -81,11 +81,12 @@ public class OrderCommandService {
             deliveryRepository.save(delivery);
         }
 
-        if (request.getCouponId() != null) {
-            Coupon coupon = couponRepository.findByCouponIdAndMemberMemberId(request.getCouponId(), memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
-            coupon.use(order, totalAmount);
-        }
+        // todo 쿠폰 아이디가 널일경우
+//        if (request.getCouponId() != null) {
+//            Coupon coupon = couponRepository.findByCouponIdAndMemberMemberId(request.getCouponId(), memberId)
+//                    .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
+//            coupon.use(order, totalAmount);
+//        }
 
         if (paymentAmount > 0) {
             pointHistoryRepository.save(PointHistory.builder()
