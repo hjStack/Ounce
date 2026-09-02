@@ -17,13 +17,14 @@ import java.time.LocalDateTime;
 @Table(name = "coupon_policy")
 public class CouponPolicy extends BaseEntity {
 
+    // 4주 연속 구독하면 관리자가 주는 3000원 쿠폰
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long policyId;
 
     @Column(nullable = false, unique = true, length = 50)
     private String code;
-
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -39,10 +40,11 @@ public class CouponPolicy extends BaseEntity {
     // --- 발급 조건 ---
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private IssueTrigger issueTrigger;
+    private IssueTrigger issueTrigger; // 카프카 컨슈머가 분기할 기준점
 
     /** SUBSCRIPTION_STREAK일 때 달성 회차 (4) */
-    private Integer triggerThreshold; // todo ? 구독한 채로 4주차가 되면 구독 감사 쿠폰  : 1만원 할인 ?
+    // 4주 연속 구독시 3천원 쿠폰
+    private Integer triggerThreshold=4; // todo ? 구독한 채로 4주차가 되면 구독 감사 쿠폰  : 3천원 할인 ?
 
     private LocalDateTime issueStartAt;
     private LocalDateTime issueEndAt;
@@ -56,7 +58,6 @@ public class CouponPolicy extends BaseEntity {
 
     // --- 유효기간 (택1) ---
     private Integer validDays;
-//    private LocalDateTime fixedExpiresAt;
 
     private boolean active;
 

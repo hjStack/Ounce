@@ -75,6 +75,6 @@ public class CouponService {
                 coupon.isAvailableFor(productAmount,now),
                 coupon.getDiscountAmount(),
                 coupon.getFinalAmount(),
-                coupon.getShipppingAmount());
+                coupon.getShippingAmount());
     }
 }
