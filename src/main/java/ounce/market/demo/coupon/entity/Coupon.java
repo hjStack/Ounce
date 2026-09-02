@@ -51,11 +51,10 @@ public class Coupon extends BaseEntity {
     private DiscountType discountType;
 
     private int discountAmount;
-    private int finalAmount;
     private Integer maxDiscountAmount;
     private int minOrderAmount;
-
-    private int shipppingAmount;
+    private int FinalAmount;
+    private int ShippingAmount;
 
     private LocalDateTime issuedAt;
     private LocalDateTime expiresAt;
@@ -172,7 +171,8 @@ public class Coupon extends BaseEntity {
         this.status = CouponStatus.EXPIRED;
     }
 
+    // 할인액
     public int calculateDiscountAmount(int totalAmount) {
-        return totalAmount;
+        return totalAmount - discountAmount;
     }
 }
