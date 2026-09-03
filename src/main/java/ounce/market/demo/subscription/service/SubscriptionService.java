@@ -61,6 +61,13 @@ public class SubscriptionService {
         syncOpenCycle(subscription);
     }
 
+    @Transactional
+    public void cancelSkip(Long memberId, Long subscriptionId) {
+        Subscription subscription = load(memberId, subscriptionId);
+        subscription.cancelSkip(now());
+        syncOpenCycle(subscription);
+    }
+
     /** 지정한 날짜까지 쉬어가기. resumeDate 당일에 결제가 재개된다. */
     @Transactional
     public void pauseUntil(Long memberId, Long subscriptionId, LocalDate resumeDate) {

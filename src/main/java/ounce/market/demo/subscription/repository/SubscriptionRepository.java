@@ -26,7 +26,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("""
             select s.subscriptionId from Subscription s
             where s.status = ounce.market.demo.subscription.entity.SubscriptionStatus.ACTIVE
-              and s.nextBillingDate <= :today
+              and s.nextBillingDate = :today
               and s.subscriptionId > :lastId
             order by s.subscriptionId asc
             """)
