@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
-                .path("/")   // 갱신 엔드포인트에만 전송
+                .path("/api/auth/refresh")   // 갱신 엔드포인트에만 전송
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .maxAge(60 * 60 * 24 * 14)   // 2주
@@ -76,7 +76,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 4. 프론트엔드로 리다이렉트 (이동)
 
-        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
+//        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
 
         response.sendRedirect(frontendUrl);
     }
