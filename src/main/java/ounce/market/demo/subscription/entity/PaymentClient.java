@@ -1,5 +1,7 @@
 package ounce.market.demo.subscription.entity;
 
+import org.springframework.stereotype.Component;
+
 /**
  * 정기결제 PG 포트. 구현은 인프라 레이어(토스/나이스 등)에 둔다.
  * 구독 도메인은 이 인터페이스만 안다.
@@ -7,6 +9,7 @@ package ounce.market.demo.subscription.entity;
 
 // todo 실제로는 가입 시 카드를 등록하고 빌링키를 받아 저장하는 단계가 포함되어야 함
 
+@Component
 public interface PaymentClient {
 
     /**
