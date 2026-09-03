@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import ounce.market.demo.common.OAuth.CustomOAuth2UserService;
 import ounce.market.demo.common.OAuth.OAuth2SuccessHandler;
 import ounce.market.demo.common.filter.JwtFilter;
+import ounce.market.demo.common.global.CustomUserDetailsService;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import org.springframework.http.HttpMethod;
 
@@ -26,6 +27,8 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler; // 우리가 직접 만들 클래스
     private final CustomOAuth2UserService  customOAuth2UserService; // 구글 정보 처리 클래스
     private final JWTUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -107,7 +110,7 @@ public class SecurityConfig {
                             res.getWriter().write("{\"message\":\"권한이 없습니다\"}");
                         })
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
+                .addFilterBefore(new JwtFilter(jwtUtil, customUserDetailsService),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
 
         return http.build();
     }

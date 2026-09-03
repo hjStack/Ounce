@@ -31,6 +31,8 @@ public class Product extends BaseEntity {
 
     private int stock;
 
+    private int Quantity;
+
     @Builder
     public Product(String productCode, String name, Long basePrice,
                    Long discountPercent,
