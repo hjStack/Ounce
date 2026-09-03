@@ -1,9 +1,8 @@
 package ounce.market.demo.subscription.repository;
 
-
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import ounce.market.demo.subscription.entity.CycleStatus;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ounce.market.demo.subscription.entity.SubscriptionCycle;
 
 import java.time.LocalDate;
@@ -12,24 +11,52 @@ import java.util.Optional;
 
 public interface SubscriptionCycleRepository extends JpaRepository<SubscriptionCycle, Long> {
 
-    /** 배치 중복 실행 방어. 유니크 제약과 별개로 미리 걸러내는 용도. */
-    boolean existsBySubscriptionSubscriptionIdAndCycleNumber(Long subscriptionId, int cycleNumber);
-
-    List<SubscriptionCycle> findAllBySubscriptionSubscriptionIdOrderByCycleNumberDesc(
-            Long subscriptionId);
-
-    Optional<SubscriptionCycle> findBySubscriptionSubscriptionIdAndCycleNumber(
-            Long subscriptionId, int cycleNumber);
+    Optional<SubscriptionCycle> findBySubscription_SubscriptionIdAndCycleNumber(Long subscriptionId, int cycleNumber);
 
     /**
-     * 마감 배치용. 배송일이 특정일인 미확정 회차를 훑는다.
-     * idx_cycle_status_delivery(status, delivery_date)를 탄다.
+     * 메뉴 선택 중인 회차. 구독당 1건이어야 한다.
+     * <p>
+     * 유니크 제약이 이중 생성을 막지만, 그래도 최신 것 하나만 집도록 정렬과 limit을 둔다.
+     * 데이터가 깨졌을 때 NonUniqueResultException으로 조회 전체가 죽는 것보다,
+     * 하나를 돌려주고 서비스가 계속 도는 편이 낫다.
      */
-    List<SubscriptionCycle> findAllByStatusAndDeliveryDate(
-            CycleStatus status, LocalDate deliveryDate);
+    @Query("""
+            select c from SubscriptionCycle c
+            left join fetch c.items
+            where c.subscription.subscriptionId = :subscriptionId
+              and c.status = ounce.market.demo.subscription.entity.SubscriptionCycleStatus.DRAFT
+            order by c.cycleNumber desc
+            limit 1
+            """)
+    Optional<SubscriptionCycle> findDraft(@Param("subscriptionId") Long subscriptionId);
 
-    /** 결제 배치용. 구독과 회원까지 함께 로딩해서 N+1을 피한다. */
-    @EntityGraph(attributePaths = {"subscription", "subscription.member"})
-    List<SubscriptionCycle> findAllByStatusAndDeliveryDateLessThanEqual(
-            CycleStatus status, LocalDate deliveryDate);
+    boolean existsBySubscription_SubscriptionIdAndCycleNumber(Long subscriptionId, int cycleNumber);
+
+    /** 직전 회차. 메뉴를 안 고른 사용자에게 기본 구성을 채울 때 참고한다. */
+    @Query("""
+            select c from SubscriptionCycle c
+            left join fetch c.items
+            where c.subscription.subscriptionId = :subscriptionId
+              and c.status <> ounce.market.demo.subscription.entity.SubscriptionCycleStatus.DRAFT
+            order by c.cycleNumber desc
+            limit 1
+            """)
+    Optional<SubscriptionCycle> findLatestConfirmed(@Param("subscriptionId") Long subscriptionId);
+
+    /** 배송 배치가 집어갈 목록. PAID인 회차만 나간다. */
+    @Query("""
+            select c from SubscriptionCycle c
+            join fetch c.subscription s
+            join fetch s.member
+            where c.deliveryDate = :deliveryDate
+              and c.status = ounce.market.demo.subscription.entity.SubscriptionCycleStatus.PAID
+            """)
+    List<SubscriptionCycle> findDeliverableOn(@Param("deliveryDate") LocalDate deliveryDate);
+
+    @Query("""
+            select c from SubscriptionCycle c
+            where c.subscription.subscriptionId = :subscriptionId
+            order by c.cycleNumber desc
+            """)
+    List<SubscriptionCycle> findHistory(@Param("subscriptionId") Long subscriptionId);
 }

@@ -1,6 +1,5 @@
 package ounce.market.demo.common.filter;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -10,48 +9,53 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ounce.market.demo.common.global.CustomUserDetails;
+import ounce.market.demo.common.global.CustomUserDetailsService;
 import ounce.market.demo.common.global.jwt.JWTUtil;
-import ounce.market.demo.member.entity.Member;
-import ounce.market.demo.member.entity.MemberStatus;
-import ounce.market.demo.member.entity.Role;
 
 import java.io.IOException;
-import java.util.Collections;
 
+/**
+ * 쿠키의 access token으로 인증 주체를 세운다.
+ * <p>
+ * 토큰 claim만으로 Member를 조립하지 않고 DB에서 조회한다. 이유가 둘이다.
+ * 하나는 memberId가 필요해서다 — 조립한 객체는 ID가 비어 있어 구독·주문처럼
+ * 회원 ID로 조회하는 모든 경로가 깨진다.
+ * 다른 하나는 권한이다. 토큰의 role은 발급 시점 값이라, 관리자 권한을 회수해도
+ * 토큰이 만료될 때까지 관리자로 통과한다. DB에서 읽으면 즉시 반영된다.
+ * <p>
+ * 대가는 요청당 회원 조회 한 번이다. 이게 부담이 되면 토큰에 memberId를 담는 방식으로
+ * 바꿀 수 있지만, 그때는 권한 즉시 반영을 포기하는 것이다.
+ */
 @Slf4j
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JWTUtil jwtUtil;
+    private static final String TOKEN_COOKIE_NAME = "Authorization";
 
+    private final JWTUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
+
+    public JwtFilter(JWTUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        String token = null;
+        String token = extractToken(request);
 
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("Authorization".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        // 토큰 없음 → 익명으로 통과 (인가 단계에서 처리)
+        // 토큰 없음 → 익명으로 통과. 접근 제어는 SecurityFilterChain이 한다.
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Access Token 검증 (타입까지 확인)
         if (!jwtUtil.validateAccessToken(token)) {
             log.debug("유효하지 않은 access token. URI: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
@@ -59,40 +63,44 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String email = jwtUtil.getEmail(token);
-        String role = jwtUtil.getRole(token);
-
-        // 방어 코드: claim이 비어있으면 인증하지 않음
-        if (email == null || role == null) {
-            log.warn("토큰에 필수 claim 누락. URI: {}", request.getRequestURI());
+        if (email == null) {
+            log.warn("토큰에 email claim 누락. URI: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
 
-        Role parsedRole;
+        UserDetails userDetails;
         try {
-            parsedRole = Role.valueOf(role.replace("ROLE_", ""));
-        } catch (IllegalArgumentException e) {
-            log.warn("알 수 없는 role 값: {}", role);
+            // 권한도 여기서 나온다. CustomUserDetails.getAuthorities()가
+            // DB에서 읽은 member.getRole()로 SimpleGrantedAuthority를 만든다.
+            userDetails = userDetailsService.loadUserByUsername(email);
+        } catch (UsernameNotFoundException e) {
+            // 토큰은 유효한데 회원이 없다. 탈퇴했거나 데이터가 지워진 경우다.
+            log.warn("토큰의 회원을 찾을 수 없음. email={} URI={}", email, request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
-
-        Member temporaryMember = Member.builder()
-                .email(email)
-                .role(parsedRole)
-                .build();
-
-        CustomUserDetails userDetails = new CustomUserDetails(temporaryMember);
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,
                 userDetails.getAuthorities()
         );
-
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
     }
 
+    private String extractToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
 }

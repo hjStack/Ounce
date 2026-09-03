@@ -2,47 +2,44 @@ package ounce.market.demo.subscription.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.common.BaseEntity;
-import ounce.market.demo.order.entity.Order;
+import ounce.market.demo.subscription.Exception.SubscriptionErrorCode;
 import ounce.market.demo.subscription.Exception.SubscriptionException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 구독의 주차별 회차. 매주 하나씩 쌓이는 이력이다.
- * 결제가 성공하면 Order 하나와 연결되어, 이후 배송·재고 흐름은 기존 주문 로직을 그대로 탄다.
+ * 구독 1주치 회차.
+ * <p>
+ * 수명은 이렇다. 결제 3일 전(금요일)에 DRAFT로 열려 사용자가 메뉴를 고르고,
+ * 결제일 23시에 PENDING으로 확정되며 그 시점의 메뉴와 금액이 고정된다.
+ * 그 뒤 PG 결과에 따라 PAID / FAILED / ABANDONED로 간다.
+ * <p>
+ * 회차를 결제 시점이 아니라 메뉴 오픈 시점에 만드는 이유가 이거다.
+ * 사용자는 결제가 일어나기 전에 이번 주 박스에 뭐가 들어갈지 정해야 한다.
  */
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "subscription_cycle",
         uniqueConstraints = {
-                // 같은 구독의 같은 회차가 두 번 생기지 않게 한다.
-                // 배치가 중복 실행돼도 여기서 막힌다.
-                @UniqueConstraint(
-                        name = "uk_cycle_subscription_number",
-                        columnNames = {"subscription_id", "cycle_number"}),
-                @UniqueConstraint(name = "uk_cycle_order", columnNames = "order_id")
+                // 같은 회차가 두 번 생기면 이중 결제다. DB에서 막는다.
+                @UniqueConstraint(name = "uk_cycle_subscription_number",
+                        columnNames = {"subscription_id", "cycle_number"})
         },
-        indexes = @Index(name = "idx_cycle_status_delivery",
-                columnList = "status, delivery_date")
+        indexes = @Index(name = "idx_cycle_delivery", columnList = "delivery_date, status")
 )
-
-// 4주 연속 구독시 3천원 쿠폰 주기 위함
 public class SubscriptionCycle extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cycleId;
-
-    @Version
-    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "subscription_id", nullable = false)
@@ -53,92 +50,147 @@ public class SubscriptionCycle extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private CycleStatus status;
+    private SubscriptionCycleStatus status;
 
-    @Column(name = "delivery_date", nullable = false)
+    /** 회차 시점의 끼수 스냅샷. 담긴 항목 수량 합계가 이 값과 같아야 한다. */
+    @Column(nullable = false)
+    private int mealsPerWeek;
+
+    /** 확정 시점에 계산된 청구 금액. DRAFT 동안은 항목 합계로 미리보기만 한다. */
+    @Column(nullable = false)
+    private Long amount;
+
+    /** 결제 예정일. 이 날 23시에 확정된다. */
+    @Column(name = "billing_date", nullable = false)
+    private LocalDate billingDate;
+
+    /** 새벽 배송일. 확정 시점에 결정되므로 DRAFT 동안은 비어 있다. */
+    @Column(name = "delivery_date")
     private LocalDate deliveryDate;
 
     @Column(nullable = false)
-    private int mealsCount;
+    private int attemptCount;
 
-    /** 사용자가 직접 골랐는지, 마감으로 자동 확정됐는지 */
-    private boolean autoConfirmed;
+    private String lastFailureCode;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private String paymentKey;
 
-    private LocalDateTime paidAt;
-    private String failureReason;
+    @OneToMany(mappedBy = "cycle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<SubscriptionCycleItem> items = new ArrayList<>();
 
-    private static final int MENU_DEADLINE_DAYS_BEFORE = 2;
-    private static final int MENU_DEADLINE_HOUR = 23;
-
-    @Builder
-    public SubscriptionCycle(Subscription subscription, int cycleNumber,
-                             int mealsCount, LocalDate deliveryDate) {
+    private SubscriptionCycle(Subscription subscription, int cycleNumber,
+                              int mealsPerWeek, LocalDate billingDate) {
         this.subscription = subscription;
         this.cycleNumber = cycleNumber;
-        this.mealsCount = mealsCount;
-        this.deliveryDate = deliveryDate;
-        this.status = CycleStatus.MENU_PENDING;
+        this.mealsPerWeek = mealsPerWeek;
+        this.billingDate = billingDate;
+        this.status = SubscriptionCycleStatus.DRAFT;
+        this.amount = 0L;
+        this.attemptCount = 0;
     }
 
-    // ===== 메뉴 확정 =====
-    /** 사용자가 직접 메뉴를 확정 */
-    public void confirmMenu(LocalDateTime now) {
-        requireStatus(CycleStatus.MENU_PENDING);
-        if (!now.isBefore(menuDeadline())) {
-            throw new SubscriptionException(SubscriptionErrorCode.MENU_DEADLINE_PASSED);
-        }
-        this.status = CycleStatus.CONFIRMED;
-        this.autoConfirmed = false;
+    /** 메뉴 선택 기간 개설. 결제 3일 전에 배치가 호출한다. */
+    public static SubscriptionCycle openForMenu(Subscription subscription, int cycleNumber,
+                                                int mealsPerWeek, LocalDate billingDate) {
+        return new SubscriptionCycle(subscription, cycleNumber, mealsPerWeek, billingDate);
     }
 
-    /** 마감 배치가 기본 구성으로 자동 확정. 멱등. */
-    public void autoConfirm() {
-        if (this.status != CycleStatus.MENU_PENDING) {
-            return;
+    // ===== 메뉴 =====
+
+    /**
+     * 메뉴 교체. 기존 선택을 통째로 갈아끼운다.
+     * 수량 합계가 끼수와 맞아야 한다 — 5끼 구독인데 3끼만 담고 결제되면 그대로 손실이다.
+     */
+    public void changeMenu(List<MenuLine> lines) {
+        if (!status.isMenuEditable()) {
+            throw new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE);
         }
-        this.status = CycleStatus.CONFIRMED;
-        this.autoConfirmed = true;
+        int total = lines.stream().mapToInt(MenuLine::quantity).sum();
+        if (total != mealsPerWeek) {
+            throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
+                    "expected=%d actual=%d".formatted(mealsPerWeek, total));
+        }
+
+        this.items.clear();
+        for (MenuLine line : lines) {
+            this.items.add(new SubscriptionCycleItem(
+                    this, line.productId(), line.productName(), line.unitPrice(), line.quantity()));
+        }
+        this.amount = this.items.stream().mapToLong(SubscriptionCycleItem::subtotal).sum();
+    }
+
+    /**
+     * 결제일을 옮긴다. 쉬어가기로 구독의 다음 결제일이 밀리면
+     * 열려 있는 회차의 날짜도 같이 밀어야 한다. 안 그러면 회차가 지난 날짜를 들고 남는다.
+     */
+    public void rescheduleTo(LocalDate billingDate) {
+        if (status != SubscriptionCycleStatus.DRAFT) {
+            throw new SubscriptionException(SubscriptionErrorCode.INVALID_STATUS_TRANSITION);
+        }
+        this.billingDate = billingDate;
+    }
+
+    public boolean hasMenu() {
+        return !items.isEmpty();
+    }
+
+    /**
+     * 결제 직전 확정. 메뉴가 닫히고 배송일과 금액이 고정된다.
+     * 메뉴를 안 고른 채로 여기 오면 안 된다 — 배치가 기본 구성을 먼저 채워야 한다.
+     */
+    public void confirmForBilling(LocalDateTime now) {
+        if (status != SubscriptionCycleStatus.DRAFT) {
+            throw new SubscriptionException(SubscriptionErrorCode.INVALID_STATUS_TRANSITION);
+        }
+        if (!hasMenu()) {
+            throw new SubscriptionException(SubscriptionErrorCode.MENU_NOT_SELECTED,
+                    "cycleNumber=" + cycleNumber);
+        }
+        this.status = SubscriptionCycleStatus.PENDING;
+        this.deliveryDate = Subscription.deliveryDateOf(now);
+        this.amount = this.items.stream().mapToLong(SubscriptionCycleItem::subtotal).sum();
     }
 
     // ===== 결제 =====
 
-    public void markPaid(Order order, LocalDateTime now) {
-        requireStatus(CycleStatus.CONFIRMED);
-        this.order = order;
-        this.status = CycleStatus.PAID;
-        this.paidAt = now;
+    /** PG 호출 직전에 시도 횟수를 올린다. 멱등키 생성에 쓰인다. */
+    public int beginAttempt() {
+        return ++this.attemptCount;
     }
 
-    public void markFailed(String reason) {
-        requireStatus(CycleStatus.CONFIRMED);
-        this.status = CycleStatus.FAILED;
-        // 실패 사유는 그대로 노출하면 안 되므로 코드 수준으로만 남긴다.
-        this.failureReason = reason;
+    /** 이미 결제가 확정된 회차인가. 구독 상태를 두 번 미는 것을 막는 최종 가드다. */
+    public boolean isPaid() {
+        return this.status == SubscriptionCycleStatus.PAID;
     }
 
-    /** 사용자가 이번 주를 건너뜀 */
-    public void skip() {
-        if (this.status != CycleStatus.MENU_PENDING && this.status != CycleStatus.CONFIRMED) {
-            throw new SubscriptionException(SubscriptionErrorCode.INVALID_STATUS_TRANSITION);
+    public void markPaid(String paymentKey, LocalDate deliveryDate) {
+        this.status = SubscriptionCycleStatus.PAID;
+        this.paymentKey = paymentKey;
+        this.deliveryDate = deliveryDate;
+        this.lastFailureCode = null;
+    }
+
+    public void markFailed(String failureCode) {
+        this.status = SubscriptionCycleStatus.FAILED;
+        this.lastFailureCode = failureCode;
+    }
+
+    /** 재시도까지 다 실패해서 이번 주를 통째로 넘긴 경우. */
+    public void markAbandoned(String failureCode) {
+        this.status = SubscriptionCycleStatus.ABANDONED;
+        this.lastFailureCode = failureCode;
+    }
+
+    public void closeOnCancel() {
+        if (status != SubscriptionCycleStatus.DRAFT) {
+            return;
         }
-        this.status = CycleStatus.SKIPPED;
+        this.status = SubscriptionCycleStatus.ABANDONED;
+        this.lastFailureCode = "SUBSCRIPTION_CANCELED";
     }
 
-    public boolean isPayable() {
-        return this.status == CycleStatus.CONFIRMED;
-    }
-
-    public LocalDateTime menuDeadline() {
-        return deliveryDate.minusDays(MENU_DEADLINE_DAYS_BEFORE).atTime(23, 0);
-    }
-
-    private void requireStatus(CycleStatus expected) {
-        if (this.status != expected) {
-            throw new SubscriptionException(SubscriptionErrorCode.INVALID_STATUS_TRANSITION);
-        }
+    /** 메뉴 한 줄. 상품 정보는 서비스가 조회해 스냅샷으로 넘긴다. */
+    public record MenuLine(Long productId, String productName,
+                           Long unitPrice, int quantity) {
     }
 }
