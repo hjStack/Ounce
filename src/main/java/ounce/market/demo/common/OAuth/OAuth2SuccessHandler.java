@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
-                .path("/api/auth/refresh")   // 갱신 엔드포인트에만 전송
+                .path("/")   // 갱신 엔드포인트에만 전송
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .maxAge(60 * 60 * 24 * 14)   // 2주
