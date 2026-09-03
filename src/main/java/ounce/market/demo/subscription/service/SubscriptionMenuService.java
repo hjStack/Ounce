@@ -38,18 +38,20 @@ public class SubscriptionMenuService {
      */
     @Transactional
     public void changeMenu(Long memberId, Long subscriptionId, Map<Long, Integer> selection) {
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND));
-        if (!subscription.isOwnedBy(memberId)) {
-            // 남의 구독 메뉴를 바꾸는 걸 막는다. 존재 여부도 노출하지 않는다.
-            throw new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND);
-        }
+//        Subscription subscription = subscriptionRepository.findById(subscriptionId)
+//                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND));
+//        if (!subscription.isOwnedBy(memberId)) {
+//            // 남의 구독 메뉴를 바꾸는 걸 막는다. 존재 여부도 노출하지 않는다.
+//            throw new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND);
+//        }
+//
+//        SubscriptionCycle draft = cycleRepository.findDraft(subscriptionId)
+//                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE,
+//                        "열린 회차 없음 subscriptionId=" + subscriptionId));
+//
+//        draft.changeMenu(productReader.readLines(selection));
 
-        SubscriptionCycle draft = cycleRepository.findDraft(subscriptionId)
-                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE,
-                        "열린 회차 없음 subscriptionId=" + subscriptionId));
 
-        draft.changeMenu(productReader.readLines(selection));
     }
 
     /**

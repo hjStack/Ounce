@@ -1,5 +1,6 @@
 package ounce.market.demo.subscription.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,6 +36,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/subscriptions")
 @RequiredArgsConstructor
+@Tag(name = "구독",description="구독 등록 및 해지, 쉬어가기")
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -94,6 +96,7 @@ public class SubscriptionController {
      * 이번 주만 쉬어가기. 결제일 23시 전까지만 가능하다.
      * 화면이 다음 결제일과 마감 시각을 다시 그려야 하므로 갱신된 구독을 돌려준다.
      */
+
     @PostMapping("/{subscriptionId}/skip")
     public SubscriptionResponse.Detail skip(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -101,6 +104,17 @@ public class SubscriptionController {
 
         Long memberId = memberId(user);
         subscriptionService.skipThisWeek(memberId, subscriptionId);
+        return queryService.findOne(memberId, subscriptionId);
+    }
+
+    /** 배송 1회 건너뛰기 취소. 변경 마감 전까지만 원래 결제일로 복원한다. */
+    @DeleteMapping("/{subscriptionId}/skip")
+    public SubscriptionResponse.Detail cancelSkip(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long subscriptionId) {
+
+        Long memberId = memberId(user);
+        subscriptionService.cancelSkip(memberId, subscriptionId);
         return queryService.findOne(memberId, subscriptionId);
     }
 

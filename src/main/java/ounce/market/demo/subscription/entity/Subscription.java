@@ -84,6 +84,9 @@ public class Subscription extends BaseEntity {
     /** 다음 결제 예정일. 해지되면 null. */
     private LocalDate nextBillingDate;
 
+    /** 배송 1회 건너뛰기 전의 결제일. 취소 시 복원한다. */
+    private LocalDate skippedBillingDate;
+
     /** 쉬어가기 종료일 = 결제를 다시 시작하는 날. PAUSED일 때만 값이 있다. */
     private LocalDate resumeDate;
 
@@ -298,8 +301,22 @@ public class Subscription extends BaseEntity {
     public void skipThisCycle(LocalDateTime now) {
         requireActive();
         requireBeforeCutoff(now);
+        if (skippedBillingDate != null) {
+            throw new SubscriptionException(SubscriptionErrorCode.SKIP_ALREADY_SET);
+        }
+        this.skippedBillingDate = nextBillingDate;
         this.nextBillingDate = this.nextBillingDate.plusWeeks(1);
         applyPendingMeals();
+    }
+
+    public void cancelSkip(LocalDateTime now) {
+        requireActive();
+        requireBeforeCutoff(now);
+        if (skippedBillingDate == null) {
+            throw new SubscriptionException(SubscriptionErrorCode.SKIP_NOT_SET);
+        }
+        this.nextBillingDate = skippedBillingDate;
+        this.skippedBillingDate = null;
     }
 
     /**
@@ -315,6 +332,7 @@ public class Subscription extends BaseEntity {
         this.status = SubscriptionStatus.PAUSED;
         this.resumeDate = resumeDate;
         this.nextBillingDate = resumeDate;
+        this.skippedBillingDate = null;
     }
 
     /** 쉬어가기 해제. 배치가 resumeDate 도달분을, 사용자가 직접 누르면 즉시 재개한다. */
@@ -324,9 +342,8 @@ public class Subscription extends BaseEntity {
         }
         this.status = SubscriptionStatus.ACTIVE;
         this.resumeDate = null;
-        if (nextBillingDate.isBefore(today)) {
-            this.nextBillingDate = today;
-        }
+        // 오늘 결제된 회차를 다시 청구하지 않고 다음 주부터 결제를 재개한다.
+        this.nextBillingDate = today.plusWeeks(1);
         applyPendingMeals();
     }
 
