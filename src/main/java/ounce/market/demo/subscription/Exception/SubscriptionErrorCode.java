@@ -50,6 +50,9 @@ public enum SubscriptionErrorCode {
     /** 결제일 23시 마감이 지나 이미 상품 준비가 시작됐다. */
     SKIP_DEADLINE_PASSED(HttpStatus.CONFLICT, "이번 주 변경 마감(결제일 23시)이 지나 쉬어갈 수 없습니다."),
 
+    SKIP_ALREADY_SET(HttpStatus.CONFLICT, "이미 배송 1회 건너뛰기가 설정되어 있습니다."),
+    SKIP_NOT_SET(HttpStatus.CONFLICT, "취소할 배송 건너뛰기가 없습니다."),
+
     /** 재시도 횟수를 다 썼거나 재시도 마감(다음날)이 지났다. */
     RETRY_DEADLINE_PASSED(HttpStatus.CONFLICT, "결제 재시도 가능 시간이 지났습니다. 다음 주 결제부터 적용됩니다."),
 

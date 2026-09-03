@@ -74,6 +74,22 @@ public class SubscriptionCycleItem extends BaseEntity {
         this.quantity = quantity;
     }
 
+
+    void replaceWith(String productName, Long unitPrice, int quantity) {
+        if (quantity <= 0) {
+            throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
+                    "productId=%d quantity=%d".formatted(productId, quantity));
+        }
+        if (unitPrice == null || unitPrice < 0) {
+            throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
+                    "productId=%d unitPrice=%d".formatted(productId, unitPrice));
+        }
+
+        this.productName = productName;
+        this.unitPrice = unitPrice;
+        this.quantity = quantity;
+    }
+
     public Long subtotal() {
         return unitPrice * quantity;
     }

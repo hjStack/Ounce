@@ -11,7 +11,10 @@ import ounce.market.demo.subscription.Exception.SubscriptionException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 구독 1주치 회차.
@@ -49,7 +52,7 @@ public class SubscriptionCycle extends BaseEntity {
     private int cycleNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 50)
     private SubscriptionCycleStatus status;
 
     /** 회차 시점의 끼수 스냅샷. 담긴 항목 수량 합계가 이 값과 같아야 한다. */
@@ -105,19 +108,63 @@ public class SubscriptionCycle extends BaseEntity {
         if (!status.isMenuEditable()) {
             throw new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE);
         }
-        int total = lines.stream().mapToInt(MenuLine::quantity).sum();
+
+        List<MenuLine> mergedLines = mergeDuplicateProducts(lines);
+
+        int total = mergedLines.stream().mapToInt(MenuLine::quantity).sum();
         if (total != mealsPerWeek) {
             throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
                     "expected=%d actual=%d".formatted(mealsPerWeek, total));
         }
 
-        this.items.clear();
-        for (MenuLine line : lines) {
-            this.items.add(new SubscriptionCycleItem(
-                    this, line.productId(), line.productName(), line.unitPrice(), line.quantity()));
+        Map<Long, SubscriptionCycleItem> existing = new LinkedHashMap<>();
+        for (SubscriptionCycleItem item : items) {
+            existing.put(item.getProductId(), item);
         }
+
+        for (MenuLine line : mergedLines) {
+            SubscriptionCycleItem item = existing.remove(line.productId());
+
+            if (item != null) {
+                item.replaceWith(line.productName(), line.unitPrice(), line.quantity());
+            } else {
+                items.add(new SubscriptionCycleItem(
+                        this, line.productId(), line.productName(), line.unitPrice(), line.quantity()));
+            }
+        }
+
+        items.removeAll(existing.values());
         this.amount = this.items.stream().mapToLong(SubscriptionCycleItem::subtotal).sum();
     }
+
+    private List<MenuLine> mergeDuplicateProducts(List<MenuLine> lines) {
+        Map<Long, MenuLine> merged = new LinkedHashMap<>();
+
+        for (MenuLine line : lines) {
+            validateMenuLine(line);
+
+            MenuLine previous = merged.get(line.productId());
+            if (previous == null) {
+                merged.put(line.productId(), line);
+                continue;
+            }
+
+            merged.put(line.productId(), new MenuLine(
+                    line.productId(),
+                    line.productName(),
+                    line.unitPrice(),
+                    previous.quantity() + line.quantity()));
+        }
+
+        return new ArrayList<>(merged.values());
+    }
+
+    private void validateMenuLine(MenuLine line) {
+        if (line.productId() == null || line.quantity() <= 0 || line.unitPrice() == null || line.unitPrice() < 0) {
+            throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH);
+        }
+    }
+
 
     /**
      * 결제일을 옮긴다. 쉬어가기로 구독의 다음 결제일이 밀리면

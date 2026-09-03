@@ -22,6 +22,8 @@ public final class SubscriptionResponse {
             Long subscriptionId,
             SubscriptionStatus status,
             int mealsPerWeek,
+            /** 구독을 처음 시작한 날짜. 해지 후 재구독하면 새 구독의 시작일이다. */
+            LocalDate startDate,
             /** 마감이 지난 뒤 바꾼 끼수. 다음 회차부터 적용된다. 없으면 null. */
             Integer pendingMealsPerWeek,
             LocalDate nextBillingDate,
@@ -30,6 +32,7 @@ public final class SubscriptionResponse {
             /** 이번 회차 변경 마감. 이 시각 전까지 쉬어가기와 메뉴 변경이 가능하다. */
             LocalDateTime changeDeadline,
             LocalDate resumeDate,
+            boolean skipCancelable,
             int consecutiveCount,
             /** 쿠폰까지 남은 결제 횟수. 화면에 "3천원 쿠폰까지 2번!"으로 노출한다. */
             int remainingForCoupon,
@@ -44,11 +47,13 @@ public final class SubscriptionResponse {
                     s.getSubscriptionId(),
                     s.getStatus(),
                     s.getMealsPerWeek(),
+                    s.getStartDate(),
                     s.getPendingMealsPerWeek(),
                     s.getNextBillingDate(),
                     active ? Subscription.deliveryDateOf(deadline) : null,
                     deadline,
                     s.getResumeDate(),
+                    s.getSkippedBillingDate() != null,
                     s.getConsecutiveCount(),
                     Subscription.COUPON_STREAK - (s.getConsecutiveCount() % Subscription.COUPON_STREAK),
                     active && now.isBefore(deadline)
