@@ -76,7 +76,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 4. 프론트엔드로 리다이렉트 (이동)
 
-        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
+//        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
 
         response.sendRedirect(frontendUrl);
     }
