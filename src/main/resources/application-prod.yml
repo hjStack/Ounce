@@ -23,6 +23,9 @@ spring:
     timeout-per-shutdown-phase: 20s
 
 app:
+  cookie:
+    access-name: "__Host-oz-a"
+    refresh-name: "__Secure-oz-s"
   frontend-url: "https://ouncefresh.com/"
   cookie-secure: true
 

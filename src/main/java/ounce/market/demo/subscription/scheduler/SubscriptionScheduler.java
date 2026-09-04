@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * 멱등키가 1차 방어선이지만, ShedLock 같은 분산 락을 반드시 걸어야 한다.
  * (@SchedulerLock 어노테이션은 shedlock-spring 의존성 추가 후 각 메서드에 붙인다)
  */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -42,6 +43,8 @@ public class SubscriptionScheduler {
      * "2시간마다"를 크론으로 잡으면 안 된다. 재시도 시각은 구독마다 실패 시각 + 2시간이라
      * 전부 제각각이다. 간격은 엔티티의 nextRetryAt이 정하고, 스케줄러는 도래분만 집는다.
      */
+
+    //  재시도 시각은 구독마다 실패 시각 + 2시간
     @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Seoul")
     public void retryFailed() {
         runner.runRetry(LocalDateTime.now(clock));

@@ -26,9 +26,11 @@ import java.util.Optional;
  * 커밋 실패 시 "카드는 긁혔는데 회차는 없는" 상태가 만들어진다. 그래서
  * (1) 회차와 시도 이력을 커밋 → (2) 트랜잭션 밖에서 PG 호출 → (3) 결과를 새 트랜잭션에 반영
  * 순서로 진행한다. 2번에서 서버가 죽어도 REQUESTED 시도가 남아 대사가 가능하다.
+
  * <p>
  * 각 메서드가 REQUIRES_NEW인 이유는 배치 한 건의 실패가 나머지 구독을 롤백시키면 안 되기 때문이다.
  */
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -90,6 +92,7 @@ public class SubscriptionBillingService {
      * 가드가 없으면 onPaymentSucceeded()가 두 번 돌아 다음 결제일이 2주 밀리고
      * 쿠폰 카운트가 2씩 오른다. 돈이 얽힌 경로라 되돌리기도 어렵다.
      */
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void applySuccess(BillingContext context, String paymentKey, LocalDateTime now) {
         Subscription subscription = loadSubscription(context.subscriptionId());
@@ -222,12 +225,14 @@ public class SubscriptionBillingService {
                         SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND, "subscriptionId=" + id));
     }
 
+    // 4주 연속 구독시 쿠폰을 주기 위함
     private SubscriptionCycle loadCycle(Long cycleId) {
         return cycleRepository.findById(cycleId)
                 .orElseThrow(() -> new SubscriptionException(
                         SubscriptionErrorCode.CYCLE_NOT_FOUND, "cycleId=" + cycleId));
     }
 
+    // 현재의 구독 주기
     private SubscriptionCycle loadCurrentCycle(Subscription subscription) {
         return cycleRepository
                 .findBySubscription_SubscriptionIdAndCycleNumber(

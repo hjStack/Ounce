@@ -1,6 +1,7 @@
 package ounce.market.demo.common.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,9 @@ public class SecurityConfig {
     private final CustomOAuth2UserService  customOAuth2UserService; // 구글 정보 처리 클래스
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+
+    @Value("${app.cookie.access-name}")
+    private String accessCookieName;
 
 
     @Bean
@@ -110,7 +114,7 @@ public class SecurityConfig {
                             res.getWriter().write("{\"message\":\"권한이 없습니다\"}");
                         })
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil, customUserDetailsService),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
+                .addFilterBefore(new JwtFilter(jwtUtil, customUserDetailsService,accessCookieName),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
 
         return http.build();
     }

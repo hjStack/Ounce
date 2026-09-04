@@ -15,6 +15,7 @@ import java.util.Map;
  * 트랜잭션 경계는 SubscriptionBillingService 안에 있다. 여기서 트랜잭션을 열면
  * PG 응답을 기다리는 내내 DB 커넥션과 락을 붙들게 된다.
  */
+
 @Service
 @RequiredArgsConstructor
 public class SubscriptionCheckoutService {
@@ -35,8 +36,9 @@ public class SubscriptionCheckoutService {
      *
      * @return 구독 ID와 결제 결말
      */
+
     public CheckoutResult subscribeAndPay(Long memberId, int mealsPerWeek, Map<Long, Integer> selection) {
-        // 1) 구독 + 1회차 개설(기본 메뉴). 여기까지 커밋된다.
+        // 1) 구독 + 1회차 개설(기본 메뉴)
         Long subscriptionId = subscriptionService.start(memberId, mealsPerWeek);
 
         // 2) 사용자가 담은 메뉴로 교체. 수량이 안 맞으면 여기서 막히고 결제는 시작도 안 한다.
@@ -70,6 +72,7 @@ public class SubscriptionCheckoutService {
      * NO_RESPONSE에 "다시 시도해 주세요"를 붙이면 안 된다 — 승인됐을 수도 있어서
      * 재시도가 곧 이중 결제가 된다. 대사 배치가 확인할 때까지 기다리게 해야 한다.
      */
+
     public String messageOf(SubscriptionBillingRunner.ChargeOutcome outcome) {
         return switch (outcome) {
             case PAID -> "결제가 완료됐습니다. 내일 새벽에 받아보실 수 있어요.";

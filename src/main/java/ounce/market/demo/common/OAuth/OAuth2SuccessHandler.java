@@ -32,6 +32,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Value("${app.cookie-secure}")
     private boolean cookieSecure;
 
+    @Value("${app.cookie.access-name}")
+    private String accessCookieName;
+
+    @Value("${app.cookie.refresh-name}")
+    private String refreshCookieName;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
@@ -44,7 +50,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 2. 해당 이메일로 JWT (Access Token) 생성
         String token = jwtUtil.createAccessToken(email, role);
 
-        ResponseCookie cookie = ResponseCookie.from("Authorization", token)
+        // 액세스 토큰
+        ResponseCookie cookie = ResponseCookie.from(accessCookieName, token)
                 .path("/")
                 .httpOnly(true)
                 .secure(cookieSecure)
@@ -55,12 +62,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtUtil.createRefreshToken(email);
 
         redisTemplate.opsForValue().set(
-                "refresh:" + email,      // key
+                "ounce-refresh:" + email,      // key
                 refreshToken,            // value
                 14, TimeUnit.DAYS        // 2주 후 자동 삭제 (TTL)
         );
 
-        ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
+        // refresh-token
+        ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, refreshToken)
                 .path("/api/auth/refresh")   // 갱신 엔드포인트에만 전송
                 .httpOnly(true)
                 .secure(cookieSecure)
@@ -76,7 +84,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 4. 프론트엔드로 리다이렉트 (이동)
 
-//        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
+        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
 
         response.sendRedirect(frontendUrl);
     }
