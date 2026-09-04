@@ -84,7 +84,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 4. 프론트엔드로 리다이렉트 (이동)
 
-        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
+//        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
 
         response.sendRedirect(frontendUrl);
     }
@@ -95,7 +95,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
  쿠키는 한마디로 "서버가 유저의 웹 브라우저(크롬, 사파리 등)에 몰래 쥐여주는 아주 작은 텍스트 메모지"입니다.
 
  인터넷 통신(HTTP)은 본래 '무상태(Stateless)'입니다.
- 즉, 브라우저가 서버에 요청을 보내고 응답을 받으면 통신이 끊어지고, 서버는 방금 자기가 누구랑 대화했는지 1초 만에 까먹어버립니다. (완벽한 기억 상실증이죠.)
+ 즉, 브라우저가 서버에 요청을 보내고 응답을 받으면 통신이 끊어지고, 서버는 방금 자기가 누구랑 대화했는지 1초 만에 까먹어버립니다.
 
  발급: 유저가 로그인을 성공하면, 서버는 "이 사람은 인증된 유저임. 토큰 값: 12345" 라고 적힌 쿠키(메모지)를 만들어서 프론트엔드로 던져줍니다.
  보관: 웹 브라우저는 이 쿠키를 받으면 군말 없이 자기 컴퓨터(또는 스마트폰) 내부의 전용 보관소에 고이 저장해 둡니다.
