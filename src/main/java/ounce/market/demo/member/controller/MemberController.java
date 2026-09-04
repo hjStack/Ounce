@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,12 +33,17 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class MemberController {
 
-     private final MemberService memberService; // 나중에 서비스 연결
-     private final MemberRepository memberRepository;
+     private final MemberService memberService;
      private final OrderRepository orderRepository;
      private final RedisTemplate<String,String> redisTemplate;
 
      private final JWTUtil jwtUtil;
+
+    @Value("${app.cookie.access-name}")
+    private String accessCookieName;
+
+    @Value("${app.cookie.refresh-name}")
+    private String refreshCookieName;
 
     // 회원가입
     @PostMapping("/signup")
@@ -54,7 +60,7 @@ public class MemberController {
         String token = memberService.login(request);
 
         // access token
-        ResponseCookie cookie = ResponseCookie.from("Authorization", token)
+        ResponseCookie cookie = ResponseCookie.from(accessCookieName, token)
                 .path("/")
                 .httpOnly(true)
                 .maxAge(60 * 30)  // 30분
@@ -64,10 +70,10 @@ public class MemberController {
 
         String email = request.getEmail();
         String refreshToken = jwtUtil.createRefreshToken(email);
-        redisTemplate.opsForValue().set("refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("ounce-refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
 
         // refresh token
-        ResponseCookie refreshCookie = ResponseCookie.from("Refresh", refreshToken)
+        ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, refreshToken)
                 .path("/api/auth/refresh")
                 .httpOnly(true)
                 .maxAge(60 * 60 * 24 * 14)  // 2주
@@ -113,15 +119,15 @@ public class MemberController {
                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         // Redis에서 refresh 삭제 (무효화)
         if (userDetails != null) {
-            redisTemplate.delete("refresh:" + userDetails.getUsername());
+            redisTemplate.delete("ounce-refresh:" + userDetails.getUsername());
         }
 
         // access 쿠키 삭제
-        ResponseCookie cookie = ResponseCookie.from("Authorization", "")
+        ResponseCookie cookie = ResponseCookie.from(accessCookieName, "")
                 .path("/").httpOnly(true).maxAge(0).sameSite("Lax").build();
 
         // refresh 쿠키도 삭제
-        ResponseCookie refreshCookie = ResponseCookie.from("Refresh", "")
+        ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, "")
                 .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -147,11 +153,11 @@ public class MemberController {
         redisTemplate.delete("refresh:" + email);
 
         // Authorization 쿠키 만료
-        ResponseCookie accessCookie = ResponseCookie.from("Authorization", "")
+        ResponseCookie accessCookie = ResponseCookie.from(accessCookieName, "")
                 .path("/").httpOnly(true).maxAge(0).sameSite("Lax").build();
 
         // Refresh 쿠키 만료
-        ResponseCookie refreshCookie = ResponseCookie.from("Refresh", "")
+        ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, "")
                 .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());

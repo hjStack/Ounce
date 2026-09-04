@@ -1,4 +1,6 @@
 package ounce.market.demo.common.controller;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,9 +24,18 @@ public class AuthRestController {
     @Value("${app.cookie-secure}")
     private boolean cookieSecure;
 
+    @Value("${app.cookie.access-name}")
+    private String accessCookieName;
+
+    @Value("${app.cookie.refresh-name}")
+    private String refreshCookieName;
+
+
+    // refresh
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(
-            @CookieValue(value = "Refresh", required = false) String refreshToken) {
+    public ResponseEntity<Void> refresh(HttpServletRequest request) {
+
+        String refreshToken = extractCookie(request, refreshCookieName);
 
         // 1. 쿠키 존재 + 서명/만료/타입 검증
         if (refreshToken == null || !jwtUtil.validateRefreshToken(refreshToken)) {
@@ -37,7 +48,7 @@ public class AuthRestController {
         }
 
         // 2. Redis에 저장된 토큰과 일치하는지 확인
-        String stored = redisTemplate.opsForValue().get("refresh:" + email);
+        String stored = redisTemplate.opsForValue().get("ounce-refresh:" + email);
         if (stored == null || !stored.equals(refreshToken)) {
             return ResponseEntity.status(401).build();
         }
@@ -51,7 +62,7 @@ public class AuthRestController {
         // 4. 새 access token 발급
         String newAccessToken = jwtUtil.createAccessToken(email, member.getRole().name());
 
-        ResponseCookie cookie = ResponseCookie.from("Authorization", newAccessToken)
+        ResponseCookie cookie = ResponseCookie.from(accessCookieName, newAccessToken)
                 .path("/")
                 .httpOnly(true)
                 .secure(cookieSecure)
@@ -62,5 +73,16 @@ public class AuthRestController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
+    }
+
+    private String extractCookie(HttpServletRequest request, String name) {
+        if (request.getCookies() == null) return null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if (name.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }
