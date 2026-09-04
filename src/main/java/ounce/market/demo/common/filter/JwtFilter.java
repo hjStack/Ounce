@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,17 +31,26 @@ import java.io.IOException;
  * 대가는 요청당 회원 조회 한 번이다. 이게 부담이 되면 토큰에 memberId를 담는 방식으로
  * 바꿀 수 있지만, 그때는 권한 즉시 반영을 포기하는 것이다.
  */
+
+
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final String TOKEN_COOKIE_NAME = "Authorization";
+    // access-token
+//    private static final String TOKEN_COOKIE_NAME = "__Host-oz-a";
 
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final String accessCookieName;
 
-    public JwtFilter(JWTUtil jwtUtil, CustomUserDetailsService userDetailsService) {
+    public JwtFilter(
+            JWTUtil jwtUtil,
+            CustomUserDetailsService userDetailsService,
+            @Value("${app.cookie.access-name}") String accessCookieName
+    ) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.accessCookieName = accessCookieName;
     }
 
     @Override
@@ -97,7 +107,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return null;
         }
         for (Cookie cookie : cookies) {
-            if (TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+            if (accessCookieName.equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }

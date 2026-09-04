@@ -38,19 +38,19 @@ public class SubscriptionMenuService {
      */
     @Transactional
     public void changeMenu(Long memberId, Long subscriptionId, Map<Long, Integer> selection) {
-//        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-//                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND));
-//        if (!subscription.isOwnedBy(memberId)) {
-//            // 남의 구독 메뉴를 바꾸는 걸 막는다. 존재 여부도 노출하지 않는다.
-//            throw new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND);
-//        }
-//
-//        SubscriptionCycle draft = cycleRepository.findDraft(subscriptionId)
-//                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE,
-//                        "열린 회차 없음 subscriptionId=" + subscriptionId));
-//
-//        draft.changeMenu(productReader.readLines(selection));
+        Subscription subscription = subscriptionRepository.findById(subscriptionId)
+                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND));
+        if (!subscription.isOwnedBy(memberId)) {
+            // 남의 구독 메뉴를 바꾸는 걸 막는다. 존재 여부도 노출하지 않는다.
+            throw new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND);
+        }
 
+        // 구독 주기 = 0주차
+        SubscriptionCycle draft = cycleRepository.findDraft(subscriptionId)
+                .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE,
+                        "열린 회차 없음 subscriptionId=" + subscriptionId));
+
+        draft.changeMenu(productReader.readLines(selection));
 
     }
 
@@ -58,6 +58,8 @@ public class SubscriptionMenuService {
      * 다음 회차를 연다. 결제 성공 직후와 안전망 배치가 호출한다.
      * 결제 트랜잭션과 분리해야 회차 개설 실패가 결제를 롤백시키지 않는다.
      */
+
+    // 결제 성공후 1주차
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void openNextCycle(Long subscriptionId) {
         open(subscriptionRepository.findById(subscriptionId).orElseThrow());
