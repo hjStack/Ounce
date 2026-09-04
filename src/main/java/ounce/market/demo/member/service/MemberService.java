@@ -39,7 +39,7 @@ public class MemberService {
     // todo n+1 문제 발생 -> 해결하기
 
     @Transactional
-    public void signup(MemberCreateRequest request) {
+    public Member signup(MemberCreateRequest request) {
         // 1. 이메일 중복 검사 로직 (중복 시 예외 발생)
 
         if (memberRepository.existsByEmail(request.getEmail())){
@@ -64,6 +64,8 @@ public class MemberService {
         // 회원가입할때 카트 생성
         Cart newCart = Cart.builder().member(savedMember).build();
         cartRepository.save(newCart);
+
+        return savedMember;
     }
 
     // 로그인 로직 추가

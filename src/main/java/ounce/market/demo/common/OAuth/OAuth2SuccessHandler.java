@@ -62,7 +62,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtUtil.createRefreshToken(email);
 
         redisTemplate.opsForValue().set(
-                "ounce-refresh:" + email,      // key
+                "refresh:" + email,      // key
                 refreshToken,            // value
                 14, TimeUnit.DAYS        // 2주 후 자동 삭제 (TTL)
         );
@@ -85,6 +85,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 4. 프론트엔드로 리다이렉트 (이동)
 
 //        log.info("발급 완료 - refresh 쿠키: {}", refreshCookie.toString());
+        log.info("saving refresh token: key={}, ttl={}", "refresh: " + email, 14);
 
         response.sendRedirect(frontendUrl);
     }
