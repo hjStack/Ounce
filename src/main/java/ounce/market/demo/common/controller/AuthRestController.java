@@ -48,7 +48,7 @@ public class AuthRestController {
         }
 
         // 2. Redis에 저장된 토큰과 일치하는지 확인
-        String stored = redisTemplate.opsForValue().get("ounce-refresh:" + email);
+        String stored = redisTemplate.opsForValue().get("refresh:" + email);
         if (stored == null || !stored.equals(refreshToken)) {
             return ResponseEntity.status(401).build();
         }

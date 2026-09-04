@@ -1,6 +1,7 @@
 package ounce.market.demo.member.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.RollbackException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,14 @@ import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.dto.request.LoginRequest;
 import ounce.market.demo.member.dto.response.MemberResponse;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.entity.Role;
 import ounce.market.demo.member.repository.MemberRepository;
+import ounce.market.demo.member.service.AuthTokenService;
 import ounce.market.demo.member.service.MemberService;
 import ounce.market.demo.order.entity.OrderStatus;
 import ounce.market.demo.order.repository.OrderRepository;
 
 import java.util.concurrent.TimeUnit;
-
 @Tag(name = "01. 회원", description = "회원가입, 로그인, 로그아웃")
 @Slf4j
 @RestController
@@ -38,6 +40,7 @@ public class MemberController {
      private final RedisTemplate<String,String> redisTemplate;
 
      private final JWTUtil jwtUtil;
+     private final AuthTokenService  authTokenService;
 
     @Value("${app.cookie.access-name}")
     private String accessCookieName;
@@ -47,9 +50,16 @@ public class MemberController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request) {
+    public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request, HttpServletResponse response) {
         // @Valid를 통과했다면 이곳의 코드가 실행됩니다!
-         memberService.signup(request);
+        Member member = memberService.signup(request);
+
+        String email = request.getEmail();
+        String refreshToken = jwtUtil.createRefreshToken(email);
+        redisTemplate.opsForValue().set("refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
+
+        authTokenService.issue(email, response, "ROLE_" + member.getRole());
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -70,7 +80,7 @@ public class MemberController {
 
         String email = request.getEmail();
         String refreshToken = jwtUtil.createRefreshToken(email);
-        redisTemplate.opsForValue().set("ounce-refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
 
         // refresh token
         ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, refreshToken)
@@ -80,6 +90,8 @@ public class MemberController {
                 .sameSite("Lax")
                 .secure(false)
                 .build();
+
+//        authTokenService.issue(email, response, "ROLE_" + );
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
@@ -105,6 +117,9 @@ public class MemberController {
                 member.getMemberId(), OrderStatus.PAYMENT_COMPLETED);
 
         // 등급 구분
+        // todo 등급 가격을 다시 정해야할것같음
+        // 50만원 이상 VIP
+        // 10만원 이상 GOLD
         String grade = totalSpent >= 500_000 ? "VIP"
                 : totalSpent >= 100_000 ? "GOLD"
                 : "BASIC";
@@ -119,7 +134,7 @@ public class MemberController {
                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         // Redis에서 refresh 삭제 (무효화)
         if (userDetails != null) {
-            redisTemplate.delete("ounce-refresh:" + userDetails.getUsername());
+            redisTemplate.delete("refresh:" + userDetails.getUsername());
         }
 
         // access 쿠키 삭제
