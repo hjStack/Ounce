@@ -20,8 +20,6 @@ import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.dto.request.LoginRequest;
 import ounce.market.demo.member.dto.response.MemberResponse;
 import ounce.market.demo.member.entity.Member;
-import ounce.market.demo.member.entity.Role;
-import ounce.market.demo.member.repository.MemberRepository;
 import ounce.market.demo.member.service.AuthTokenService;
 import ounce.market.demo.member.service.MemberService;
 import ounce.market.demo.order.entity.OrderStatus;
@@ -47,6 +45,9 @@ public class MemberController {
 
     @Value("${app.cookie.refresh-name}")
     private String refreshCookieName;
+
+    @Value("${app.cookie-secure}")
+    private boolean cookieSecure;
 
     // 회원가입
     @PostMapping("/signup")
@@ -75,7 +76,7 @@ public class MemberController {
                 .httpOnly(true)
                 .maxAge(60 * 30)  // 30분
                 .sameSite("Lax")
-                .secure(false)
+                .secure(cookieSecure)
                 .build();
 
         String email = request.getEmail();
@@ -88,7 +89,7 @@ public class MemberController {
                 .httpOnly(true)
                 .maxAge(60 * 60 * 24 * 14)  // 2주
                 .sameSite("Lax")
-                .secure(false)
+                .secure(cookieSecure)
                 .build();
 
 //        authTokenService.issue(email, response, "ROLE_" + );
@@ -141,11 +142,11 @@ public class MemberController {
 
         // access 쿠키 삭제
         ResponseCookie cookie = ResponseCookie.from(accessCookieName, "")
-                .path("/").httpOnly(true).maxAge(0).sameSite("Lax").build();
+                .path("/").httpOnly(true).maxAge(0).sameSite("Lax").secure(cookieSecure).build();
 
         // refresh 쿠키도 삭제
         ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, "")
-                .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").build();
+                .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").secure(cookieSecure).build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
@@ -171,11 +172,11 @@ public class MemberController {
 
         // Authorization 쿠키 만료
         ResponseCookie accessCookie = ResponseCookie.from(accessCookieName, "")
-                .path("/").httpOnly(true).maxAge(0).sameSite("Lax").build();
+                .path("/").httpOnly(true).maxAge(0).sameSite("Lax").secure(cookieSecure).build();
 
         // Refresh 쿠키 만료
         ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, "")
-                .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").build();
+                .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").secure(cookieSecure).build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
