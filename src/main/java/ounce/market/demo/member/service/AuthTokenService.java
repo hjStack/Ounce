@@ -22,7 +22,9 @@ public class AuthTokenService {
 
     @Value("${app.cookie.access-name}") private String accessCookieName;
     @Value("${app.cookie.refresh-name}") private String refreshCookieName;
-    @Value("${app.cookie-secure}") private boolean secure;
+
+    @Value("${app.cookie-secure}")
+    private boolean cookieSecure;
 
     public void issue(String email, HttpServletResponse response, String role) {
         String accessToken = jwtUtil.createAccessToken(email,role);
@@ -34,12 +36,12 @@ public class AuthTokenService {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 ResponseCookie.from(accessCookieName, accessToken)
                         .path("/").httpOnly(true).maxAge(Duration.ofMinutes(30))
-                        .sameSite("Lax").secure(secure).build().toString());
+                        .sameSite("Lax").secure(cookieSecure).build().toString());
 
         response.addHeader(HttpHeaders.SET_COOKIE,
                 ResponseCookie.from(refreshCookieName, refreshToken)
                         .path("/api/auth/refresh").httpOnly(true).maxAge(Duration.ofDays(14))
-                        .sameSite("Lax").secure(secure).build().toString());
+                        .sameSite("Lax").secure(cookieSecure).build().toString());
     }
 
 }

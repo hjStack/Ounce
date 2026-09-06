@@ -1,5 +1,11 @@
 spring:
   datasource:
+    hikari:
+      connection-timeout: 1000 # 풀에서 커넥션 못 받으면 1초 후 실패
+      maximum-pool-size: 10
+      max-lifetime: 1000000  # about 16.6 minutes
+      # 일정시간동안 아무런 작업을 수행하지 않을 경우 세션 자동 종료
+      idle-timeout: 600000 # 10분
     url: ${SPRING_DATASOURCE_URL}/
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
