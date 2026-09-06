@@ -77,4 +77,10 @@ public class Member extends BaseEntity {
         this.password = "WITHDRAWN";
     }
 
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+
+
 }

@@ -18,10 +18,13 @@ import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.dto.request.LoginRequest;
+import ounce.market.demo.member.dto.request.PasswordResetConfirmRequest;
+import ounce.market.demo.member.dto.request.PasswordResetRequest;
 import ounce.market.demo.member.dto.response.MemberResponse;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.service.AuthTokenService;
 import ounce.market.demo.member.service.MemberService;
+import ounce.market.demo.member.service.PasswordResetService;
 import ounce.market.demo.order.entity.OrderStatus;
 import ounce.market.demo.order.repository.OrderRepository;
 
@@ -39,6 +42,7 @@ public class MemberController {
 
      private final JWTUtil jwtUtil;
      private final AuthTokenService  authTokenService;
+     private final PasswordResetService passwordResetService;
 
     @Value("${app.cookie.access-name}")
     private String accessCookieName;
@@ -182,6 +186,23 @@ public class MemberController {
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    // 비밀번호 찾기 로직
+    // 비밀번호 재설정 요청 (메일 발송)
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        passwordResetService.requestReset(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    // 비밀번호 재설정 확정
+    @PostMapping("/password/reset")
+    public ResponseEntity<Void> confirmPasswordReset(
+            @Valid @RequestBody PasswordResetConfirmRequest request) {
+        passwordResetService.confirmReset(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 
 }

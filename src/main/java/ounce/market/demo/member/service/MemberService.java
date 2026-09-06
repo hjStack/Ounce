@@ -40,8 +40,8 @@ public class MemberService {
 
     @Transactional
     public Member signup(MemberCreateRequest request) {
-        // 1. 이메일 중복 검사 로직 (중복 시 예외 발생)
 
+        // 1. 이메일 중복 검사 로직 (중복 시 예외 발생)
         if (memberRepository.existsByEmail(request.getEmail())){
             throw new DuplicateEmailException(ErrorMessage.DUPLICATE_EMAIL);
         }
