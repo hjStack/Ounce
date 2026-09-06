@@ -40,6 +40,8 @@ app:
     refresh-name: "__Secure-oz-s"
   frontend-url: "https://ouncefresh.com/"
   cookie-secure: true
+  mail:
+    from: "no-reply@ouncefresh.com"
 
 server:
   forward-headers-strategy: framework
