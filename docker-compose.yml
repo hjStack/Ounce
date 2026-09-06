@@ -20,11 +20,16 @@ services:
     image: redis:7-alpine
     container_name: ounce-redis
     ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes   # 재시작 시 데이터 유지
+      - "127.0.0.1:6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    env_file:
+      - .env
 
   elasticsearch:
     build:

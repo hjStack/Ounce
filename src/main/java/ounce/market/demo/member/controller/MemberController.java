@@ -124,6 +124,8 @@ public class MemberController {
                 : totalSpent >= 100_000 ? "GOLD"
                 : "BASIC";
 
+        // todo 강등 정책
+
         // 3. 완전한 엔티티를 DTO로 변환하여 응답합니다.
         MemberResponse response = MemberResponse.from(member,grade);
         return ResponseEntity.ok(response);
