@@ -69,7 +69,9 @@ public class PasswordResetService {
                 %s
               </p>
               <hr style="margin:32px 0 16px;border:0;border-top:1px solid #eee;">
-              <p style="margin:0;font-size:12px;color:#aaa;">Ounce</p>
+              <p style="margin:0;font-size:12px;color:#aaa;">
+                    본 메일은 발신 전용입니다.<br>Ounce
+              </p>
             </div>
             """.formatted(link, link);
     }
