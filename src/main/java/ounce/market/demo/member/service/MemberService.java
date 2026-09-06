@@ -113,6 +113,7 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(String email) {
+
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberNotFoundException(email));
 
