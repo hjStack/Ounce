@@ -2,6 +2,8 @@ package ounce.market.demo.member.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.RollbackException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -133,24 +135,45 @@ public class MemberController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response,
+    public ResponseEntity<?> logout(HttpServletRequest request,
+                                    HttpServletResponse response,
                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // Redis에서 refresh 삭제 (무효화)
-        if (userDetails != null) {
-            redisTemplate.delete("refresh:" + userDetails.getUsername());
+
+        String email = (userDetails != null)
+                ? userDetails.getUsername()
+                : resolveEmailFromRefreshCookie(request);
+
+        if (email != null) {
+            redisTemplate.delete("refresh:" + email);
+        } else {
+            log.warn("로그아웃 요청에서 사용자를 특정하지 못해 refresh 토큰을 삭제하지 못했습니다.");
         }
 
-        // access 쿠키 삭제
         ResponseCookie cookie = ResponseCookie.from(accessCookieName, "")
                 .path("/").httpOnly(true).maxAge(0).sameSite("Lax").secure(cookieSecure).build();
 
-        // refresh 쿠키도 삭제
         ResponseCookie refreshCookie = ResponseCookie.from(refreshCookieName, "")
                 .path("/api/auth/refresh").httpOnly(true).maxAge(0).sameSite("Lax").secure(cookieSecure).build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         return ResponseEntity.ok("로그아웃 성공");
+    }
+
+    /** access 토큰이 만료된 상태의 로그아웃 대비: refresh 쿠키에서 이메일을 복구한다. */
+    private String resolveEmailFromRefreshCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+
+        for (Cookie c : request.getCookies()) {
+            if (!refreshCookieName.equals(c.getName())) continue;
+            try {
+                return jwtUtil.getEmail(c.getValue());
+            } catch (Exception e) {
+                log.debug("refresh 쿠키 파싱 실패", e);
+                return null;
+            }
+        }
+        return null;
     }
 
     // 멤버 수 세는 api -> 없어도 될것같음
