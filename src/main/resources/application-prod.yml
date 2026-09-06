@@ -5,6 +5,12 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
   jpa:
     # 사용할 데이터베이스의 방언(Dialect) 설정
     database-platform: org.hibernate.dialect.MySQLDialect
