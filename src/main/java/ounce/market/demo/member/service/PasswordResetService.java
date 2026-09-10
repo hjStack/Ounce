@@ -79,6 +79,8 @@ public class PasswordResetService {
     @Transactional
     public void confirmReset(String token, String newPassword) {
         String key = TOKEN_PREFIX + token;
+
+        // access-token 가져오기
         String email = redisTemplate.opsForValue().get(key);
 
         if (email == null) {

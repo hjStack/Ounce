@@ -37,6 +37,7 @@ public class CartController {
     private final CartProductRepository cartProductRepository;
 
     @PostMapping("/items")
+    @Operation(summary = "장바구니 상품 추가")
     public ResponseEntity<?> addCartItem(
             Authentication authentication,
             @RequestParam Long productId,
@@ -64,6 +65,7 @@ public class CartController {
 
 //    // 💡 2. 장바구니 상품 수량 변경
     @PatchMapping("/{cartId}")
+    @Operation(summary = "장바구니 상품 수량 변경")
     public ResponseEntity<?> updateQuantity(
             Authentication authentication,
             @PathVariable("cartId") Long cartProductId,
@@ -79,13 +81,13 @@ public class CartController {
     }
 
     @DeleteMapping("/{cartItemId}")
+    @Operation(summary = "장바구니 상품 삭제")
     public ResponseEntity<Void> deleteCartItem(
             Authentication authentication,
             @PathVariable Long cartItemId)  {
 
         Member member = memberRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
 
 
         cartService.deleteCartItem(member.getMemberId(), cartItemId);

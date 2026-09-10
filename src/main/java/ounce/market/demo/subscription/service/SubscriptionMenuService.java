@@ -37,7 +37,7 @@ public class SubscriptionMenuService {
      * @param selection 상품 ID -> 끼수
      */
     @Transactional
-    public void changeMenu(Long memberId, Long subscriptionId, Map<Long, Integer> selection) {
+    public void changeMenu(Long memberId, Long subscriptionId, Map<Long, Integer> selection,List<String> skippedDays) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_FOUND));
         if (!subscription.isOwnedBy(memberId)) {
@@ -50,7 +50,7 @@ public class SubscriptionMenuService {
                 .orElseThrow(() -> new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE,
                         "열린 회차 없음 subscriptionId=" + subscriptionId));
 
-        draft.changeMenu(productReader.readLines(selection));
+        draft.changeMenu(productReader.readLines(selection),skippedDays);
 
     }
 
@@ -97,7 +97,7 @@ public class SubscriptionMenuService {
                 subscription.getMealsPerWeek(),
                 subscription.getNextBillingDate());
 
-        applyDefaultMenu(subscription, cycle);
+        applyDefaultMenu(subscription,cycle);
         cycleRepository.save(cycle);
     }
 
@@ -113,7 +113,7 @@ public class SubscriptionMenuService {
                 .filter(previous -> totalQuantity(previous) == subscription.getMealsPerWeek())
                 .orElseGet(() -> productReader.defaultLines(subscription.getMealsPerWeek()));
 
-        cycle.changeMenu(lines);
+        cycle.changeMenu(lines, List.of());
     }
 
     private List<SubscriptionCycle.MenuLine> copyOf(SubscriptionCycle previous) {

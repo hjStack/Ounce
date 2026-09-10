@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.subscription.dto.request.SubscriptionRequest;
 import ounce.market.demo.subscription.dto.response.SubscriptionResponse;
+import ounce.market.demo.subscription.entity.SubscriptionCycle;
 import ounce.market.demo.subscription.runner.SubscriptionBillingRunner;
 import ounce.market.demo.subscription.service.SubscriptionCheckoutService;
 import ounce.market.demo.subscription.service.SubscriptionCheckoutService.CheckoutResult;
@@ -36,7 +37,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/subscriptions")
 @RequiredArgsConstructor
-@Tag(name = "구독",description="구독 등록 및 해지, 쉬어가기")
+@Tag(name = "14. 구독",description="구독 등록 및 해지, 쉬어가기")
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -84,6 +85,7 @@ public class SubscriptionController {
     }
 
     /** 회차 이력. 결제·배송 내역 화면용. */
+    //
     @GetMapping("/{subscriptionId}/cycles")
     public List<SubscriptionResponse.Cycle> findCycles(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -146,7 +148,7 @@ public class SubscriptionController {
     public SubscriptionResponse.Detail changeMeals(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long subscriptionId,
-            @Valid @RequestBody SubscriptionRequest.ChangeMeals request) {
+            @Valid @RequestBody SubscriptionRequest.ChangeMeals request ) {
 
         Long memberId = memberId(user);
         subscriptionService.changeMealsPerWeek(memberId, subscriptionId, request.mealsPerWeek());
@@ -164,7 +166,7 @@ public class SubscriptionController {
             @Valid @RequestBody SubscriptionRequest.ChangeMenu request) {
 
         Long memberId = memberId(user);
-        menuService.changeMenu(memberId, subscriptionId, request.selection());
+        menuService.changeMenu(memberId, subscriptionId, request.selection(), request.skippedDays());
         return queryService.findOne(memberId, subscriptionId);
     }
 
@@ -175,6 +177,8 @@ public class SubscriptionController {
      * 결제 실패도 200으로 내려보내고 결말을 본문에 담는다.
      * 카드 거절은 서버 오류가 아니라 화면이 안내해야 할 정상 결과다.
      */
+
+    // 선택 메뉴 저장 + 첫 결제
     @PostMapping("/{subscriptionId}/checkout")
     public SubscriptionResponse.Checkout checkout(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -182,7 +186,7 @@ public class SubscriptionController {
             @Valid @RequestBody SubscriptionRequest.ChangeMenu request) {
 
         Long memberId = memberId(user);
-        SubscriptionBillingRunner.ChargeOutcome outcome = checkoutService.checkoutNow(memberId, subscriptionId, request.selection());
+        SubscriptionBillingRunner.ChargeOutcome outcome = checkoutService.checkoutNow(memberId, subscriptionId, request.selection(),request.skippedDays());
 
         return new SubscriptionResponse.Checkout(
                 outcome.name(),
