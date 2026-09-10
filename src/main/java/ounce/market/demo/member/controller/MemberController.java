@@ -1,5 +1,6 @@
 package ounce.market.demo.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.RollbackException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,6 +56,7 @@ public class MemberController {
 
     // 회원가입
     @PostMapping("/signup")
+    @Operation(summary = "회원가입")
     public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request, HttpServletResponse response) {
         // @Valid를 통과했다면 이곳의 코드가 실행됩니다!
         Member member = memberService.signup(request);
@@ -70,6 +72,7 @@ public class MemberController {
 
     // 로그인
     @PostMapping("/login")
+    @Operation(summary = "로그인")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request,
                                    HttpServletResponse response) {
         String token = memberService.login(request);
@@ -108,6 +111,7 @@ public class MemberController {
 
     // 2. 💡 내 정보 조회 API
     @GetMapping("/me")
+    @Operation(summary = "내 정보 조회")
     public ResponseEntity<MemberResponse> getMyInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // JwtFilter를 통과하지 못해 Authentication이 없다면 401 에러 반환
@@ -137,6 +141,7 @@ public class MemberController {
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃")
     public ResponseEntity<?> logout(HttpServletResponse response,
                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
         // Redis에서 refresh 삭제 (무효화)
@@ -164,6 +169,7 @@ public class MemberController {
 //    }
 
     @DeleteMapping("/me")
+    @Operation(summary = "회원탈퇴")
     public ResponseEntity<Void> deleteMember(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletResponse response) {
@@ -192,6 +198,7 @@ public class MemberController {
     // 비밀번호 찾기 로직
     // 비밀번호 재설정 요청 (메일 발송)
     @PostMapping("/password/reset-request")
+    @Operation(summary = "비밀번호 재설정 요청 (메일 발송)")
     public ResponseEntity<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
         passwordResetService.requestReset(request.getEmail());
         return ResponseEntity.ok().build();
@@ -199,6 +206,7 @@ public class MemberController {
 
     // 비밀번호 재설정 확정
     @PostMapping("/password/reset")
+    @Operation(summary = "비밀번호 재설정 설정")
     public ResponseEntity<Void> confirmPasswordReset(
             @Valid @RequestBody PasswordResetConfirmRequest request) {
         passwordResetService.confirmReset(request.getToken(), request.getNewPassword());

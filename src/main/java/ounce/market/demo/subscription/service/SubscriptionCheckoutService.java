@@ -6,7 +6,7 @@ import ounce.market.demo.subscription.runner.SubscriptionBillingRunner;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 사용자가 메뉴를 담고 바로 결제하는 경로. 주로 첫 회차에 쓰인다.
@@ -25,6 +25,7 @@ public class SubscriptionCheckoutService {
     private final SubscriptionBillingRunner billingRunner;
     private final Clock clock;
 
+
     /**
      * 가입과 동시에 메뉴를 담고 결제한다. 구독의 정상 진입 경로다.
      * <p>
@@ -42,7 +43,7 @@ public class SubscriptionCheckoutService {
         Long subscriptionId = subscriptionService.start(memberId, mealsPerWeek);
 
         // 2) 사용자가 담은 메뉴로 교체. 수량이 안 맞으면 여기서 막히고 결제는 시작도 안 한다.
-        menuService.changeMenu(memberId, subscriptionId, selection);
+        menuService.changeMenu(memberId, subscriptionId, selection,List.of());
 
         // 3) 결제. 배치와 같은 경로를 탄다.
         SubscriptionBillingRunner.ChargeOutcome outcome = billingRunner.chargeNow(subscriptionId, LocalDateTime.now(clock));
@@ -58,9 +59,12 @@ public class SubscriptionCheckoutService {
      * @param selection 상품 ID -> 끼수. 합계가 구독 끼수와 같아야 한다.
      * @return 결제 결말. 화면은 이 값으로 성공·실패·재시도 안내를 나눈다.
      */
-    public SubscriptionBillingRunner.ChargeOutcome checkoutNow(Long memberId, Long subscriptionId, Map<Long, Integer> selection) {
+
+    //  고객이 구독 신청하기를 눌러 메뉴를 최종 확정하는 순간 저장·결제된다는 것
+    // 이 메서드를 호출할때만 == 메뉴를 저장할떄만 결제
+    public SubscriptionBillingRunner.ChargeOutcome checkoutNow(Long memberId, Long subscriptionId, Map<Long, Integer> selection,  List<String> skippedDays) {
         // 1) 메뉴 확정. 실패하면 결제까지 가지 않는다.
-        menuService.changeMenu(memberId, subscriptionId, selection);
+        menuService.changeMenu(memberId, subscriptionId, selection, skippedDays == null ? List.of() : skippedDays);
 
         // 2) 결제. 배치와 같은 3단계를 그대로 탄다.
         //    회차 상태가 DRAFT -> PENDING -> PAID로 넘어가며 배송일이 확정된다.

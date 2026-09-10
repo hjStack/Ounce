@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import ounce.market.demo.subscription.entity.Subscription;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 요청 DTO.
@@ -50,7 +50,8 @@ public final class SubscriptionRequest {
      */
     public record ChangeMenu(
             @NotEmpty(message = "밀키트를 한 개 이상 선택해야 합니다.")
-            Map<Long, Integer> selection
+            Map<Long, Integer> selection,
+            List<String> skippedDays
     ) {
     }
 

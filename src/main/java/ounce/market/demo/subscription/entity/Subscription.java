@@ -359,13 +359,15 @@ public class Subscription extends BaseEntity {
      * 끼수 변경. 마감 전이면 이번 회차부터, 지났으면 다음 회차부터 적용된다.
      * 4~7 범위는 화면에서 막는다는 전제다.
      */
-    public void changeMealsPerWeek(LocalDateTime now, int mealsPerWeek) {
+    public void changeMealsPerWeek(LocalDateTime now, int mealsPerWeek, SubscriptionCycle draftCycle) {
         if (status.isTerminal()) {
             throw new SubscriptionException(SubscriptionErrorCode.SUBSCRIPTION_NOT_ACTIVE);
         }
         if (status == SubscriptionStatus.ACTIVE && now.isBefore(currentCutoff())) {
             this.mealsPerWeek = mealsPerWeek;
             this.pendingMealsPerWeek = null;
+
+            draftCycle.changeMealsPerWeek(mealsPerWeek);
         } else {
             this.pendingMealsPerWeek = mealsPerWeek;
         }

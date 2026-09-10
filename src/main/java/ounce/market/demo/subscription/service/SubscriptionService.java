@@ -96,8 +96,19 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public void changeMealsPerWeek(Long memberId, Long subscriptionId, int mealsPerWeek) {
-        load(memberId, subscriptionId).changeMealsPerWeek(now(), mealsPerWeek);
+    public void changeMealsPerWeek(
+            Long memberId,
+            Long subscriptionId,
+            int mealsPerWeek
+    ) {
+        Subscription subscription = load(memberId, subscriptionId);
+        LocalDateTime now = now();
+
+        SubscriptionCycle draftCycle = cycleRepository
+                .findDraft(subscriptionId)
+                .orElse(null);
+
+        subscription.changeMealsPerWeek(now, mealsPerWeek, draftCycle);
     }
 
     /** 결제 수단을 교체한 직후 호출. 다음 재시도 슬롯을 기다리지 않고 바로 시도한다. */

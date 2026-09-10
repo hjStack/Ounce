@@ -14,6 +14,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ImageController {
 
+    // todo 리뷰 사진도 s3UploadService 이거로 하면 될듯
+
     private final S3UploadService s3UploadService;
 
     // 프론트엔드에서 사진을 보내면 S3에 올리고 URL을 반환하는 API

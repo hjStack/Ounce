@@ -81,6 +81,9 @@ public class SubscriptionCycle extends BaseEntity {
     @OneToMany(mappedBy = "cycle", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<SubscriptionCycleItem> items = new ArrayList<>();
 
+    @Column(name = "skipped_day")
+    private final List<String> skippedDays = new ArrayList<>();
+
     private SubscriptionCycle(Subscription subscription, int cycleNumber,
                               int mealsPerWeek, LocalDate billingDate) {
         this.subscription = subscription;
@@ -90,6 +93,11 @@ public class SubscriptionCycle extends BaseEntity {
         this.status = SubscriptionCycleStatus.DRAFT;
         this.amount = 0L;
         this.attemptCount = 0;
+    }
+
+
+    public void changeMealsPerWeek(int mealsPerWeek) {
+        this.mealsPerWeek = mealsPerWeek;
     }
 
     /** 메뉴 선택 기간 개설. 결제 3일 전에 배치가 호출한다. */
@@ -104,18 +112,34 @@ public class SubscriptionCycle extends BaseEntity {
      * 메뉴 교체. 기존 선택을 통째로 갈아끼운다.
      * 수량 합계가 끼수와 맞아야 한다 — 5끼 구독인데 3끼만 담고 결제되면 그대로 손실이다.
      */
-    public void changeMenu(List<MenuLine> lines) {
+    public void changeMenu(List<MenuLine> lines, List<String> skippedDays) {
         if (!status.isMenuEditable()) {
             throw new SubscriptionException(SubscriptionErrorCode.MENU_NOT_EDITABLE);
         }
 
         List<MenuLine> mergedLines = mergeDuplicateProducts(lines);
 
-        int total = mergedLines.stream().mapToInt(MenuLine::quantity).sum();
-        if (total != mealsPerWeek) {
-            throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
-                    "expected=%d actual=%d".formatted(mealsPerWeek, total));
+
+//        int total = mergedLines.stream().mapToInt(MenuLine::quantity).sum();
+//        if (total != mealsPerWeek) {
+//            throw new SubscriptionException(SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
+//                    "expected=%d actual=%d".formatted(mealsPerWeek, total));
+//        }
+
+        int menuQuantity = mergedLines.stream()
+                .mapToInt(MenuLine::quantity)
+                .sum();
+
+        long skippedCount = skippedDays == null ? 0 : skippedDays.stream().distinct().count();
+
+        if (menuQuantity + skippedCount != mealsPerWeek) {
+            throw new SubscriptionException(
+                    SubscriptionErrorCode.MENU_QUANTITY_MISMATCH,
+                    "expected=%d actual=%d"
+                            .formatted(mealsPerWeek, menuQuantity + skippedCount)
+            );
         }
+
 
         Map<Long, SubscriptionCycleItem> existing = new LinkedHashMap<>();
         for (SubscriptionCycleItem item : items) {
