@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ounce.market.demo.common.service.ImageUrlResolver;
 import ounce.market.demo.common.service.S3UploadService;
 import ounce.market.demo.product.dto.request.ProductCreateRequest;
 import ounce.market.demo.product.dto.request.ProductSearchCondition;
@@ -31,13 +32,14 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final S3UploadService s3UploadService;
+    private final ImageUrlResolver imageUrlResolver;
 
 
     // 상품 상세
     public ProductResponse getProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-        return ProductResponse.from(product);
+        return ProductResponse.from(product, imageUrlResolver);
     }
 
 
