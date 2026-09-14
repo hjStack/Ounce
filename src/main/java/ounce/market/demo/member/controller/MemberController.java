@@ -2,7 +2,6 @@ package ounce.market.demo.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.RollbackException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -128,12 +127,14 @@ public class MemberController {
         // 등급 구분
         // todo 등급 가격을 다시 정해야할것같음
         // 50만원 이상 VIP
-        // 10만원 이상 GOLD
-        String grade = totalSpent >= 500_000 ? "VIP"
-                : totalSpent >= 100_000 ? "GOLD"
+        // 100만원 이상 GOLD
+        String grade = totalSpent >= 500_000
+                ? "VIP"
+                : totalSpent >= 100_0000 ? "GOLD"
                 : "BASIC";
 
         // todo 강등 정책
+        // 강등 정책을 어떻게 하지
 
         // 3. 완전한 엔티티를 DTO로 변환하여 응답합니다.
         MemberResponse response = MemberResponse.from(member,grade);

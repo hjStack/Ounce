@@ -43,6 +43,10 @@ public class Member extends BaseEntity {
     @Builder.Default
     private MemberStatus status = MemberStatus.ACTIVE;  // 기본값 정상
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean midnightAlertEnabled = false;
+
     private LocalDateTime deletedAt;  // 탈퇴 시각 (null이면 정상)
 
     public void deductPoint(int amount) {
@@ -79,6 +83,14 @@ public class Member extends BaseEntity {
 
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void enableMidnightAlert() {
+        this.midnightAlertEnabled = true;
+    }
+
+    public void disableMidnightAlert() {
+        this.midnightAlertEnabled = false;
     }
 
 

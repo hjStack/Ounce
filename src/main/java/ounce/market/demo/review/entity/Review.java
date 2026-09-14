@@ -43,6 +43,8 @@ public class Review {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    private String imageUrl;
+
     @Builder
     public Review(Product product, Member member, int rating, String content) {
         validateRating(rating);
