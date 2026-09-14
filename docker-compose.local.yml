@@ -30,6 +30,7 @@ services:
       #        → 컨테이너 안에서 localhost:6379 를 찾다가 실패했음. 올바른 키로 교체.
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
 
       # 검색 엔진: 기본은 jpa (ES 없이 가볍게 뜸).
       # ES 로 띄우려면  SEARCH_ENGINE=elasticsearch docker compose --profile search up

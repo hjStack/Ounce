@@ -39,7 +39,7 @@ public class SwaggerConfig {
                         new Tag().name("06. 미드나이트").description("미드나이트 관련 API"),
                         new Tag().name("07. 미드나이트 알림").description("알림 관련 API"),
                         new Tag().name("08. 리뷰").description("리뷰 관련 API"),
-                        new Tag().name("09-0. 쿠폰").description("쿠폰 관련 API"),
+                        new Tag().name("09. 쿠폰").description("쿠폰 관련 API"),
                         new Tag().name("09-1. 쿠폰 관리자").description("쿠폰 관리자 API"),
                         new Tag().name("10-0. 배송").description("배송 관련 API"),
                         new Tag().name("10-1. 배송 관리자").description("배송 관리자 API"),
