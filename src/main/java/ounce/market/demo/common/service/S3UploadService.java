@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 import java.io.IOException;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class S3UploadService {
                 .bucket(bucket)
                 .key(key)
                 .contentType(file.getContentType())
+                .serverSideEncryption(ServerSideEncryption.AES256)
                 .build();
 
         // 공식 SDK를 사용한 업로드

@@ -31,7 +31,7 @@ public class ProductAdminController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> registerProduct(
             @RequestPart("request") ProductCreateRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image
+            @RequestPart("image") MultipartFile image
     ) throws IOException {
         return ResponseEntity.ok(productService.createProduct(request, image));
     }

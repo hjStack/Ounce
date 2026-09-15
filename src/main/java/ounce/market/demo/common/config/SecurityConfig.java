@@ -62,6 +62,8 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
                         // 관리자 화면(/admin/qna 등)도 API 와 같은 권한으로 막는다.
                         // 안 적으면 anyRequest 로 떨어져서 로그인한 일반 회원도 화면이 열린다.
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
@@ -87,7 +89,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-
 
 
                 .oauth2Login(oauth2 -> oauth2
