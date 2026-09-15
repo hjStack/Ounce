@@ -73,7 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/subscribe").permitAll()
                         // 고객센터: FAQ 는 누구나 봐야 한다. 문의 API(/api/qna/**)만 anyRequest 로 로그인이 걸린다.
                         .requestMatchers("/support").permitAll()
-                        .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").authenticated()
+                        .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
                         .requestMatchers("/api/auth/refresh").permitAll()
