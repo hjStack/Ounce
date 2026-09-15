@@ -21,7 +21,6 @@ public class S3UploadService {
     todo cloudFront 붙이기
     key에 "img/  " 가 붙고
     확장자를 contentType으로 정하고
-
      */
 
     private static final String IMAGE_PREFIX = "img/";
@@ -33,6 +32,7 @@ public class S3UploadService {
     );
 
     private final S3Client s3Client;
+    private final ImageUrlResolver imageUrlResolver;
 
     // cloudFront 붙이면 이거 빼기
     @Value("${spring.cloud.aws.s3.bucket}")
@@ -60,6 +60,7 @@ public class S3UploadService {
                 RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
         // 업로드된 파일의 접속 URL 조합하여 반환
-        return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + key;
+        // todo cloudfront로 이관
+        return key;
     }
 }

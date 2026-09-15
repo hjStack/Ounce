@@ -2,6 +2,7 @@ package ounce.market.demo.product.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import ounce.market.demo.common.service.ImageUrlResolver;
 import ounce.market.demo.product.entity.Product;
 import ounce.market.demo.product.entity.ProductStatus;
 
@@ -30,14 +31,19 @@ public class ProductResponse {
         this.imageUrl = imageUrl;
         this.stock = stock;
         this.status = status;
-
     }
 
-    public static ProductResponse from(Product product) {
-
-        return new ProductResponse(product.getProductId(), product.getName(), product.getBasePrice()
-                , product.getSalePrice(), product.getDiscountPercent(), product.getDescription(),
-                product.getImageUrl(),product.getStock(),product.getStatus());
+    public static ProductResponse from(Product product, ImageUrlResolver imageUrlResolver) {
+        return new ProductResponse(
+                product.getProductId(),
+                product.getName(),
+                product.getBasePrice(),
+                product.getSalePrice(),
+                product.getDiscountPercent(),
+                product.getDescription(),
+                imageUrlResolver.toUrl(product.getImageUrl()),   // 키 → CloudFront URL
+                product.getStock(),
+                product.getStatus()
+        );
     }
-
 }

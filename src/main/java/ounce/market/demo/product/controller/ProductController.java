@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ounce.market.demo.common.service.ImageUrlResolver;
+import ounce.market.demo.common.service.S3UploadService;
 import ounce.market.demo.product.dto.request.ProductCreateRequest;
 import ounce.market.demo.product.dto.request.ProductSearchCondition;
 import ounce.market.demo.product.dto.response.ProductResponse;
@@ -29,6 +31,8 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductRepository productRepository;
+    private final S3UploadService s3UploadService;
+    private final ImageUrlResolver imageUrlResolver;
 
     /** 고객 노출 상태 (PREPARING, STOPPED 제외) */
     private static final List<ProductStatus> VISIBLE_STATUSES = List.of(
@@ -59,10 +63,16 @@ public class ProductController {
         }
 
         List<ProductResponse> products = found.stream()
-                .map(ProductResponse::from)
+                .map(p -> ProductResponse.from(p, imageUrlResolver))
                 .toList();
 
-        return new ProductSliceResponse(products, cond.getSafePage(), size, hasNext);
+
+        return new ProductSliceResponse(
+                products,
+                cond.getSafePage(),
+                size,
+                hasNext
+        );
     }
 
     @GetMapping("/category-counts")
