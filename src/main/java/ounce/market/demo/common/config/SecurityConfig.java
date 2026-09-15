@@ -73,7 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/subscribe").permitAll()
                         // 고객센터: FAQ 는 누구나 봐야 한다. 문의 API(/api/qna/**)만 anyRequest 로 로그인이 걸린다.
                         .requestMatchers("/support").permitAll()
-                        .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").permitAll()
+                        .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
                         .requestMatchers("/api/auth/refresh").permitAll()
@@ -81,7 +81,7 @@ public class SecurityConfig {
                         .requestMatchers("/terms.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/images/**").permitAll()
+                        .requestMatchers("/api/images/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/carts/**").authenticated()
                         .requestMatchers("/api/coupons/**").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()

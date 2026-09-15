@@ -14,7 +14,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ImageController {
 
-    // todo 리뷰 사진도 s3UploadService 이거로 하면 될듯
+    // 관리자가 상품 등록할때 이미지 올리는 컨트롤러
 
     private final S3UploadService s3UploadService;
 
