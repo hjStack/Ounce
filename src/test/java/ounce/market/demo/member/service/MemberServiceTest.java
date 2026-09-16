@@ -14,9 +14,11 @@ import ounce.market.demo.common.Exception.DuplicateEmailException;
 import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.dto.request.MemberCreateRequest;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.entity.MemberStatus;
 import ounce.market.demo.member.entity.Role;
 import ounce.market.demo.member.repository.MemberRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -79,6 +81,33 @@ public class MemberServiceTest {
         assertThrows(DuplicateEmailException.class, () -> memberService.signup(request));
 
         // 예외가 터졌으니, 비밀번호 암호화나 저장은 1번도 실행되지 않아야 합니다.
+        verify(passwordEncoder, org.mockito.Mockito.never()).encode(anyString());
+        verify(memberRepository, org.mockito.Mockito.never()).save(any(Member.class));
+    }
+
+    @Test
+    @DisplayName("회원가입 실패: 탈퇴 후 30일 이내에는 동일 이메일로 재가입할 수 없어야 한다.")
+    void signup_Fail_WithinThirtyDaysAfterWithdrawal() {
+        Member withdrawnMember = Member.builder()
+                .email("withdrawn_1@ounce.deleted")
+                .withdrawnEmail("withdrawn@test.com")
+                .status(MemberStatus.WITHDRAWN)
+                .deletedAt(LocalDateTime.now().minusDays(1))
+                .build();
+        MemberCreateRequest request = new MemberCreateRequest(
+                "withdrawn@test.com", "password", "탈퇴회원", Role.USER);
+
+        given(memberRepository.findByWithdrawnEmailAndDeletedAtAfter(
+                anyString(), any(LocalDateTime.class)))
+                .willReturn(Optional.of(withdrawnMember));
+
+        DuplicateEmailException exception = assertThrows(
+                DuplicateEmailException.class,
+                () -> memberService.signup(request));
+
+        assertEquals(
+                "탈퇴한 계정은 탈퇴 후 30일 동안 다시 가입할 수 없습니다.",
+                exception.getMessage());
         verify(passwordEncoder, org.mockito.Mockito.never()).encode(anyString());
         verify(memberRepository, org.mockito.Mockito.never()).save(any(Member.class));
     }

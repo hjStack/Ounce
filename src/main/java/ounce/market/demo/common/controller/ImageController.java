@@ -15,7 +15,6 @@ import java.io.IOException;
 public class ImageController {
 
     // 관리자가 상품 등록할때 이미지 올리는 컨트롤러
-
     private final S3UploadService s3UploadService;
 
     // 프론트엔드에서 사진을 보내면 S3에 올리고 URL을 반환하는 API

@@ -23,6 +23,7 @@ import ounce.market.demo.member.entity.Role;
 import ounce.market.demo.member.repository.MemberRepository;
 
 import java.util.Collections;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,8 @@ public class MemberService {
 
     @Transactional
     public Member signup(MemberCreateRequest request) {
+
+        validateRejoinAllowed(request.getEmail());
 
         // 1. 이메일 중복 검사 로직 (중복 시 예외 발생)
         if (memberRepository.existsByEmail(request.getEmail())){
@@ -66,6 +69,15 @@ public class MemberService {
         cartRepository.save(newCart);
 
         return savedMember;
+    }
+
+    public void validateRejoinAllowed(String email) {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        if (memberRepository.findByWithdrawnEmailAndDeletedAtAfter(
+                email, thirtyDaysAgo).isPresent()) {
+            throw new DuplicateEmailException(
+                    "탈퇴한 계정은 탈퇴 후 30일 동안 다시 가입할 수 없습니다.");
+        }
     }
 
     // 로그인 로직 추가

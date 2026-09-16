@@ -20,6 +20,7 @@ import ounce.market.demo.point.entity.PointHistory;
 import ounce.market.demo.point.entity.PointType;
 import ounce.market.demo.point.repository.PointHistoryRepository;
 import ounce.market.demo.product.repository.StockRedisRepository;
+import ounce.market.demo.product.repository.ProductRepository;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class OrderCommandService {
     private final OrderRepository orderRepository;
     private final CartProductRepository cartProductRepository;
     private final StockRedisRepository stockRedisRepository;
+    private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final CouponRepository couponRepository;
     private final DeliveryRepository deliveryRepository;
@@ -45,6 +47,17 @@ public class OrderCommandService {
 
         // 1. 포인트 차감 (Update)
         member.deductPoint(paymentAmount);
+
+        // 결제 완료 시점에만 DB 상품 재고를 차감한다.
+        // 장바구니에 담는 단계에서는 재고를 변경하지 않는다.
+        for (CartProduct cp : products) {
+            int updated = productRepository.decreaseStockIfAvailable(
+                    cp.getProduct().getProductId(), cp.getQuantity());
+            if (updated != 1) {
+                throw new IllegalArgumentException(
+                        cp.getProduct().getName() + " 상품의 재고가 부족합니다.");
+            }
+        }
 
         // 2. 주문(Order) 통 생성 (Insert)
         Order order = Order.builder()

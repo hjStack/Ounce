@@ -12,6 +12,8 @@ import ounce.market.demo.cart.entity.Cart;
 import ounce.market.demo.cart.repository.CartRepository;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
+import ounce.market.demo.common.Exception.DuplicateEmailException;
+import java.time.LocalDateTime;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import ounce.market.demo.member.entity.Role;
@@ -46,6 +48,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 3. 우리 DB에 이 이메일이 있는지 확인하고, 없으면 회원가입(저장) 처리
         Member member = memberRepository.findByEmail(email)
                 .orElseGet(() -> {
+                    // 일반 회원가입과 동일하게 탈퇴 후 30일 재가입을 차단한다.
+                    if (memberRepository.findByWithdrawnEmailAndDeletedAtAfter(
+                            email, LocalDateTime.now().minusDays(30)).isPresent()) {
+                        throw new DuplicateEmailException(
+                                "탈퇴한 계정은 탈퇴 후 30일 동안 다시 가입할 수 없습니다.");
+                    }
+
                     // 구글 로그인 유저는 비밀번호가 없으므로 UUID로 임의 생성 후 암호화
                     String password = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());
 

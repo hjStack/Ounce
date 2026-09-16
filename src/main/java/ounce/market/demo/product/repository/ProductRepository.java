@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 import ounce.market.demo.product.entity.Product;
 import ounce.market.demo.product.entity.ProductStatus;
@@ -14,6 +15,16 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom  {
+
+    /**
+     * 락 없이 재고를 원자적으로 차감한다.
+     * 수정 행이 1이면 성공, 0이면 재고 부족 또는 이미 다른 요청이 차감한 경우다.
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("update Product p set p.stock = p.stock - :quantity " +
+            "where p.productId = :productId and p.stock >= :quantity")
+    int decreaseStockIfAvailable(@Param("productId") Long productId,
+                                 @Param("quantity") int quantity);
 
     List<Product> findByStatusIn(Collection<ProductStatus> statuses);
 

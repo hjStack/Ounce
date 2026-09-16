@@ -49,6 +49,10 @@ public class Member extends BaseEntity {
 
     private LocalDateTime deletedAt;  // 탈퇴 시각 (null이면 정상)
 
+    // 탈퇴 후 재가입 제한을 위해 탈퇴 당시 이메일을 보존한다.
+    @Column(name = "withdrawn_email")
+    private String withdrawnEmail;
+
     public void deductPoint(int amount) {
         // 1. 비정상적인 마이너스 금액 차감 시도 방어 (해킹/버그 원천 차단)
         if (amount < 0) {
@@ -73,6 +77,7 @@ public class Member extends BaseEntity {
 
     // Member 엔티티
     public void withdraw() {
+        this.withdrawnEmail = this.email;
         this.status = MemberStatus.WITHDRAWN;
         this.deletedAt = LocalDateTime.now();
         // 개인정보는 파기, 식별 불가능하게
