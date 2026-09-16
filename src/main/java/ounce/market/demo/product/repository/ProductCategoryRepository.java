@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, Long> {
 
+    void deleteAllByProduct_ProductId(Long productId);
+
     // 단건 색인용
     @Query("select pc.category from ProductCategory pc where pc.product.productId = :productId")
     List<Category> findCategoriesByProductId(@Param("productId") Long productId);

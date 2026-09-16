@@ -6,11 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ounce.market.demo.product.dto.request.ProductCreateRequest;
+import ounce.market.demo.product.dto.response.ProductResponse;
 import ounce.market.demo.product.service.ProductAdminService;
 import ounce.market.demo.product.service.ProductService;
 
@@ -34,6 +36,15 @@ public class ProductAdminController {
             @RequestPart("image") MultipartFile image
     ) throws IOException {
         return ResponseEntity.ok(productService.createProduct(request, image));
+    }
+
+    @PutMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long productId,
+            @RequestPart("request") ProductCreateRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        return ResponseEntity.ok(productService.updateProduct(productId, request, image));
     }
 
     @DeleteMapping("/{productId}")

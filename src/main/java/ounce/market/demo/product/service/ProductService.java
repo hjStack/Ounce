@@ -78,6 +78,38 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductResponse updateProduct(Long productId, ProductCreateRequest request,
+                                         MultipartFile image) throws IOException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId=" + productId));
+
+        product.updateDetails(
+                request.getName(),
+                request.getBasePrice(),
+                request.getDiscountPercent(),
+                request.getDescription(),
+                request.getStock()
+        );
+
+        if (image != null && !image.isEmpty()) {
+            product.updateImageUrl(s3UploadService.uploadImage(image));
+        }
+
+        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
+            productCategoryRepository.deleteAllByProduct_ProductId(productId);
+            categoryRepository.findAllById(request.getCategoryIds())
+                    .forEach(category -> productCategoryRepository.save(
+                            ProductCategory.builder()
+                                    .product(product)
+                                    .category(category)
+                                    .build()
+                    ));
+        }
+
+        return ProductResponse.from(product, imageUrlResolver);
+    }
+
+    @Transactional
     public void deleteProduct(Long productId){
 
         Product product = productRepository.findById(productId)

@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import ounce.market.demo.common.global.CustomUserDetails;
+import ounce.market.demo.notification.dto.request.PushSubscriptionRequest;
+import ounce.market.demo.notification.dto.request.PushSubscriptionDeleteRequest;
 import ounce.market.demo.notification.dto.response.MidnightAlertStatusResponse;
 import ounce.market.demo.notification.dto.response.NotificationResponse;
 import ounce.market.demo.notification.service.NotificationService;
@@ -20,6 +23,24 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    @PostMapping("/push-subscriptions")
+    @Operation(summary = "웹 푸시 구독 저장")
+    public ResponseEntity<Void> savePushSubscription(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody PushSubscriptionRequest request) {
+        notificationService.savePushSubscription(userDetails.getUsername(), request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/push-subscriptions")
+    @Operation(summary = "웹 푸시 구독 해제")
+    public ResponseEntity<Void> deletePushSubscription(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody PushSubscriptionDeleteRequest request) {
+        notificationService.deletePushSubscription(userDetails.getUsername(), request);
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping("/midnight")
     @Operation(summary = "미드나이트 알림 신청")
