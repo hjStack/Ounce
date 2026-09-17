@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers("/support").permitAll()
                         .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
+                        .requestMatchers("/api/timedeal/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
                         .requestMatchers("/api/auth/refresh").permitAll()
                         .requestMatchers("/policy.html").permitAll()

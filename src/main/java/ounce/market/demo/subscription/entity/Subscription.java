@@ -115,6 +115,9 @@ public class Subscription extends BaseEntity {
 
     private LocalDate canceledAt;
 
+    @Column(name = "subscription_discount_percent",nullable = false)
+    private Integer subscriptionDiscountPercent = 0;
+
     // ===== 생성 =====
 
     private Subscription(Member member, int mealsPerWeek, LocalDate startDate) {

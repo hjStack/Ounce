@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.product.dto.response.ProductResponse;
 import ounce.market.demo.timeDeal.service.TimeDealService;
+import ounce.market.demo.timeDeal.dto.TimeDealCreateCommand;
+import ounce.market.demo.timeDeal.dto.TimeDealAdminResponse;
 
 import java.util.List;
 
@@ -25,6 +27,23 @@ public class TimeDealController {
     public ResponseEntity<List<ProductResponse>> getTimeDeals() {
         // 서비스에서 10시~11시 검증을 마치고 데이터를 줍니다.
         return ResponseEntity.ok(timeDealService.getTodayTimeDealProducts());
+    }
+
+    // 관리자의 미드나이트 상품 등록
+    @PostMapping("/admin")
+    public ResponseEntity<Long> createTimeDeal(@RequestBody TimeDealCreateCommand command) {
+        return ResponseEntity.ok(timeDealService.createTimeDeal(command));
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<List<TimeDealAdminResponse>> getAdminTimeDeals() {
+        return ResponseEntity.ok(timeDealService.getAdminTimeDeals());
+    }
+
+    @DeleteMapping("/admin/{timeDealId}")
+    public ResponseEntity<Void> deleteTimeDeal(@PathVariable Long timeDealId) {
+        timeDealService.deleteTimeDeal(timeDealId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/purchase/{productId}")

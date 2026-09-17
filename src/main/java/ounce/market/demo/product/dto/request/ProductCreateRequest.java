@@ -1,5 +1,6 @@
 package ounce.market.demo.product.dto.request;
 
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ounce.market.demo.product.entity.Product;
@@ -25,13 +26,15 @@ public class ProductCreateRequest {
     // 💡 아까 ProductService의 주석 코드에서 찾던 그 카테고리 아이디들!
     private List<Long> categoryIds;
 
+    private Integer subscriptionDiscountPercent;
+
     // 💡 서비스 계층에서 request.toEntity() 로 바로 변환할 수 있게 해주는 핵심 메서드
     public Product toEntity() {
         return Product.builder()
                 .name(this.name)
                 .basePrice(this.basePrice)
-
                 .discountPercent(this.discountPercent)
+                .subscriptionDiscountPercent(this.subscriptionDiscountPercent)
                 .description(this.description)
                 .imageUrl(this.imageUrl) // S3 주소가 드디어 DB로 들어가는 순간!
                 .stock(this.stock)

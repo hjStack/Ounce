@@ -19,9 +19,10 @@ public class ProductResponse {
     private final String imageUrl;
     private final int stock;
     private final ProductStatus status;
+    private final Integer subscriptionDiscountPercent;
 
     public ProductResponse(Long productId, String name, Long basePrice, long salePrice, long discountPercent, String description,
-                           String imageUrl, int stock, ProductStatus status) {
+                           String imageUrl, int stock, ProductStatus status,Integer subscriptionDiscountPercent) {
         this.productId = productId;
         this.name = name;
         this.basePrice = basePrice;
@@ -31,6 +32,7 @@ public class ProductResponse {
         this.imageUrl = imageUrl;
         this.stock = stock;
         this.status = status;
+        this.subscriptionDiscountPercent=subscriptionDiscountPercent;
     }
 
     public static ProductResponse from(Product product, ImageUrlResolver imageUrlResolver) {
@@ -43,7 +45,8 @@ public class ProductResponse {
                 product.getDescription(),
                 imageUrlResolver.toUrl(product.getImageUrl()),   // 키 → CloudFront URL
                 product.getStock(),
-                product.getStatus()
+                product.getStatus(),
+                product.getSubscriptionDiscountPercent()
         );
     }
 }

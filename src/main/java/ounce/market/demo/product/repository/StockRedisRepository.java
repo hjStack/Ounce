@@ -58,6 +58,10 @@ public class StockRedisRepository {
         redisTemplate.opsForValue().set(key(productId), String.valueOf(stock));
     }
 
+    public void deleteStock(Long productId) {
+        redisTemplate.delete(key(productId));
+    }
+
     /** 재고 초기화/재입고 시 호출 */
     public void initStockIfAbsent(Long productId, int stock) {
         redisTemplate.opsForValue().setIfAbsent(key(productId), String.valueOf(stock));

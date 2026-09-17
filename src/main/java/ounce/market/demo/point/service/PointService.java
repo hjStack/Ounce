@@ -62,6 +62,20 @@ public class PointService {
         saveHistory(member, order, -amount, PointType.USE, description);
     }
 
+    @Transactional
+    public void grantReviewReward(Member member, int amount, String description) {
+        member.addPoint(amount);
+        saveHistory(member, null, amount, PointType.REWARD, description);
+    }
+
+    @Transactional
+    public void revokeReviewReward(Member member, int amount, String description) {
+        member.deductPoint(amount);
+        // 운영 DB의 point_history.type이 기존 ENUM(REWARD 포함)으로 운영 중이므로
+        // 별도 enum을 추가하지 않고 음수 REWARD 이력으로 회수를 기록한다.
+        saveHistory(member, null, -amount, PointType.REWARD, description);
+    }
+
     private void saveHistory(Member member, Order order, int amount, PointType type, String description) {
         PointHistory pointHistory = PointHistory.builder()
                 .member(member)

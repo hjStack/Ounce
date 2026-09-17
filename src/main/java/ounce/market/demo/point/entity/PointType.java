@@ -14,7 +14,8 @@ public enum PointType {
 
     // ➖ 포인트 감소 사유 (Minus)
     USE("상품 결제 사용"),       // 타임딜 상품 결제 시 차감됨
-    EXPIRED("유효기간 만료 소멸"); // 꽁짜로 준 포인트의 유효기간이 끝나서 서버가 회수함
+    EXPIRED("유효기간 만료 소멸"), // 꽁짜로 준 포인트의 유효기간이 끝나서 서버가 회수함
+    REWARD_CANCEL("리뷰 삭제");
 
     private final String description;
 }

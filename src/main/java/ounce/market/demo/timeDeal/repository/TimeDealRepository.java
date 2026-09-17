@@ -1,6 +1,7 @@
 package ounce.market.demo.timeDeal.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ounce.market.demo.timeDeal.entity.DealStatus;
@@ -25,4 +26,10 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 
     boolean existsByStartTime(LocalDateTime startTime);
 
+    @Query("SELECT t FROM TimeDeal t JOIN FETCH t.product ORDER BY t.startTime DESC")
+    List<TimeDeal> findAllWithProductOrderByStartTimeDesc();
+
+    @Modifying
+    @Query("delete from TimeDeal t where t.timeDealId = :id")
+    int deleteByIdIfExists(@Param("id") Long id);
 }

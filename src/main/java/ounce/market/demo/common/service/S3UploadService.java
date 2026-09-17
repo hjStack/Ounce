@@ -27,7 +27,9 @@ public class S3UploadService {
     private static final String IMAGE_PREFIX = "img/";
 
     private static final Map<String, String> EXTENSIONS = Map.of(
-            "image/jpeg", ".jpeg"
+            "image/jpeg", ".jpeg",
+            "image/png", ".png",
+            "image/webp", ".webp"
     );
 
     private final S3Client s3Client;
