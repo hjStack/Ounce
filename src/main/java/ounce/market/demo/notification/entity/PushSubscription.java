@@ -28,6 +28,9 @@ public class PushSubscription {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Column(nullable = false)
+    private boolean midnightAlertEnabled = true;
+
     public PushSubscription(String endpoint, String p256dh, String auth, Member member) {
         this.endpoint = endpoint;
         this.p256dh = p256dh;
@@ -39,5 +42,17 @@ public class PushSubscription {
         this.p256dh = p256dh;
         this.auth = auth;
         this.member = member;
+    }
+
+    public long getId() {
+        return pushSubscriptionId;
+    }
+
+    public boolean isMidnightAlertEnabled() {
+        return midnightAlertEnabled;
+    }
+
+    public void disableMidnightAlert() {
+        this.midnightAlertEnabled = false;
     }
 }

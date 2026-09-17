@@ -10,4 +10,7 @@ public interface PushSubscriptionRepository extends JpaRepository<PushSubscripti
     Optional<PushSubscription> findByEndpoint(String endpoint);
     List<PushSubscription> findAllByMemberMidnightAlertEnabledTrue();
     void deleteByEndpoint(String endpoint);
+
+    List<PushSubscription> findAll();
+    List<PushSubscription> findAllByMidnightAlertEnabledTrue();
 }
