@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ounce.market.demo.common.global.CustomUserDetails;
 import ounce.market.demo.review.dto.request.ReviewCreateRequest;
 import ounce.market.demo.review.dto.response.ReviewResponse;
@@ -26,13 +27,29 @@ public class ReviewController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long productId,
             @Valid @RequestBody ReviewCreateRequest request
-    ) {
+    ) throws java.io.IOException {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String email = userDetails.member().getEmail();
         Long reviewId = reviewService.createReview(email, productId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
+    }
+
+    @PostMapping(value = "/api/products/{productId}/reviews", consumes = "multipart/form-data")
+    public ResponseEntity<Long> createPhotoReview(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long productId,
+            @RequestPart("request") @Valid ReviewCreateRequest request,
+            @RequestPart("image") MultipartFile image
+    ) throws java.io.IOException {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long reviewId = reviewService.createReview(
+                userDetails.member().getEmail(), productId, request, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewId);
     }
 

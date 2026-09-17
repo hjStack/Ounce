@@ -3,8 +3,6 @@ package ounce.market.demo.member.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import ounce.market.demo.common.BaseEntity;
-import ounce.market.demo.common.global.InsufficientPointException;
-
 import java.time.LocalDateTime;
 
 @Entity

@@ -14,3 +14,5 @@ public class PaymentConfig {
         return new StubPaymentClient();
     }
 }
+
+// todo 진짜 결제 로직으로 바꿔야 함

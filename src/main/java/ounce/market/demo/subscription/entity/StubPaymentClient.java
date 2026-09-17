@@ -1,5 +1,4 @@
 package ounce.market.demo.subscription.entity;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -21,6 +20,7 @@ import java.util.UUID;
 @Profile("!prod")
 public class StubPaymentClient implements PaymentClient {
 
+    // pg사 진짜 결제 로직으로 변경하기
 
     @Override
     public PaymentResult charge(String idempotencyKey, Long memberId, long amount, String orderName) {

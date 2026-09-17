@@ -11,6 +11,8 @@ import ounce.market.demo.product.repository.ProductRepository;
 import ounce.market.demo.product.repository.StockRedisRepository;
 import ounce.market.demo.timeDeal.entity.DealStatus;
 import ounce.market.demo.timeDeal.entity.TimeDeal;
+import ounce.market.demo.timeDeal.dto.TimeDealCreateCommand;
+import ounce.market.demo.timeDeal.dto.TimeDealAdminResponse;
 import ounce.market.demo.timeDeal.repository.TimeDealRepository;
 
 import java.time.LocalDate;
@@ -29,6 +31,58 @@ public class TimeDealService {
     private final TimeDealRepository timeDealRepository;
     private final ProductRepository productRepository;
     private final StockRedisRepository stockRedisRepository;   // 👈 추가
+
+    @Transactional
+    public Long createTimeDeal(TimeDealCreateCommand command) {
+        if (command.productId() == null) {
+            throw new IllegalArgumentException("미드나이트 상품을 선택해주세요.");
+        }
+        if (command.discountRate() < 0 || command.discountRate() > 100) {
+            throw new IllegalArgumentException("할인율은 0~100 사이여야 합니다.");
+        }
+        if (command.maxPurchaseLimit() <= 0) {
+            throw new IllegalArgumentException("한정 수량은 1개 이상이어야 합니다.");
+        }
+        if (command.startTime() == null || command.endTime() == null
+                || !command.startTime().isBefore(command.endTime())) {
+            throw new IllegalArgumentException("시작 시간은 종료 시간보다 빨라야 합니다.");
+        }
+
+        Product product = productRepository.findById(command.productId())
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+
+        TimeDeal deal = TimeDeal.builder()
+                .product(product)
+                .discountRate(command.discountRate())
+                .startTime(command.startTime())
+                .endTime(command.endTime())
+                .maxPurchaseLimit(command.maxPurchaseLimit())
+                .build();
+        TimeDeal saved = timeDealRepository.save(deal);
+        stockRedisRepository.setStock(product.getProductId(), command.maxPurchaseLimit());
+        return saved.getTimeDealId();
+    }
+
+    public List<TimeDealAdminResponse> getAdminTimeDeals() {
+        return timeDealRepository.findAllWithProductOrderByStartTimeDesc()
+                .stream()
+                .map(TimeDealAdminResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteTimeDeal(Long timeDealId) {
+        TimeDeal deal = timeDealRepository.findById(timeDealId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "미드나이트 상품을 찾을 수 없습니다."
+                ));
+
+        int deleted = timeDealRepository.deleteByIdIfExists(timeDealId);
+
+        if (deleted == 1) {
+            stockRedisRepository.deleteStock(deal.getProduct().getProductId());
+        }
+    }
 
     public List<ProductResponse> getTodayTimeDealProducts() {
         LocalDateTime now = LocalDateTime.now();

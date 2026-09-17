@@ -46,12 +46,13 @@ public class Review {
     private String imageUrl;
 
     @Builder
-    public Review(Product product, Member member, int rating, String content) {
+    public Review(Product product, Member member, int rating, String content, String imageUrl) {
         validateRating(rating);
         this.product = product;
         this.member = member;
         this.rating = rating;
         this.content = content;
+        this.imageUrl = imageUrl;
     }
 
     public void update(int rating, String content) {

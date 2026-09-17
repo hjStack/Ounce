@@ -25,7 +25,7 @@ public class Product extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
-
+    private Integer subscriptionDiscountPercent;
     private String description;
     private String imageUrl;
 
@@ -34,19 +34,28 @@ public class Product extends BaseEntity {
     private int Quantity;
 
     @Builder
-    public Product(String productCode, String name, Long basePrice,
-                   Long discountPercent,
-                   int stock, String description, String imageUrl,ProductStatus status) {
-   
+    public Product(
+            String productCode,
+            String name,
+            Long basePrice,
+            Long discountPercent,
+            Integer subscriptionDiscountPercent,
+            int stock,
+            String description,
+            String imageUrl,
+            ProductStatus status
+    ) {
         this.productCode = productCode;
         this.name = name;
         this.basePrice = basePrice;
-        this.discountPercent=discountPercent;
-        this.stock=stock;
+        this.discountPercent = discountPercent;
+        this.subscriptionDiscountPercent=subscriptionDiscountPercent;
+        this.stock = stock;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.status = ProductStatus.VISIBLE;
+        this.status = status == null ? ProductStatus.VISIBLE : status;
     }
+
 
 
     // todo 수정하기
