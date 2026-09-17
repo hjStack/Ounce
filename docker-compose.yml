@@ -81,6 +81,9 @@ services:
       # 무중단 배포의 graceful shutdown 이 꺼집니다 (jar 안에 application-local.yml 은 없음).
       # 로컬 개발은 docker-compose.local.yml 이 local 로 덮습니다.
       SPRING_PROFILES_ACTIVE: prod
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul"
+      SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE: Asia/Seoul
 
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
@@ -121,6 +124,10 @@ services:
       # 무중단 배포의 graceful shutdown 이 꺼집니다 (jar 안에 application-local.yml 은 없음).
       # 로컬 개발은 docker-compose.local.yml 이 local 로 덮습니다.
       SPRING_PROFILES_ACTIVE: prod
+
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Seoul"
+      SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE: Asia/Seoul
 
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}

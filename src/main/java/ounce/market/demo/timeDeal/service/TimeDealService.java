@@ -193,4 +193,5 @@ public class TimeDealService {
         deals.forEach(TimeDeal::close);
         log.info("🌙 [시스템] 미드나이트 세일 종료! {}건 CLOSED 전환", deals.size());
     }
+
 }

@@ -32,6 +32,9 @@ public class TimeDealController {
     // 관리자의 미드나이트 상품 등록
     @PostMapping("/admin")
     public ResponseEntity<Long> createTimeDeal(@RequestBody TimeDealCreateCommand command) {
+
+        log.info("request start={}, end={}",
+                command.startTime(), command.endTime());
         return ResponseEntity.ok(timeDealService.createTimeDeal(command));
     }
 
