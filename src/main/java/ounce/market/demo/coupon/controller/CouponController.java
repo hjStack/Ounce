@@ -15,7 +15,7 @@ import ounce.market.demo.coupon.service.CouponService;
 
 import java.util.List;
 
-@Tag(name = "09. 쿠폰", description = "내 쿠폰 조회 및 쿠폰 검증")
+@Tag(name = "09-0. 쿠폰", description = "내 쿠폰 조회 및 쿠폰 검증")
 @RestController
 @RequestMapping("/api/coupons")
 @RequiredArgsConstructor

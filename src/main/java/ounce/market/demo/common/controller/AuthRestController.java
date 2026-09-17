@@ -1,4 +1,5 @@
 package ounce.market.demo.common.controller;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import ounce.market.demo.common.global.jwt.JWTUtil;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
 
+@Tag(name = "01-1 리프레시 토큰",description = "refresh token 생성 API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

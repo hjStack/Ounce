@@ -14,7 +14,7 @@ import ounce.market.demo.admin.service.AdminService;
 import ounce.market.demo.admin.dto.response.AdminMemberResponse;
 import ounce.market.demo.admin.dto.response.AdminMemberPageResponse;
 
-@Tag(name = "관리자 회원", description = "관리자 회원 관리")
+@Tag(name = "15.관리자 회원", description = "관리자 회원 관리 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/members")

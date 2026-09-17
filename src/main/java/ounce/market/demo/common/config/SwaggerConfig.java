@@ -31,7 +31,6 @@ public class SwaggerConfig {
                         .description("1인 가구 밀키트 구독 서비스, Ounce API 문서")
                         .version("v1.0.0"))
                 .tags(List.of(
-                        new Tag().name("01. 회원").description("회원가입, 로그인, 로그아웃"),
                         new Tag().name("02. 주문").description("주문 생성 및 조회"),
                         new Tag().name("03. 장바구니").description("장바구니 관련 API"),
                         new Tag().name("04. 상품").description("상품 전체 조회 및 단건 조회 API"),
@@ -39,7 +38,6 @@ public class SwaggerConfig {
                         new Tag().name("06. 미드나이트").description("미드나이트 관련 API"),
                         new Tag().name("07. 미드나이트 알림").description("알림 관련 API"),
                         new Tag().name("08. 리뷰").description("리뷰 관련 API"),
-                        new Tag().name("09. 쿠폰").description("쿠폰 관련 API"),
                         new Tag().name("09-1. 쿠폰 관리자").description("쿠폰 관리자 API"),
                         new Tag().name("10-0. 배송").description("배송 관련 API"),
                         new Tag().name("10-1. 배송 관리자").description("배송 관리자 API"),
@@ -52,6 +50,4 @@ public class SwaggerConfig {
                 .addSecurityItem(securityRequirement)   // ✅ 메서드 호출
                 .components(components);                // ✅ 메서드 호출
     }
-
-
 }

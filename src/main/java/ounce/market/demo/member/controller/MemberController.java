@@ -29,7 +29,7 @@ import ounce.market.demo.order.entity.OrderStatus;
 import ounce.market.demo.order.repository.OrderRepository;
 
 import java.util.concurrent.TimeUnit;
-@Tag(name = "01. 회원", description = "회원가입, 로그인, 로그아웃")
+@Tag(name = "01-0. 회원", description = "회원가입, 로그인, 로그아웃")
 @Slf4j
 @RestController
 @RequestMapping("/api/members")
