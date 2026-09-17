@@ -67,3 +67,8 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+
+web-push:
+  public-key: ${WEB_PUSH_PUBLIC_KEY}
+  private-key: ${WEB_PUSH_PRIVATE_KEY}
+  subject: ${WEB_PUSH_SUBJECT}
