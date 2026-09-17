@@ -27,7 +27,7 @@ public class Notification extends BaseEntity {
     private String type;
 
     @Column(nullable = false)
-    private boolean read;
+    private boolean is_read;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -39,10 +39,10 @@ public class Notification extends BaseEntity {
         this.title = title;
         this.content = content;
         this.type = type;
-        this.read = false;
+        this.is_read = false;
     }
 
     public void markAsRead() {
-        this.read = true;
+        this.is_read = true;
     }
 }

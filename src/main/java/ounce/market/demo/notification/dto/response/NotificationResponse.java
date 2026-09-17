@@ -13,14 +13,14 @@ public class NotificationResponse {
     private String title;
     private String content;
     private String type;
-    private boolean read;
+    private boolean is_read;
     private LocalDateTime createdAt;
 
     public static NotificationResponse from(Notification notification) {
         return new NotificationResponse(
                 notification.getNotificationId(), notification.getTitle(),
                 notification.getContent(), notification.getType(),
-                notification.isRead(), notification.getCreatedAt()
+                notification.is_read(), notification.getCreatedAt()
         );
     }
 }
