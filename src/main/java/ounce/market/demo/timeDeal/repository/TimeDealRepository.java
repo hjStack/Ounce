@@ -32,4 +32,6 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
     @Modifying
     @Query("delete from TimeDeal t where t.timeDealId = :id")
     int deleteByIdIfExists(@Param("id") Long id);
+
+
 }
