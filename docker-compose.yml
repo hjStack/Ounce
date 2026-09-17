@@ -81,6 +81,11 @@ services:
       # 무중단 배포의 graceful shutdown 이 꺼집니다 (jar 안에 application-local.yml 은 없음).
       # 로컬 개발은 docker-compose.local.yml 이 local 로 덮습니다.
       SPRING_PROFILES_ACTIVE: prod
+
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+
       SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -89,7 +94,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-
 
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
@@ -113,6 +117,11 @@ services:
       # 무중단 배포의 graceful shutdown 이 꺼집니다 (jar 안에 application-local.yml 은 없음).
       # 로컬 개발은 docker-compose.local.yml 이 local 로 덮습니다.
       SPRING_PROFILES_ACTIVE: prod
+
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+
       SPRING_DATASOURCE_URL: jdbc:mysql://ounce-db:3306/Ounce?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
