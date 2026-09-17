@@ -18,6 +18,7 @@ import ounce.market.demo.timeDeal.repository.TimeDealRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TimeDealService {
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final TimeDealRepository timeDealRepository;
     private final ProductRepository productRepository;
@@ -85,7 +88,7 @@ public class TimeDealService {
     }
 
     public List<ProductResponse> getTodayTimeDealProducts() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(KST);
         LocalTime currentTime = now.toLocalTime();
 
         // 1. 시간 철통 방어: 22:00 ~ 23:00 사이가 아니면 빈 리스트 반환
@@ -120,11 +123,11 @@ public class TimeDealService {
     }
 
     @Transactional // DB에 Insert(저장)를 해야 하므로 트랜잭션 필수!
-    @Scheduled(cron = "0 50 21 * * *")
+    @Scheduled(cron = "0 50 21 * * *", zone = "Asia/Seoul")
     public void generateMidnightDealsAutomatically() {
         log.info("🌙 [시스템] 미드나이트 세일 상품 자동 생성 스케줄러 기상!");
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(KST);
         LocalDateTime startTime = today.atTime(22, 0); // 오늘 밤 10시
         LocalDateTime endTime = today.atTime(23, 0);   // 오늘 밤 11시
 
@@ -173,9 +176,9 @@ public class TimeDealService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 22 * * *")
+    @Scheduled(cron = "0 0 22 * * *", zone = "Asia/Seoul")
     public void openMidnightDeals() {
-        LocalDateTime startTime = LocalDate.now().atTime(22, 0);
+        LocalDateTime startTime = LocalDate.now(KST).atTime(22, 0);
         List<TimeDeal> deals = timeDealRepository.findByStartTime(startTime);
         deals.forEach(TimeDeal::open);
         log.info("🌙 [시스템] 미드나이트 세일 오픈! {}건 IN_PROGRESS 전환", deals.size());
@@ -183,9 +186,9 @@ public class TimeDealService {
 
     // 🌙 매일 23:00 정각: IN_PROGRESS → CLOSED
     @Transactional
-    @Scheduled(cron = "0 0 23 * * *")
+    @Scheduled(cron = "0 0 23 * * *", zone = "Asia/Seoul")
     public void closeMidnightDeals() {
-        LocalDateTime startTime = LocalDate.now().atTime(22, 0);
+        LocalDateTime startTime = LocalDate.now(KST).atTime(22, 0);
         List<TimeDeal> deals = timeDealRepository.findByStartTime(startTime);
         deals.forEach(TimeDeal::close);
         log.info("🌙 [시스템] 미드나이트 세일 종료! {}건 CLOSED 전환", deals.size());
