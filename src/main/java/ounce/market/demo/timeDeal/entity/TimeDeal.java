@@ -33,7 +33,7 @@ public class TimeDeal extends BaseEntity {
     private LocalDateTime startTime; // 타임딜 시작 시간 (밤 10시)
 
     @Column(nullable = false)
-    private LocalDateTime endTime; // 타임딜 종료 시간 (밤 12시)
+    private LocalDateTime endTime; // 타임딜 종료 시간 (밤 11시)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
