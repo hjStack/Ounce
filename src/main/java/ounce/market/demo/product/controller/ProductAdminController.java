@@ -1,5 +1,6 @@
 package ounce.market.demo.product.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import ounce.market.demo.product.service.ProductService;
 
 import java.io.IOException;
 
+@Tag(name = "16-1. 관리자 사진 등록", description = " 관리자 사진 등록 API")
 @RestController
 @RequestMapping("/api/admin/products")
 @RequiredArgsConstructor

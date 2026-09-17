@@ -1,6 +1,7 @@
 package ounce.market.demo.common.controller;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import ounce.market.demo.common.service.S3UploadService;
 
 import java.io.IOException;
 
+@Tag(name = "16-2. 관리자 사진 등록", description = " 관리자 사진 등록 API")
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor

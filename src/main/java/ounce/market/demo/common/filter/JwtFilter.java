@@ -60,6 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
 
+
         // 토큰 없음 → 익명으로 통과. 접근 제어는 SecurityFilterChain이 한다.
         if (token == null) {
             filterChain.doFilter(request, response);

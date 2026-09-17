@@ -1,8 +1,10 @@
 package ounce.market.demo.common.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "00. health check api",description = "헬스체크 API")
 @RestController
 public class HealthCheckController {
 

@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 1. 프론트엔드 디자인 파일들 (css, js, img) 통과!
 
-
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**","/favicon.ico","/favicon.png").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup", "/login").permitAll()
