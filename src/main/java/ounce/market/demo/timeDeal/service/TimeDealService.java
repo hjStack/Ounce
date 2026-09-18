@@ -40,12 +40,11 @@ public class TimeDealService {
         if (command.productId() == null) {
             throw new IllegalArgumentException("미드나이트 상품을 선택해주세요.");
         }
-        if (command.discountRate() < 0 || command.discountRate() > 100) {
-            throw new IllegalArgumentException("할인율은 0~100 사이여야 합니다.");
-        }
+
         if (command.maxPurchaseLimit() <= 0) {
             throw new IllegalArgumentException("한정 수량은 1개 이상이어야 합니다.");
         }
+
         if (command.startTime() == null || command.endTime() == null
                 || !command.startTime().isBefore(command.endTime())) {
             throw new IllegalArgumentException("시작 시간은 종료 시간보다 빨라야 합니다.");
@@ -61,7 +60,9 @@ public class TimeDealService {
                 .endTime(command.endTime())
                 .maxPurchaseLimit(command.maxPurchaseLimit())
                 .build();
+
         TimeDeal saved = timeDealRepository.save(deal);
+        // todo ?
         stockRedisRepository.setStock(product.getProductId(), command.maxPurchaseLimit());
         return saved.getTimeDealId();
     }
@@ -99,7 +100,6 @@ public class TimeDealService {
 
         // 2. DB에서 현재 시간 기준 활성화된 타임딜가져오기
         List<TimeDeal> activeDeals = timeDealRepository.findActiveDealsWithProduct(DealStatus.IN_PROGRESS, now);
-//        List<TimeDeal> activeDeals = timeDealRepository.findAllWithProductForTest();  // 🧪 임시
 
         // 3. TimeDeal 엔티티를 프론트엔드가 요구하는 ProductResponse DTO로 변환
         return activeDeals.stream()
