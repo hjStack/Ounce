@@ -11,6 +11,7 @@ import ounce.market.demo.notification.repository.NotificationRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
@@ -39,14 +40,31 @@ public class NotificationService {
     @Value("${app.web-push.subject:mailto:no-reply@ouncefresh.com}")
     private String webPushSubject;
 
+
     @Transactional
-    public void savePushSubscription(String email, PushSubscriptionRequest request) {
+    public void savePushSubscription(
+            String email,
+            PushSubscriptionRequest request
+    ) {
         Member member = findMember(email);
+
         pushSubscriptionRepository.findByEndpoint(request.endpoint())
-                .ifPresentOrElse(subscription -> subscription.updateKeys(
-                                request.p256dh(), request.auth(), member),
-                        () -> pushSubscriptionRepository.save(new PushSubscription(
-                                request.endpoint(), request.p256dh(), request.auth(), member)));
+                .ifPresentOrElse(
+                        subscription -> subscription.updateKeys(
+                                request.p256dh(),
+                                request.auth(),
+                                member
+                        ),
+                        () -> pushSubscriptionRepository.save(
+                                new PushSubscription(
+                                        request.endpoint(),
+                                        request.p256dh(),
+                                        request.auth(),
+                                        member
+                                )
+                        )
+                );
+
         member.enableMidnightAlert();
     }
 
@@ -93,7 +111,7 @@ public class NotificationService {
     @Transactional
     @Scheduled(cron = "0 0 22 * * *", zone = "Asia/Seoul")
     public void createMidnightNotifications() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDateTime from = today.atStartOfDay();
         LocalDateTime to = today.plusDays(1).atStartOfDay();
 
@@ -108,9 +126,10 @@ public class NotificationService {
                         .build());
             }
         });
-        sendMidnightPushes();
     }
 
+    @Scheduled(cron = "0 50 21 * * *", zone = "Asia/Seoul")
+    @Transactional
     private void sendMidnightPushes() {
         if (webPushPublicKey.isBlank() || webPushPrivateKey.isBlank()) return;
         final PushService pushService;
