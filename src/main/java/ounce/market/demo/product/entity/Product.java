@@ -57,11 +57,9 @@ public class Product extends BaseEntity {
     }
 
 
-
     // todo 수정하기
     public long getSalePrice() {
-        // TODO: 할인 로직 추가 지점
-        return this.discountPercent * basePrice;
+        return Math.round(basePrice * (100 - discountPercent) / 100.0);
     }
 
     public void changeStatus(ProductStatus status) {

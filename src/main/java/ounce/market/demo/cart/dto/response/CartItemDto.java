@@ -24,7 +24,10 @@ public class CartItemDto {
         Product product = cartItem.getProduct();
         long base = product.getBasePrice();
         boolean isDeal = (discountRate != null);
-        long finalPrice = isDeal ? product.getSalePrice() * (100 - discountRate) / 100 : base;
+
+        long finalPrice = isDeal
+                ? Math.round(base * (100 - discountRate) / 100.0)
+                : product.getSalePrice();
 
         return CartItemDto.builder()
                 .cartId(cartItem.getCartProductId())
@@ -34,6 +37,7 @@ public class CartItemDto {
                 .basePrice(cartItem.getProduct().getBasePrice())
                 .finalPrice(finalPrice)
                 .imageUrl(cartItem.getProduct().getImageUrl())
+                .timeDeal(isDeal)
                 .build();
     }
 }

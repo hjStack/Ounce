@@ -17,6 +17,7 @@ import ounce.market.demo.timeDeal.repository.TimeDealRepository;
 
 import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class CartService {
     private final TimeDealRepository timeDealRepository;   // 👈 주입 추가
 
     private static final int MAX_PER_ORDER = 10;
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private void validateQuantityLimit(int resultingQuantity) {
         if (resultingQuantity > MAX_PER_ORDER) {
@@ -50,7 +52,7 @@ public class CartService {
 
 
         Map<Long, Integer> dealRateMap = timeDealRepository
-                .findActiveDealsWithProduct(DealStatus.IN_PROGRESS, LocalDateTime.now())
+                .findActiveDealsWithProduct(DealStatus.IN_PROGRESS, LocalDateTime.now(KST))
                 .stream()
                 .collect(Collectors.toMap(
                         deal -> deal.getProduct().getProductId(),
