@@ -13,7 +13,8 @@ public record PointHistoryResponse(
         String typeDescription,
         String description,
         int balanceAfter,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String name
 ) {
     public static PointHistoryResponse from(PointHistory pointHistory) {
         Long orderId = pointHistory.getOrder() == null ? null : pointHistory.getOrder().getOrderId();
@@ -27,7 +28,8 @@ public record PointHistoryResponse(
                 typeDescription,
                 pointHistory.getDescription(),
                 pointHistory.getBalanceAfter(),
-                pointHistory.getCreatedAt()
+                pointHistory.getCreatedAt(),
+                pointHistory.getMember().getName()
         );
     }
 }

@@ -45,6 +45,8 @@ public class Review {
 
     private String imageUrl;
 
+    private String productName;
+
     @Builder
     public Review(Product product, Member member, int rating, String content, String imageUrl) {
         validateRating(rating);

@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PointHistoryRepository extends JpaRepository<PointHistory, Long> {
 
     Page<PointHistory> findAllByMemberMemberIdOrderByPointHistoryIdDesc(Long memberId, Pageable pageable);
+
+    Page<PointHistory> findAllByOrderByPointHistoryIdDesc(Pageable pageable);
 }

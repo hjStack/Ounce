@@ -21,6 +21,7 @@ import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.entity.MemberStatus;
 import ounce.market.demo.member.entity.Role;
 import ounce.market.demo.member.repository.MemberRepository;
+import ounce.market.demo.review.repository.ReviewRepository;
 
 import java.util.Collections;
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class MemberService {
     private final JWTUtil jwtUtil;
     private final CartRepository cartRepository; // 💡 장바구니 창고 직원 추가
     private final CartProductRepository cartProductRepository;
+    private final ReviewRepository reviewRepository;
 
     // todo 관리자 권한 로직 및 버튼 만들기
     // todo n+1 문제 발생 -> 해결하기
@@ -132,6 +134,7 @@ public class MemberService {
         cartRepository.findByMemberMemberId(member.getMemberId())
                 .ifPresent(cart -> {
                     cartProductRepository.deleteByCart_CartId(cart.getCartId());
+                    reviewRepository.findByMemberIdWithMember(member.getMemberId());
                     cartRepository.delete(cart);
                 });
 

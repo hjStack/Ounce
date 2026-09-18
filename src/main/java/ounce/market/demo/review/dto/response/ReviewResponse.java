@@ -12,7 +12,7 @@ public record ReviewResponse(
         int rating,
         String content,
         String imageUrl,
-        LocalDateTime createdAt
+        LocalDateTime createdAt, String productName
 ) {
     public static ReviewResponse from(Review review) {
         return new ReviewResponse(
@@ -23,7 +23,8 @@ public record ReviewResponse(
                 review.getRating(),
                 review.getContent(),
                 review.getImageUrl(),
-                review.getCreatedAt()
+                review.getCreatedAt(),
+                review.getProduct().getName()
         );
     }
 
@@ -36,7 +37,8 @@ public record ReviewResponse(
                 review.getRating(),
                 review.getContent(),
                 imageUrlResolver.toUrl(review.getImageUrl()),
-                review.getCreatedAt()
+                review.getCreatedAt(),
+                review.getProduct().getName()
         );
     }
 }
