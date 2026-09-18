@@ -21,7 +21,9 @@ public class MidnightNotificationScheduler {
     private final PushSubscriptionRepository subscriptionRepository;
     private final WebPushService webPushService;
 
-    @Scheduled(cron = "0 50 21 * * *", zone = "Asia/Seoul")
+    // 9시 50,55분에 미드나이트 서비스가 시작됨을 알림
+
+    @Scheduled(cron = "0 50,55 21 * * *", zone = "Asia/Seoul")
     public void sendMidnightSaleNotification() {
         List<PushSubscription> subscriptions =
                 subscriptionRepository.findAllByMidnightAlertEnabledTrue();

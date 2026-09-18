@@ -49,9 +49,4 @@ public class WebPushService {
             );
         }
     }
-//
-//    @Transactional
-//    public void removeExpiredPushSubscription(Long pushSubscriptionId) {
-//        pushSubscriptionRepository.deleteById(pushSubscriptionId);
-//    }
 }

@@ -1,5 +1,6 @@
 package ounce.market.demo.common.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -54,7 +55,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 1. 프론트엔드 디자인 파일들 (css, js, img) 통과!
 
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**","/favicon.ico","/favicon.png").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup", "/login").permitAll()
@@ -69,7 +70,6 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/products/search").permitAll()
-                        .requestMatchers("/dev/**").permitAll()
                         .requestMatchers("/timedeal").permitAll()   // 미드나이트 페이지 자체도 열기
                         // 반면 /subscription(내 구독)은 여기 안 적어서 anyRequest 로 로그인이 걸린다.
                         .requestMatchers("/subscribe").permitAll()
@@ -119,7 +119,9 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtFilter(jwtUtil, customUserDetailsService,accessCookieName),UsernamePasswordAuthenticationFilter.class);  // 응답 헤더에 쿠키를 심고 메인으로 리다이렉팅
 
         return http.build();
+
     }
+
 }
 
 
