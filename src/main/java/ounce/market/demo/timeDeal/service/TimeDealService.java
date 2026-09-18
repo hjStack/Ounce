@@ -97,26 +97,36 @@ public class TimeDealService {
             return Collections.emptyList();
         }
 
-        // 2. DB에서 현재 시간 기준 활성화된 타임딜 5개 가져오기
+        // 2. DB에서 현재 시간 기준 활성화된 타임딜가져오기
         List<TimeDeal> activeDeals = timeDealRepository.findActiveDealsWithProduct(DealStatus.IN_PROGRESS, now);
 //        List<TimeDeal> activeDeals = timeDealRepository.findAllWithProductForTest();  // 🧪 임시
 
         // 3. TimeDeal 엔티티를 프론트엔드가 요구하는 ProductResponse DTO로 변환
         return activeDeals.stream()
                 .map(deal -> {
-                    Long productId = deal.getProduct().getProductId();
-                    // Redis에서 현재 남은 재고 읽기 (없으면 한정수량으로 폴백)
+                    Product product = deal.getProduct();
+                    Long productId = product.getProductId();
+
                     int remaining = stockRedisRepository.getStock(productId)
                             .orElse(deal.getMaxPurchaseLimit());
 
+                    long originalPrice = product.getSalePrice() > 0
+                            ? product.getSalePrice()
+                            : product.getBasePrice();
+
+                    int dealPrice = Math.round(
+                            originalPrice * (100 - deal.getDiscountRate()) / 100f
+                    );
+
+
                     return ProductResponse.builder()
                             .productId(productId)
-                            .name(deal.getProduct().getName())
-                            .basePrice(deal.getProduct().getBasePrice())
-                            .salePrice(deal.getProduct().getSalePrice() * (100 - deal.getDiscountRate()) / 100)
+                            .name(product.getName())
+                            .basePrice(originalPrice)
+                            .salePrice(dealPrice)
                             .discountPercent(deal.getDiscountRate())
-                            .imageUrl(deal.getProduct().getImageUrl())
-                            .stock(remaining)                          // 👈 Redis 현재 재고
+                            .imageUrl(product.getImageUrl())
+                            .stock(remaining)
                             .build();
                 })
                 .collect(Collectors.toList());
