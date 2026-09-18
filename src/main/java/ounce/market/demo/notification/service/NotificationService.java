@@ -130,7 +130,7 @@ public class NotificationService {
 
     @Scheduled(cron = "0 50 21 * * *", zone = "Asia/Seoul")
     @Transactional
-    private void sendMidnightPushes() {
+    public void sendMidnightPushes() {
         if (webPushPublicKey.isBlank() || webPushPrivateKey.isBlank()) return;
         final PushService pushService;
         try {
