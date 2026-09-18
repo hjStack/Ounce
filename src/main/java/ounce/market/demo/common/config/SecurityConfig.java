@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/img/**","/favicon.ico","/favicon.png").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup", "/login").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/api/members/me").authenticated()
                         .requestMatchers("/api/members/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/orders/**").authenticated()
