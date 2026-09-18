@@ -93,4 +93,24 @@ public class PointService {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
     }
+
+    @Transactional(readOnly = true)
+    public Page<PointHistoryResponse> getAllHistories(Pageable pageable) {
+        return pointHistoryRepository
+                .findAllByOrderByPointHistoryIdDesc(pageable)
+                .map(PointHistoryResponse::from);
+    }
+
+
+    public void deduct(Member member, int amount, String description) {
+        member.deductPoint(amount);
+
+        PointHistory history = PointHistory.deduct(
+                member,
+                amount,
+                description
+        );
+
+        pointHistoryRepository.save(history);
+    }
 }

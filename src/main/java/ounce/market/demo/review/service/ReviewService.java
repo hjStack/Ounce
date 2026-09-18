@@ -1,11 +1,14 @@
 package ounce.market.demo.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ounce.market.demo.member.entity.Member;
 import ounce.market.demo.member.repository.MemberRepository;
+import ounce.market.demo.point.entity.PointHistory;
+import ounce.market.demo.point.repository.PointHistoryRepository;
 import ounce.market.demo.product.entity.Product;
 import ounce.market.demo.product.repository.ProductRepository;
 import ounce.market.demo.review.dto.request.ReviewCreateRequest;
@@ -30,6 +33,7 @@ public class ReviewService {
     private final PointService pointService;
     private final S3UploadService s3UploadService;
     private final ImageUrlResolver imageUrlResolver;
+    private final PointHistoryRepository pointHistoryRepository;
 
     @Transactional
     public Long createReview(String email, Long productId, ReviewCreateRequest request)
@@ -69,6 +73,7 @@ public class ReviewService {
         return reviewId;
     }
 
+    @Transactional(readOnly = true)
     public List<ReviewResponse> getReviewsByProduct(Long productId) {
         return reviewRepository.findByProductIdWithMember(productId).stream()
                 .map(review -> ReviewResponse.from(review, imageUrlResolver))
@@ -92,6 +97,43 @@ public class ReviewService {
                 member,
                 reward,
                 review.getImageUrl() == null ? "리뷰 삭제로 적립금 회수" : "사진 리뷰 삭제로 적립금 회수");
+        reviewRepository.delete(review);
+    }
+
+    // 관리자 리뷰 전체 조회
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getAllReviews() {
+        return reviewRepository.findAll(
+                        Sort.by(Sort.Direction.DESC, "createdAt")
+                )
+                .stream()
+                .map(ReviewResponse::from)
+                .toList();
+    }
+
+
+    @Transactional
+    public void deleteReviewByAdmin(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
+
+        Member member = review.getMember();
+
+        int reward = review.getImageUrl() != null
+                && !review.getImageUrl().isBlank()
+                ? 500
+                : 300;
+
+        member.deductPoint(reward);
+
+        pointHistoryRepository.save(
+                PointHistory.deduct(
+                        member,
+                        reward,
+                        "관리자 리뷰 삭제에 따른 포인트 회수"
+                )
+        );
+
         reviewRepository.delete(review);
     }
 }

@@ -4,8 +4,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,4 +46,19 @@ public class PointController {
 
         return ResponseEntity.ok(pointService.getMyHistories(userDetails.getUsername(), pageable));
     }
+
+    // 관리자 포인트 조회
+    @GetMapping("/admin/histories")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<PointHistoryResponse>> getAllHistories(
+            @PageableDefault(
+                    size = 20,
+                    sort = "pointHistoryId",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(pointService.getAllHistories(pageable));
+    }
+
 }

@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,4 +74,22 @@ public class ReviewController {
         reviewService.deleteReview(email, reviewId);
         return ResponseEntity.noContent().build();
     }
+
+    // 관리자 리뷰 조회
+    @GetMapping("/api/admin/reviews")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ReviewResponse>> getAllReviews() {
+        return ResponseEntity.ok(reviewService.getAllReviews());
+    }
+
+    // 관리자 리뷰 삭제
+    @DeleteMapping("/api/admin/reviews/{reviewId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteReviewByAdmin(
+            @PathVariable Long reviewId
+    ) {
+        reviewService.deleteReviewByAdmin(reviewId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
