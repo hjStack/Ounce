@@ -82,6 +82,7 @@ public class Member extends BaseEntity {
         this.email = "withdrawn_" + this.memberId + "@ounce.deleted";
         this.name = "탈퇴회원";
         this.password = "WITHDRAWN";
+        this.role=Role.USER;
     }
 
     public void changePassword(String encodedPassword) {

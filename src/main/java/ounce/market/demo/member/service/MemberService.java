@@ -1,6 +1,7 @@
 package ounce.market.demo.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -37,6 +38,7 @@ public class MemberService {
     private final CartRepository cartRepository; // 💡 장바구니 창고 직원 추가
     private final CartProductRepository cartProductRepository;
     private final ReviewRepository reviewRepository;
+    private final RedisTemplate redisTemplate;
 
     // todo 관리자 권한 로직 및 버튼 만들기
     // todo n+1 문제 발생 -> 해결하기
@@ -139,6 +141,7 @@ public class MemberService {
                 });
 
         member.withdraw();
+        redisTemplate.delete("refresh:" +email);
     }
 
 }

@@ -3,6 +3,7 @@ package ounce.market.demo.member.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import ounce.market.demo.member.entity.Member;
+import ounce.market.demo.member.entity.Role;
 
 // 🎁 서버 -> 프론트 (응답)
 @Getter
@@ -13,6 +14,7 @@ public class MemberResponse {
     private int point;
     private String name;
     private String grade;
+    private Role role;
 
     // Entity -> DTO 변환 편의 메서드
     public static MemberResponse from(Member member,String grade) {
@@ -22,7 +24,7 @@ public class MemberResponse {
                 member.getEmail(),
                 member.getPoint(),
                 member.getName(),
-                grade
+                grade,member.getRole()
         );
     }
 }

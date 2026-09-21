@@ -75,7 +75,7 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    // 관리자 리뷰 조회
+    // 관리자 리뷰 전체 조회
     @GetMapping("/api/admin/reviews")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ReviewResponse>> getAllReviews() {
