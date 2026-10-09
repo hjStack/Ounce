@@ -22,7 +22,8 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 //    @Query("SELECT t FROM TimeDeal t JOIN FETCH t.product")
 //    List<TimeDeal> findAllWithProductForTest();
 
-    List<TimeDeal> findByStartTime(LocalDateTime startTime);
+    @Query("SELECT t FROM TimeDeal t JOIN FETCH t.product WHERE t.startTime = :startTime")
+    List<TimeDeal> findByStartTime(@Param("startTime") LocalDateTime startTime);
 
     boolean existsByStartTime(LocalDateTime startTime);
 

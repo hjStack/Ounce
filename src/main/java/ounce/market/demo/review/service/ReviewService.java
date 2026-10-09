@@ -103,7 +103,7 @@ public class ReviewService {
     // 관리자 리뷰 전체 조회
     @Transactional(readOnly = true)
     public List<ReviewResponse> getAllReviews() {
-        return reviewRepository.findAll(
+        return reviewRepository.findAllWithMemberAndProduct(
                         Sort.by(Sort.Direction.DESC, "createdAt")
                 )
                 .stream()

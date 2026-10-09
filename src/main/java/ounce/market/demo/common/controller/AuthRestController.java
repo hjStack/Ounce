@@ -62,7 +62,7 @@ public class AuthRestController {
         }
 
         // 4. 새 access token 발급
-        String newAccessToken = jwtUtil.createAccessToken(email, member.getRole().name());
+        String newAccessToken = jwtUtil.createAccessToken(email, "ROLE_" + member.getRole().name());
 
         ResponseCookie cookie = ResponseCookie.from(accessCookieName, newAccessToken)
                 .path("/")

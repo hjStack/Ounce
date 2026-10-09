@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import ounce.market.demo.common.OAuth.CustomOAuth2UserService;
 import ounce.market.demo.common.OAuth.OAuth2SuccessHandler;
 import ounce.market.demo.common.filter.JwtFilter;
@@ -45,10 +47,19 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        // The token is intentionally readable by the browser so the frontend can
+        // copy it into the X-XSRF-TOKEN header for state-changing requests.
+        return CookieCsrfTokenRepository.withHttpOnlyFalse();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(csrfTokenRepository())
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -62,12 +73,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/members/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ROLE_ADMIN")
                         // 관리자 화면(/admin/qna 등)도 API 와 같은 권한으로 막는다.
                         // 안 적으면 anyRequest 로 떨어져서 로그인한 일반 회원도 화면이 열린다.
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/products/search").permitAll()
                         .requestMatchers("/timedeal").permitAll()   // 미드나이트 페이지 자체도 열기
@@ -77,14 +88,15 @@ public class SecurityConfig {
                         .requestMatchers("/support").permitAll()
                         .requestMatchers("/api/products/**", "/products/**", "/products-detail/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/timedeal").permitAll()          // 조회는 누구나
-                        .requestMatchers("/api/timedeal/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/timedeal/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/timedeal/purchase/**").authenticated()         // 구매는 로그인
                         .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         .requestMatchers("/policy.html").permitAll()
                         .requestMatchers("/terms.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/*/reviews").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/images/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/images/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/carts/**").authenticated()
                         .requestMatchers("/api/coupons/**").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
