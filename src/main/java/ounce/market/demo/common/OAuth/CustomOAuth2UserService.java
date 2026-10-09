@@ -83,7 +83,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .getUserNameAttributeName();
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(member.getRole().name())),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + member.getRole().name())),
                 oAuth2User.getAttributes(),
                 userNameAttributeName // 구글의 경우 자동으로 "sub"가 들어갑니다.
         );

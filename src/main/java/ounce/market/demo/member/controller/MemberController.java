@@ -29,6 +29,10 @@ import ounce.market.demo.order.entity.OrderStatus;
 import ounce.market.demo.order.repository.OrderRepository;
 
 import java.util.concurrent.TimeUnit;
+import jakarta.servlet.http.HttpServletRequest;
+import ounce.market.demo.funnel.entity.FunnelEventType;
+import ounce.market.demo.funnel.service.FunnelEventService;
+import java.util.Map;
 @Tag(name = "01-0. 회원", description = "회원가입, 로그인, 로그아웃")
 @Slf4j
 @RestController
@@ -43,6 +47,7 @@ public class MemberController {
      private final JWTUtil jwtUtil;
      private final AuthTokenService  authTokenService;
      private final PasswordResetService passwordResetService;
+     private final FunnelEventService eventService;
 
     @Value("${app.cookie.access-name}")
     private String accessCookieName;
@@ -56,7 +61,8 @@ public class MemberController {
     // 회원가입
     @PostMapping("/signup")
     @Operation(summary = "회원가입")
-    public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request, HttpServletResponse response) {
+    public ResponseEntity<Void> signup(@Valid @RequestBody MemberCreateRequest request,
+                                       HttpServletResponse response, HttpServletRequest httpRequest) {
         // @Valid를 통과했다면 이곳의 코드가 실행됩니다!
         Member member = memberService.signup(request);
 
@@ -65,6 +71,9 @@ public class MemberController {
         redisTemplate.opsForValue().set("refresh:" + email, refreshToken, 14, TimeUnit.DAYS);
 
         authTokenService.issue(email, response, "ROLE_" + member.getRole());
+        // 유저 퍼널에서 이벤트 로그 활용하기 위함
+        eventService.record(FunnelEventType.SIGNUP, httpRequest, response, member.getMemberId(),
+                Map.of());
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

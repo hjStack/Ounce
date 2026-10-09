@@ -20,6 +20,11 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 import ounce.market.demo.member.entity.Member;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import ounce.market.demo.funnel.entity.FunnelEventType;
+import ounce.market.demo.funnel.service.FunnelEventService;
+import java.util.Map;
 
 /*
 todo 7/2 -> 회원가입시 장바구니 즉시 생성 로직 작성 -> 완료
@@ -35,13 +40,15 @@ public class CartController {
     private final CartService cartService;
     private final MemberRepository memberRepository;
     private final CartProductRepository cartProductRepository;
+    private final FunnelEventService eventService;
 
     @PostMapping("/items")
     @Operation(summary = "장바구니 상품 추가")
     public ResponseEntity<?> addCartItem(
             Authentication authentication,
             @RequestParam Long productId,
-            @RequestParam(defaultValue = "1") int quantity) {
+            @RequestParam(defaultValue = "1") int quantity,
+            HttpServletRequest request, HttpServletResponse response) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
@@ -52,6 +59,8 @@ public class CartController {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         cartService.addCartItem(member.getMemberId(), productId, quantity);
+        eventService.record(FunnelEventType.CART_ADD, request, response, member.getMemberId(),
+                Map.of("product_id", productId, "quantity", quantity));
         return ResponseEntity.ok().build();
     }
 
